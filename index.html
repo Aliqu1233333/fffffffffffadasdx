@@ -16,9 +16,32 @@
   </head>
   <body>
     <div class="card">
-      <div class="title">
-        <b>Einstein Scoring &amp; Update 💭</b>
-        <span class="accent" id="score"></span>
+<div class="card" style="display:flex; gap:16px; align-items:flex-start;">
+  <!-- Einstein Image -->
+  <img
+    src="./einstein.png"
+    alt="Einstein"
+    style="width:120px; height:auto; flex-shrink:0;"
+  />
+
+  <!-- Content -->
+  <div style="flex:1;">
+
+    <div class="title">
+      <b>Einstein Scoring &amp; Update 💭</b>
+      <span class="accent" id="score"></span>
+    </div>
+
+    <div class="label">🟢 <b>Top Positives</b></div>
+    <ul id="positives"></ul>
+
+    <div class="label">🔴 <b>Top Negatives</b></div>
+    <ul id="negatives"></ul>
+
+    <div class="small" id="updated"></div>
+
+  </div>
+</div>
       </div>
 
       <div class="label">🟢 <b>Top Positives</b></div>
