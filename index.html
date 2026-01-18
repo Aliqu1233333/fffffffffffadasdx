@@ -19,10 +19,10 @@
         --neg:#ef4444;
       }
 
-      /* Salesforce-ish font stack (similar feel to Salesforce Sans) */
+      /* Salesforce-like unified font stack */
       body{
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
-                     "Liberation Sans", sans-serif;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+                     Arial, "Noto Sans", "Liberation Sans", sans-serif;
         margin: 16px;
         background: transparent;
         color: var(--ink);
@@ -40,18 +40,18 @@
 
       .header{
         position: relative;
-        padding: 14px 14px 12px 14px;
+        padding: 14px;
         background: linear-gradient(180deg, var(--header1), var(--header2));
       }
 
       .headerRow{
         display: flex;
         align-items: center;
-        gap: 10px;
-        padding-right: 86px; /* room for avatar */
+        gap: 12px;
+        padding-right: 86px;
       }
 
-      /* Bigger score number */
+      /* Score: same font, slightly heavier but not bold */
       .scorePill{
         width: 44px;
         height: 44px;
@@ -59,31 +59,34 @@
         display:flex;
         align-items:center;
         justify-content:center;
-        font-weight: 800;
-        font-size: 18px;
-        letter-spacing: -0.2px;
+        font-weight: 600;
+        font-size: 17px;
+        letter-spacing: -0.3px;
         background: #fff;
         border: 1px solid rgba(0,0,0,.08);
-        color: var(--neg); /* default; updated dynamically */
+        color: var(--neg);
         flex: 0 0 auto;
       }
 
       .titleWrap{
         display:flex;
         flex-direction:column;
-        line-height: 1.1;
+        line-height: 1.15;
       }
 
+      /* Title: semibold, not bold */
       .title{
-        font-weight: 800;
-        font-size: 16px;
+        font-weight: 600;
+        font-size: 15px;
         margin: 0;
+        letter-spacing: -0.2px;
       }
 
       .subtitle{
         font-size: 12px;
         color: var(--muted);
         margin-top: 2px;
+        font-weight: 400;
       }
 
       .avatar{
@@ -97,10 +100,9 @@
       }
 
       .content{
-        padding: 12px 12px 14px 12px;
+        padding: 12px;
       }
 
-      /* Section container wraps the whole set (header + list) */
       .section{
         border: 1px solid var(--border);
         border-radius: 12px;
@@ -109,19 +111,22 @@
         margin-top: 10px;
       }
 
+      /* Section headers: same font, medium weight */
       .sectionHeader{
         background: var(--bar);
         padding: 9px 10px;
-        font-weight: 800;
+        font-weight: 600;
+        font-size: 13px;
         display:flex;
         align-items:center;
         gap: 8px;
         border-bottom: 1px solid var(--border);
+        letter-spacing: -0.1px;
       }
 
       .dot{
-        width: 10px;
-        height: 10px;
+        width: 9px;
+        height: 9px;
         border-radius: 999px;
         display:inline-block;
         box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
@@ -130,18 +135,20 @@
       .dot.neg{ background: var(--neg); }
 
       .sectionBody{
-        padding: 10px 12px 12px 12px;
+        padding: 10px 12px;
       }
 
       .sectionList{
         margin: 0;
         padding: 0 0 0 18px;
-        line-height: 1.3;
+        line-height: 1.35;
+        font-size: 13px;
       }
 
       .sectionList li{
         margin: 6px 0;
         color: var(--ink);
+        font-weight: 400;
       }
 
       .negatives li{
@@ -177,7 +184,7 @@
 
         <div class="section">
           <div class="sectionHeader">
-            <span class="dot pos" aria-hidden="true"></span>
+            <span class="dot pos"></span>
             <span>Top Positives</span>
           </div>
           <div class="sectionBody">
@@ -187,7 +194,7 @@
 
         <div class="section">
           <div class="sectionHeader">
-            <span class="dot neg" aria-hidden="true"></span>
+            <span class="dot neg"></span>
             <span>Top Negatives</span>
           </div>
           <div class="sectionBody">
@@ -211,31 +218,19 @@
           return r.json();
         })
         .then(data => {
-          // Score pill
           const pill = document.getElementById("scorePill");
           const s = Number(data.score ?? 0);
           pill.textContent = (data.score ?? "--");
-
-          // Color logic
           pill.style.color = (s >= 80) ? "#16a34a" : (s >= 50) ? "#f59e0b" : "#ef4444";
 
-          // Positives
-          const pos = document.getElementById("positives");
-          pos.innerHTML = (data.positives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+          document.getElementById("positives").innerHTML =
+            (data.positives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
 
-          // Negatives
-          const neg = document.getElementById("negatives");
-          neg.innerHTML = (data.negatives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+          document.getElementById("negatives").innerHTML =
+            (data.negatives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
 
-          // Updated
           document.getElementById("updated").textContent =
             data.updated_at ? `Last updated: ${data.updated_at}` : "";
-        })
-        .catch(err => {
-          document.getElementById("positives").innerHTML = "";
-          document.getElementById("negatives").innerHTML = `<li>${escapeHtml(err.message)}</li>`;
-          const pill = document.getElementById("scorePill");
-          if (pill) pill.textContent = "--";
         });
 
       function escapeHtml(s) {
