@@ -4,53 +4,157 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Einstein Advice</title>
+
     <style>
-      body { font-family: Syntax, sans-serif; margin: 16px; background: white; }
-      .card { border: 0; border-radius: 12px; padding: 16px; max-width: 720px; }
-      .accent { color: #364a6a; font-weight: 700; }
-      ul { margin: 8px 0 16px 20px; padding: 0; }
-      .title { font-size: 18px; margin-bottom: 10px; }
-      .label { font-weight: 700; margin-top: 10px; }
-      .small { font-size: 12px; color: #777; margin-top: 12px; }
+      :root{
+        --ink:#111827;
+        --muted:#6b7280;
+        --border:#e5e7eb;
+        --panel:#ffffff;
+        --bar:#f3f4f6;
+        --accent:#364a6a;
+        --header1:#d8efff;
+        --header2:#bfe2ff;
+      }
+
+      body{
+        font-family: Arial, sans-serif;
+        margin: 16px;
+        background: transparent;
+        color: var(--ink);
+      }
+
+      .card{
+        width: 520px;
+        max-width: 100%;
+        background: var(--panel);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 10px 25px rgba(0,0,0,.08);
+      }
+
+      .header{
+        position: relative;
+        padding: 14px 14px 12px 14px;
+        background: linear-gradient(180deg, var(--header1), var(--header2));
+      }
+
+      .headerRow{
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding-right: 86px; /* room for avatar */
+      }
+
+      .scorePill{
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight: 800;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,.08);
+        color: #ef4444; /* default red; updated dynamically */
+        flex: 0 0 auto;
+      }
+
+      .titleWrap{
+        display:flex;
+        flex-direction:column;
+        line-height: 1.1;
+      }
+
+      .title{
+        font-weight: 800;
+        font-size: 16px;
+        margin: 0;
+      }
+
+      .subtitle{
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 2px;
+      }
+
+      .avatar{
+        position:absolute;
+        right: 10px;
+        top: 8px;
+        width: 70px;
+        height: 70px;
+        object-fit: contain;
+        pointer-events:none;
+      }
+
+      .content{
+        padding: 12px 12px 14px 12px;
+      }
+
+      .sectionBar{
+        background: var(--bar);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px 10px;
+        font-weight: 800;
+        display:flex;
+        align-items:center;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .sectionList{
+        margin: 8px 0 0 0;
+        padding: 0 0 0 18px;
+      }
+
+      .sectionList li{
+        margin: 6px 0;
+        color: var(--ink);
+      }
+
+      .negatives li{
+        color: #374151;
+      }
+
+      .note{
+        margin-top: 12px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      ul { line-height: 1.25; }
     </style>
   </head>
+
   <body>
     <div class="card">
-<div class="card" style="display:flex; gap:16px; align-items:flex-start;">
-  <!-- Einstein Image -->
-  <img
-    src="./einstein.png"
-    alt="Einstein"
-    style="width:120px; height:auto; flex-shrink:0;"
-  />
 
-  <!-- Content -->
-  <div style="flex:1;">
+      <div class="header">
+        <div class="headerRow">
+          <div class="scorePill" id="scorePill">--</div>
 
-    <div class="title">
-      <b>Einstein Scoring &amp; Update 💭</b>
-      <span class="accent" id="score"></span>
-    </div>
+          <div class="titleWrap">
+            <div class="title">Einstein Scoring</div>
+            <div class="subtitle">Sales advice &amp; risk flags</div>
+          </div>
+        </div>
 
-    <div class="label">🟢 <b>Top Positives</b></div>
-    <ul id="positives"></ul>
-
-    <div class="label">🔴 <b>Top Negatives</b></div>
-    <ul id="negatives"></ul>
-
-    <div class="small" id="updated"></div>
-
-  </div>
-</div>
+        <img class="avatar" src="./einstein.png" alt="Einstein" />
       </div>
 
-      <div class="label">🟢 <b>Top Positives</b></div>
-      <ul id="positives"></ul>
+      <div class="content">
+        <div class="sectionBar">🟢 <span>Top Positives</span></div>
+        <ul class="sectionList" id="positives"></ul>
 
-      <div class="label">🔴 <b>Top Negatives</b></div>
-      <ul id="negatives"></ul>
+        <div class="sectionBar">🔴 <span>Top Negatives</span></div>
+        <ul class="sectionList negatives" id="negatives"></ul>
 
-      <div class="small" id="updated"></div>
+        <div class="note" id="updated"></div>
+      </div>
+
     </div>
 
     <script>
@@ -64,20 +168,31 @@
           return r.json();
         })
         .then(data => {
-          document.getElementById("score").textContent = data.score ? `  Score ${data.score}` : "";
+          // Score pill
+          const pill = document.getElementById("scorePill");
+          const s = Number(data.score ?? 0);
+          pill.textContent = (data.score ?? "--");
 
+          // Einstein-like color logic (tweak as desired)
+          pill.style.color = (s >= 80) ? "#16a34a" : (s >= 50) ? "#f59e0b" : "#ef4444";
+
+          // Positives
           const pos = document.getElementById("positives");
           pos.innerHTML = (data.positives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
 
+          // Negatives
           const neg = document.getElementById("negatives");
-          neg.innerHTML = (data.negatives || []).map(x => `<li><span class="accent">${escapeHtml(x)}</span></li>`).join("");
+          neg.innerHTML = (data.negatives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
 
+          // Updated
           document.getElementById("updated").textContent =
             data.updated_at ? `Last updated: ${data.updated_at}` : "";
         })
         .catch(err => {
           document.getElementById("positives").innerHTML = "";
           document.getElementById("negatives").innerHTML = `<li>${escapeHtml(err.message)}</li>`;
+          const pill = document.getElementById("scorePill");
+          if (pill) pill.textContent = "--";
         });
 
       function escapeHtml(s) {
