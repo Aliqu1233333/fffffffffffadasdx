@@ -13,8 +13,6 @@
         --panel:#ffffff;
         --bar:#f3f4f6;
         --accent:#364a6a;
-        --header1:#d8efff;
-        --header2:#bfe2ff;
         --pos:#16a34a;
         --warn:#f59e0b;
         --neg:#ef4444;
@@ -38,20 +36,36 @@
         box-shadow: 0 10px 25px rgba(0,0,0,.08);
       }
 
+      /* HEADER WITH IMAGE BACKGROUND */
       .header{
         position: relative;
-        padding: 14px;
-        background: linear-gradient(180deg, var(--header1), var(--header2));
+        padding: 16px;
+        background-image: url("./clouds.jpg"); /* ← change filename if needed */
+        background-size: cover;
+        background-position: center;
+      }
+
+      /* subtle overlay to keep text readable */
+      .header::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        background: linear-gradient(
+          rgba(255,255,255,0.75),
+          rgba(255,255,255,0.9)
+        );
       }
 
       .headerRow{
+        position: relative;
         display: flex;
         align-items: center;
         gap: 14px;
-        padding-right: 86px;
+        padding-right: 100px;
+        z-index: 1;
       }
 
-      /* Score ring */
+      /* SCORE RING */
       .scorePill{
         width: 46px;
         height: 46px;
@@ -67,7 +81,7 @@
         font-weight: 600;
         font-size: 19px;
         letter-spacing: -0.3px;
-        color: var(--ink); /* keep neutral */
+        color: var(--ink);
         flex: 0 0 auto;
       }
 
@@ -89,14 +103,16 @@
         margin-top: 2px;
       }
 
+      /* SLIGHTLY BIGGER EINSTEIN */
       .avatar{
         position:absolute;
-        right: 10px;
-        top: 8px;
-        width: 70px;
-        height: 70px;
+        right: 6px;
+        top: -6px;
+        width: 86px;   /* was ~70 */
+        height: 86px;
         object-fit: contain;
         pointer-events:none;
+        z-index: 2;
       }
 
       .content{
