@@ -40,7 +40,7 @@
 
       .header{
         position: relative;
-        padding: 28px 18px 24px 18px; /* slightly taller header */
+        padding: 28px 18px 24px 18px;
         background-image: url("./Background.png");
         background-size: cover;
         background-position: center;
@@ -50,7 +50,6 @@
         border-top-right-radius: 8px;
       }
 
-      /* Slightly less washed Salesforce-style overlay */
       .header::after{
         content:"";
         position:absolute;
@@ -71,7 +70,6 @@
         z-index: 2;
       }
 
-      /* ====== SCORE PROGRESS RING (SVG) ====== */
       .scoreWrap{
         width: 60px;
         height: 60px;
@@ -79,7 +77,6 @@
         flex: 0 0 auto;
       }
 
-      /* White backing plate so banner never bleeds through */
       .scorePlate{
         position: absolute;
         inset: 0;
@@ -98,17 +95,17 @@
         z-index: 1;
       }
 
-      /* Thinner ring to match Salesforce example */
+      /* EVEN THINNER RING */
       .scoreTrack{
         fill: none;
         stroke: rgba(17,24,39,0.10);
-        stroke-width: 4; /* thinner */
+        stroke-width: 3px;
       }
 
       .scoreProgress{
         fill: none;
         stroke: var(--neg);
-        stroke-width: 4; /* thinner */
+        stroke-width: 3px;
         stroke-linecap: round;
         stroke-dasharray: 0;
         stroke-dashoffset: 0;
@@ -126,9 +123,10 @@
         z-index: 2;
       }
 
+      /* SCORE 1PT SMALLER */
       .scoreNumber{
         font-weight: 600;
-        font-size: 24px; /* tiny bump */
+        font-size: 23px;
         letter-spacing: -0.4px;
         color: var(--ink);
         line-height: 1;
@@ -140,7 +138,6 @@
         line-height: 1.2;
       }
 
-      /* Slightly bigger title + subtitle */
       .title{
         font-weight: 600;
         font-size: 19px;
@@ -177,7 +174,6 @@
         margin-top: 12px;
       }
 
-      /* Slightly bigger section headers */
       .sectionHeader{
         background: var(--bar);
         padding: 12px 12px;
@@ -202,12 +198,12 @@
         padding: 13px 14px;
       }
 
-      /* Slightly bigger list text */
+      /* CONTEXT 1PT BIGGER */
       .sectionList{
         margin: 0;
         padding: 0 0 0 18px;
-        font-size: 16px;
-        line-height: 1.55;
+        font-size: 17px;
+        line-height: 1.6;
       }
 
       .sectionList li{
@@ -224,12 +220,10 @@
     <div class="card">
       <div class="header">
         <div class="headerRow">
-          <!-- Progress Ring + Count-up number -->
-          <div class="scoreWrap" aria-label="Einstein Lead Score">
+          <div class="scoreWrap">
             <div class="scorePlate"></div>
 
-            <svg class="scoreSvg" viewBox="0 0 60 60" role="img" aria-hidden="true">
-              <!-- r=24 => circumference ~ 150.80 -->
+            <svg class="scoreSvg" viewBox="0 0 60 60">
               <circle class="scoreTrack" cx="30" cy="30" r="24"></circle>
               <circle class="scoreProgress" id="scoreProgress" cx="30" cy="30" r="24"></circle>
             </svg>
@@ -279,7 +273,6 @@
       const progressCircle = document.getElementById("scoreProgress");
       const scoreNumberEl = document.getElementById("scoreNumber");
 
-      // Circle geometry (must match r in SVG above)
       const r = 24;
       const circumference = 2 * Math.PI * r;
 
@@ -300,7 +293,6 @@
                          "#ef4444";
           progressCircle.style.stroke = ringColor;
 
-          // Slightly longer animation
           animateScore(s, 1100);
 
           document.getElementById("positives").innerHTML =
@@ -308,13 +300,6 @@
 
           document.getElementById("negatives").innerHTML =
             (data.negatives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
-        })
-        .catch(err => {
-          document.getElementById("positives").innerHTML = "";
-          document.getElementById("negatives").innerHTML = `<li>${escapeHtml(err.message)}</li>`;
-          scoreNumberEl.textContent = "0";
-          progressCircle.style.stroke = "#ef4444";
-          progressCircle.style.strokeDashoffset = `${circumference}`;
         });
 
       function animateScore(target, durationMs){
