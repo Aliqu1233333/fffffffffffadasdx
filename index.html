@@ -25,29 +25,32 @@
         color: var(--ink);
         font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
                      Arial, "Noto Sans", "Liberation Sans", sans-serif;
-        overflow: hidden; /* important for the bottom scrollbar */
+        overflow: hidden;
       }
 
-      /* Sharper corners overall */
+      /* Card container (sharper corners) */
       .card{
         width: 100%;
         max-width: 100%;
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 8px;
-        overflow: hidden;
+        overflow: visible; /* IMPORTANT: allow Einstein to hang outside header area */
         box-shadow: 0 10px 25px rgba(0,0,0,.08);
         box-sizing: border-box;
       }
 
-      /* Bigger banner like Salesforce */
+      /* Header banner image */
       .header{
         position: relative;
         padding: 26px 18px 22px 18px;
-        background-image: url("./clouds.JPG");
+        background-image: url("./Backround.png");
         background-size: cover;
         background-position: center;
         border-bottom: 1px solid var(--border);
+        overflow: visible; /* IMPORTANT: allow overhang */
+        border-top-left-radius: 8px;
+        border-top-right-radius: 8px;
       }
 
       /* Readability overlay */
@@ -56,9 +59,10 @@
         position:absolute;
         inset:0;
         background: linear-gradient(
-          rgba(255,255,255,0.68),
-          rgba(255,255,255,0.92)
+          rgba(255,255,255,0.55),
+          rgba(255,255,255,0.88)
         );
+        pointer-events: none;
       }
 
       .headerRow{
@@ -66,8 +70,8 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        padding-right: 112px;
-        z-index: 1;
+        padding-right: 140px; /* room for Einstein */
+        z-index: 2;
       }
 
       /* Score ring */
@@ -108,22 +112,27 @@
         margin-top: 2px;
       }
 
+      /* Einstein overlay (Salesforce-style hang over) */
       .avatar{
         position:absolute;
-        right: 8px;
-        top: -8px;
-        width: 94px;
-        height: 94px;
+        right: 10px;
+
+        /* This creates the "arm hanging over" effect */
+        bottom: -18px; /* adjust between -12 and -28 as needed */
+
+        width: 120px;
+        height: auto;
         object-fit: contain;
         pointer-events:none;
-        z-index: 2;
+
+        z-index: 3;
+        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
       }
 
       .content{
         padding: 14px;
       }
 
-      /* Slightly sharper inner cards */
       .section{
         border: 1px solid var(--border);
         border-radius: 8px;
@@ -147,7 +156,7 @@
         width: 10px;
         height: 10px;
         border-radius: 999px;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,.08);
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
       }
       .dot.pos{ background: var(--pos); }
       .dot.neg{ background: var(--neg); }
@@ -195,7 +204,8 @@
           </div>
         </div>
 
-        <img class="avatar" src="./einstein.png" alt="Einstein" />
+        <!-- NOTE: spaces in file names must be encoded as %20 -->
+        <img class="avatar" src="./New%20Einstein.png" alt="Einstein" />
       </div>
 
       <div class="content">
@@ -244,7 +254,7 @@
 
           /* re-trigger animation */
           pill.style.animation = "none";
-          pill.offsetHeight; // force reflow
+          pill.offsetHeight;
           pill.style.animation = "pop 0.25s ease-out";
 
           document.getElementById("positives").innerHTML =
