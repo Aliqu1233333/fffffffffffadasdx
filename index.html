@@ -1,352 +1,277 @@
 <!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Einstein Lead Score</title>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Opportunity Scoring - Einstein Lead Score</title>
+  <style>
+    :root{
+      --card-border:#e6eaef;
+      --card-bg:#ffffff;
+      --muted:#6b7280;
+      --text:#111827;
 
-    <style>
-      :root{
-        --ink:#111827;
-        --muted:#6b7280;
-        --border:#e5e7eb;
-        --panel:#ffffff;
-        --bar:#f3f4f6;
-        --pos:#16a34a;
-        --warn:#f59e0b;
-        --neg:#ef4444;
-      }
+      --ring-track:#eef2f7;
+      --ring-accent:#f59e0b;
 
-      html, body{
-        margin: 0;
-        padding: 0;
-        background: transparent;
-        color: var(--ink);
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-                     Arial, "Noto Sans", "Liberation Sans", sans-serif;
-        overflow: hidden;
-      }
+      --pos:#16a34a;
+      --neg:#ef4444;
 
-      .card{
-        width: 100%;
-        max-width: 100%;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        overflow: visible;
-        box-shadow: 0 10px 25px rgba(0,0,0,.08);
-        box-sizing: border-box;
-      }
+      --panel-bg:#f8fafc;
+      --panel-border:#e5e7eb;
+    }
 
-      .header{
-        position: relative;
-        padding: 26px 18px 22px 18px;
-        background-image: url("./Background.png");
-        background-size: cover;
-        background-position: center;
-        border-bottom: 1px solid var(--border);
-        overflow: visible;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
-      }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background:#f3f4f6;
+      color:var(--text);
+      padding:24px;
+    }
 
-      /* Slightly less washed Salesforce-style overlay */
-      .header::after{
-        content:"";
-        position:absolute;
-        inset:0;
-        background: linear-gradient(
-          rgba(255,255,255,0.45),
-          rgba(255,255,255,0.75)
-        );
-        pointer-events: none;
-      }
+    .card{
+      width: 520px;
+      max-width: 100%;
+      background:var(--card-bg);
+      border:1px solid var(--card-border);
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow: 0 1px 2px rgba(16,24,40,.06);
+    }
 
-      .headerRow{
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding-right: 140px;
-        z-index: 2;
-      }
+    .card-header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 14px;
+      font-weight:600;
+      font-size:16px;
+      border-bottom:1px solid var(--card-border);
+      background:#fff;
+    }
 
-      /* ====== SCORE PROGRESS RING (SVG) ====== */
-      .scoreWrap{
-        width: 60px;
-        height: 60px;
-        position: relative;
-        flex: 0 0 auto;
-      }
+    .header-actions{
+      display:flex;
+      gap:10px;
+      color:#9ca3af;
+      font-weight:500;
+      user-select:none;
+    }
+    .action{
+      width:18px;height:18px; display:inline-flex; align-items:center; justify-content:center;
+      border-radius:6px;
+    }
 
-      /* White backing plate so banner never bleeds through */
-      .scorePlate{
-        position: absolute;
-        inset: 0;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.98);
-        box-shadow: 0 0 0 2px rgba(255,255,255,0.95);
-      }
+    .hero{
+      position:relative;
+      padding:14px 14px 12px 14px;
+      background:
+        radial-gradient(1200px 280px at 20% 0%, rgba(255,255,255,.9) 0%, rgba(255,255,255,0) 55%),
+        linear-gradient(180deg, #bfe6ff 0%, #d8f1ff 60%, #ffffff 100%);
+    }
 
-      .scoreSvg{
-        position: absolute;
-        inset: 0;
-        width: 60px;
-        height: 60px;
-        display:block;
-        transform: rotate(-90deg);
-        z-index: 1;
-      }
+    .hero-row{
+      display:flex;
+      gap:14px;
+      align-items:center;
+    }
 
-      .scoreTrack{
-        fill: none;
-        stroke: rgba(17,24,39,0.12);
-        stroke-width: 6;
-      }
+    .ring-wrap{
+      width:56px;
+      height:56px;
+      flex:0 0 auto;
+      position:relative;
+    }
+    .ring-score{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:700;
+      font-size:16px;
+      color:#111827;
+    }
 
-      .scoreProgress{
-        fill: none;
-        stroke: var(--neg);
-        stroke-width: 6;
-        stroke-linecap: round;
-        stroke-dasharray: 0;
-        stroke-dashoffset: 0;
-        transition: stroke 200ms ease;
-      }
+    /* Title sizing tweaks requested */
+    .hero-title{
+      line-height:1.1;
+      font-size:15.5px;         /* slightly bigger */
+      font-weight:700;          /* slightly bolder */
+      margin:0;
+      color:#111827;
+      letter-spacing:.1px;
+    }
+    .hero-subtitle{
+      margin:3px 0 0 0;
+      font-size:12.5px;         /* slightly bigger */
+      font-weight:600;          /* slightly bolder */
+      color:var(--muted);
+    }
 
-      .scoreCenter{
-        position:absolute;
-        inset: 0;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border-radius: 999px;
-        background: transparent;
-        z-index: 2;
-      }
+    .mascot{
+      margin-left:auto;
+      width:84px;
+      height:46px;
+      opacity:.95;
+      flex:0 0 auto;
+    }
 
-      .scoreNumber{
-        font-weight: 600;
-        font-size: 23px;
-        letter-spacing: -0.4px;
-        color: var(--ink);
-        line-height: 1;
-      }
+    .sections{
+      padding:12px 14px 14px 14px;
+      background:#fff;
+    }
 
-      .titleWrap{
-        display:flex;
-        flex-direction:column;
-        line-height: 1.2;
-      }
+    .section{
+      border:1px solid var(--panel-border);
+      background:var(--panel-bg);
+      border-radius:10px;
+      overflow:hidden;
+      margin-top:10px;
+    }
+    .section:first-child{margin-top:0}
 
-      .title{
-        font-weight: 600;
-        font-size: 18px;
-        letter-spacing: -0.2px;
-      }
+    .section-head{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:10px 12px;
+      font-weight:700;
+      font-size:13.5px;
+      color:#111827;
+      background:rgba(255,255,255,.45);
+      border-bottom:1px solid rgba(229,231,235,.9);
+    }
 
-      .subtitle{
-        font-size: 14px;
-        color: var(--muted);
-        margin-top: 2px;
-      }
+    .dot{
+      width:9px;height:9px;border-radius:50%;
+      background:var(--pos);
+      box-shadow: 0 0 0 3px rgba(22,163,74,.10);
+      flex:0 0 auto;
+    }
+    .dot.neg{
+      background:var(--neg);
+      box-shadow: 0 0 0 3px rgba(239,68,68,.10);
+    }
 
-      .avatar{
-        position:absolute;
-        right: 10px;
-        bottom: -10px;
-        width: 120px;
-        height: auto;
-        object-fit: contain;
-        pointer-events:none;
-        z-index: 3;
-        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
-      }
+    .bullets{
+      margin:0;
+      padding:10px 18px 12px 32px;
+      color:#111827;
+      font-size:13.5px;
+    }
+    .bullets li{
+      margin:6px 0;
+    }
+    .bullets li span{
+      color:#111827;
+    }
 
-      .content{
-        padding: 14px;
-      }
-
-      .section{
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        overflow: hidden;
-        background: #fff;
-        margin-top: 12px;
-      }
-
-      .sectionHeader{
-        background: var(--bar);
-        padding: 11px 12px;
-        font-weight: 600;
-        font-size: 15px;
-        display:flex;
-        align-items:center;
-        gap: 8px;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .dot{
-        width: 10px;
-        height: 10px;
-        border-radius: 999px;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
-      }
-      .dot.pos{ background: var(--pos); }
-      .dot.neg{ background: var(--neg); }
-
-      .sectionBody{
-        padding: 12px 14px;
-      }
-
-      .sectionList{
-        margin: 0;
-        padding: 0 0 0 18px;
-        font-size: 15px;
-        line-height: 1.5;
-      }
-
-      .sectionList li{
-        margin: 6px 0;
-      }
-
-      .negatives li{
-        color: #374151;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="card">
-      <div class="header">
-        <div class="headerRow">
-          <!-- Progress Ring + Count-up number -->
-          <div class="scoreWrap" aria-label="Einstein Lead Score">
-            <div class="scorePlate"></div>
-
-            <svg class="scoreSvg" viewBox="0 0 60 60" role="img" aria-hidden="true">
-              <!-- r=24 => circumference ~ 150.80 -->
-              <circle class="scoreTrack" cx="30" cy="30" r="24"></circle>
-              <circle class="scoreProgress" id="scoreProgress" cx="30" cy="30" r="24"></circle>
-            </svg>
-
-            <div class="scoreCenter">
-              <div class="scoreNumber" id="scoreNumber">0</div>
-            </div>
-          </div>
-
-          <div class="titleWrap">
-            <div class="title">Einstein Lead Score</div>
-            <div class="subtitle">Sales advice &amp; risk flags</div>
-          </div>
-        </div>
-
-        <img class="avatar" src="./New%20Einstein.png" alt="Einstein" />
-      </div>
-
-      <div class="content">
-        <div class="section">
-          <div class="sectionHeader">
-            <span class="dot pos"></span>
-            <span>Top Positives</span>
-          </div>
-          <div class="sectionBody">
-            <ul class="sectionList" id="positives"></ul>
-          </div>
-        </div>
-
-        <div class="section">
-          <div class="sectionHeader">
-            <span class="dot neg"></span>
-            <span>Top Negatives</span>
-          </div>
-          <div class="sectionBody">
-            <ul class="sectionList negatives" id="negatives"></ul>
-          </div>
-        </div>
+    /* SVG ring: thinner + closer to border (bigger radius) */
+    .ring svg{display:block}
+  </style>
+</head>
+<body>
+  <div class="card" role="region" aria-label="Opportunity Scoring Card">
+    <div class="card-header">
+      <div>Opportunity Scoring</div>
+      <div class="header-actions" aria-hidden="true">
+        <span class="action">⤢</span>
+        <span class="action">✕</span>
       </div>
     </div>
 
-    <script>
-      const params = new URLSearchParams(location.search);
-      const dealId = params.get("deal_id") || "TEST-1";
-      const url = `./data/${encodeURIComponent(dealId)}.json`;
+    <div class="hero">
+      <div class="hero-row">
+        <!-- Score ring -->
+        <div class="ring-wrap ring" aria-label="Lead score 55 out of 100">
+          <!--
+            Ring math:
+            r=24 puts the stroke closer to the outer edge inside 56x56 viewBox (center 28).
+            stroke-width=4 makes it thinner / modern.
+          -->
+          <svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true">
+            <g transform="rotate(-90 28 28)">
+              <!-- track -->
+              <circle cx="28" cy="28" r="24"
+                      fill="none"
+                      stroke="var(--ring-track)"
+                      stroke-width="4"
+                      stroke-linecap="round"/>
+              <!-- progress (55%) -->
+              <circle cx="28" cy="28" r="24"
+                      fill="none"
+                      stroke="var(--ring-accent)"
+                      stroke-width="4"
+                      stroke-linecap="round"
+                      stroke-dasharray="150.79644737231007"
+                      stroke-dashoffset="67.85840131753953"/>
+            </g>
+          </svg>
+          <div class="ring-score">55</div>
+        </div>
 
-      const progressCircle = document.getElementById("scoreProgress");
-      const scoreNumberEl = document.getElementById("scoreNumber");
+        <!-- Titles -->
+        <div>
+          <p class="hero-title">Einstein Lead Score</p>
+          <p class="hero-subtitle">Sales advice &amp; risk flags</p>
+        </div>
 
-      // Circle geometry (must match r in SVG above)
-      const r = 24;
-      const circumference = 2 * Math.PI * r;
+        <!-- Tiny inline mascot (no external assets needed) -->
+        <svg class="mascot" viewBox="0 0 140 76" aria-hidden="true">
+          <defs>
+            <linearGradient id="coat" x1="0" x2="1">
+              <stop offset="0" stop-color="#f3f4f6"/>
+              <stop offset="1" stop-color="#e5e7eb"/>
+            </linearGradient>
+          </defs>
+          <!-- hair -->
+          <path d="M72 8c-18 0-28 12-30 20 8-5 18-8 30-8s22 3 30 8c-2-8-12-20-30-20z"
+                fill="#ffffff" stroke="#e5e7eb" stroke-width="2" />
+          <!-- head -->
+          <circle cx="70" cy="34" r="16" fill="#fde68a" stroke="#f59e0b" stroke-width="2"/>
+          <!-- eyes -->
+          <circle cx="64" cy="34" r="2.2" fill="#111827"/>
+          <circle cx="76" cy="34" r="2.2" fill="#111827"/>
+          <!-- mustache -->
+          <path d="M57 43c5-4 11-4 13 0 2-4 8-4 13 0"
+                fill="none" stroke="#111827" stroke-width="2.5" stroke-linecap="round"/>
+          <!-- coat -->
+          <path d="M46 74c2-18 12-26 24-26s22 8 24 26"
+                fill="url(#coat)" stroke="#d1d5db" stroke-width="2"/>
+        </svg>
+      </div>
+    </div>
 
-      progressCircle.style.strokeDasharray = `${circumference}`;
-      progressCircle.style.strokeDashoffset = `${circumference}`;
+    <div class="sections">
+      <div class="section">
+        <div class="section-head">
+          <span class="dot"></span>
+          <span>Top Positives</span>
+        </div>
+        <ul class="bullets">
+          <li><span>Almost all owners have been contacted</span></li>
+        </ul>
+      </div>
 
-      fetch(url, { cache: "no-store" })
-        .then(r => {
-          if (!r.ok) throw new Error(`Missing data file: data/${dealId}.json`);
-          return r.json();
-        })
-        .then(data => {
-          const s = clamp(Number(data.score ?? 0), 0, 100);
+      <div class="section">
+        <div class="section-head">
+          <span class="dot neg"></span>
+          <span>Top Negatives</span>
+        </div>
+        <ul class="bullets">
+          <li><span>No agreement has been met yet</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-          const ringColor =
-            (s >= 80) ? "#16a34a" :
-            (s >= 50) ? "#f59e0b" :
-                         "#ef4444";
-          progressCircle.style.stroke = ringColor;
-
-          // Slightly longer animation
-          animateScore(s, 1100);
-
-          document.getElementById("positives").innerHTML =
-            (data.positives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
-
-          document.getElementById("negatives").innerHTML =
-            (data.negatives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
-        })
-        .catch(err => {
-          document.getElementById("positives").innerHTML = "";
-          document.getElementById("negatives").innerHTML = `<li>${escapeHtml(err.message)}</li>`;
-          scoreNumberEl.textContent = "0";
-          progressCircle.style.stroke = "#ef4444";
-          progressCircle.style.strokeDashoffset = `${circumference}`;
-        });
-
-      function animateScore(target, durationMs){
-        const start = performance.now();
-        const from = 0;
-
-        function easeOutCubic(t){
-          return 1 - Math.pow(1 - t, 3);
-        }
-
-        function frame(now){
-          const t = Math.min(1, (now - start) / durationMs);
-          const eased = easeOutCubic(t);
-          const current = Math.round(from + (target - from) * eased);
-
-          scoreNumberEl.textContent = String(current);
-
-          const progress = current / 100;
-          const offset = circumference * (1 - progress);
-          progressCircle.style.strokeDashoffset = `${offset}`;
-
-          if (t < 1) requestAnimationFrame(frame);
-        }
-
-        requestAnimationFrame(frame);
-      }
-
-      function clamp(n, min, max){
-        return Math.max(min, Math.min(max, n));
-      }
-
-      function escapeHtml(s) {
-        return String(s).replace(/[&<>"']/g, c => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-        }[c]));
-      }
-    </script>
-  </body>
+  <!--
+    Quick knobs:
+    - Score value: change the "55" text and the dashoffset calculation.
+    - Percent: dashoffset = circumference * (1 - percent).
+      circumference for r=24: 2*pi*24 = 150.7964473723
+  -->
+</body>
 </html>
