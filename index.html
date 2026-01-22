@@ -33,7 +33,7 @@
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 8px;
-        overflow: visible; /* allow Einstein to hang */
+        overflow: visible;
         box-shadow: 0 10px 25px rgba(0,0,0,.08);
         box-sizing: border-box;
       }
@@ -41,7 +41,7 @@
       .header{
         position: relative;
         padding: 26px 18px 22px 18px;
-        background-image: url("./Background.png"); /* fixed filename */
+        background-image: url("./Background.png");
         background-size: cover;
         background-position: center;
         border-bottom: 1px solid var(--border);
@@ -50,13 +50,14 @@
         border-top-right-radius: 8px;
       }
 
+      /* Slightly less washed Salesforce-style overlay */
       .header::after{
         content:"";
         position:absolute;
         inset:0;
         background: linear-gradient(
-          rgba(255,255,255,0.55),
-          rgba(255,255,255,0.88)
+          rgba(255,255,255,0.45),
+          rgba(255,255,255,0.75)
         );
         pointer-events: none;
       }
@@ -66,27 +67,58 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        padding-right: 140px; /* room for Einstein */
+        padding-right: 140px;
         z-index: 2;
       }
 
-      .scorePill{
+      /* ====== SCORE PROGRESS RING (SVG) ====== */
+      .scoreWrap{
         width: 56px;
         height: 56px;
-        border-radius: 999px;
+        position: relative;
+        flex: 0 0 auto;
+      }
+
+      .scoreSvg{
+        width: 56px;
+        height: 56px;
+        display:block;
+        transform: rotate(-90deg);
+      }
+
+      .scoreTrack{
+        fill: none;
+        stroke: rgba(17,24,39,0.10);
+        stroke-width: 6;
+      }
+
+      .scoreProgress{
+        fill: none;
+        stroke: var(--neg);
+        stroke-width: 6;
+        stroke-linecap: round;
+        stroke-dasharray: 0;
+        stroke-dashoffset: 0;
+        transition: stroke 200ms ease;
+      }
+
+      .scoreCenter{
+        position:absolute;
+        inset: 0;
         display:flex;
         align-items:center;
         justify-content:center;
-        background:#fff;
-
-        border: 3px solid var(--neg);
+        border-radius: 999px;
+        background: rgba(255,255,255,0.92);
         box-shadow: 0 0 0 2px rgba(255,255,255,.90);
+      }
 
+      .scoreNumber{
         font-weight: 600;
         font-size: 23px;
         letter-spacing: -0.4px;
         color: var(--ink);
-        flex: 0 0 auto;
+        line-height: 1;
       }
 
       .titleWrap{
@@ -107,19 +139,14 @@
         margin-top: 2px;
       }
 
-      /* Einstein overlay: moved up slightly */
       .avatar{
         position:absolute;
         right: 10px;
-
-        /* was -18px; reduce overhang */
         bottom: -10px;
-
         width: 120px;
         height: auto;
         object-fit: contain;
         pointer-events:none;
-
         z-index: 3;
         filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
       }
@@ -174,27 +201,6 @@
       .negatives li{
         color: #374151;
       }
-
-      /* Salesforce-like score pop */
-      @keyframes pop {
-        0%   { transform: scale(0.85); opacity: 0; }
-        100% { transform: scale(1); opacity: 1; }
-      }
-
-      .scorePill{
-        animation: pop 0.25s ease-out;
-      }
-
-      /* Remove the extra grey line at very bottom (under Top Negatives) */
-      /* In your screenshot this is coming from the content area in monday,
-         so we remove any chance we create a bottom border/padding artifact. */
-      .content{
-        border-bottom: 0;
-        padding-bottom: 0;
-      }
-      .section:last-child{
-        margin-bottom: 0;
-      }
     </style>
   </head>
 
@@ -202,7 +208,16 @@
     <div class="card">
       <div class="header">
         <div class="headerRow">
-          <div class="scorePill" id="scorePill">--</div>
+          <!-- Progress Ring + Count-up number -->
+          <div class="scoreWrap" aria-label="Einstein Lead Score">
+            <svg class="scoreSvg" viewBox="0 0 56 56" role="img" aria-hidden="true">
+              <circle class="scoreTrack" cx="28" cy="28" r="22"></circle>
+              <circle class="scoreProgress" id="scoreProgress" cx="28" cy="28" r="22"></circle>
+            </svg>
+            <div class="scoreCenter">
+              <div class="scoreNumber" id="scoreNumber">0</div>
+            </div>
+          </div>
 
           <div class="titleWrap">
             <div class="title">Einstein Lead Score</div>
@@ -241,26 +256,30 @@
       const dealId = params.get("deal_id") || "TEST-1";
       const url = `./data/${encodeURIComponent(dealId)}.json`;
 
+      const progressCircle = document.getElementById("scoreProgress");
+      const scoreNumberEl = document.getElementById("scoreNumber");
+
+      const r = 22;
+      const circumference = 2 * Math.PI * r;
+
+      progressCircle.style.strokeDasharray = `${circumference}`;
+      progressCircle.style.strokeDashoffset = `${circumference}`;
+
       fetch(url, { cache: "no-store" })
         .then(r => {
           if (!r.ok) throw new Error(`Missing data file: data/${dealId}.json`);
           return r.json();
         })
         .then(data => {
-          const pill = document.getElementById("scorePill");
-          const s = Number(data.score ?? 0);
+          const s = clamp(Number(data.score ?? 0), 0, 100);
 
-          pill.textContent = (data.score ?? "--");
-
-          pill.style.borderColor =
+          const ringColor =
             (s >= 80) ? "#16a34a" :
             (s >= 50) ? "#f59e0b" :
                          "#ef4444";
+          progressCircle.style.stroke = ringColor;
 
-          /* re-trigger animation */
-          pill.style.animation = "none";
-          pill.offsetHeight;
-          pill.style.animation = "pop 0.25s ease-out";
+          animateScore(s, 750);
 
           document.getElementById("positives").innerHTML =
             (data.positives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
@@ -271,9 +290,39 @@
         .catch(err => {
           document.getElementById("positives").innerHTML = "";
           document.getElementById("negatives").innerHTML = `<li>${escapeHtml(err.message)}</li>`;
-          const pill = document.getElementById("scorePill");
-          if (pill) pill.textContent = "--";
+          scoreNumberEl.textContent = "0";
+          progressCircle.style.stroke = "#ef4444";
+          progressCircle.style.strokeDashoffset = `${circumference}`;
         });
+
+      function animateScore(target, durationMs){
+        const start = performance.now();
+        const from = 0;
+
+        function easeOutCubic(t){
+          return 1 - Math.pow(1 - t, 3);
+        }
+
+        function frame(now){
+          const t = Math.min(1, (now - start) / durationMs);
+          const eased = easeOutCubic(t);
+          const current = Math.round(from + (target - from) * eased);
+
+          scoreNumberEl.textContent = String(current);
+
+          const progress = current / 100;
+          const offset = circumference * (1 - progress);
+          progressCircle.style.strokeDashoffset = `${offset}`;
+
+          if (t < 1) requestAnimationFrame(frame);
+        }
+
+        requestAnimationFrame(frame);
+      }
+
+      function clamp(n, min, max){
+        return Math.max(min, Math.min(max, n));
+      }
 
       function escapeHtml(s) {
         return String(s).replace(/[&<>"']/g, c => ({
