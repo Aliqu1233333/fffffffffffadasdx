@@ -34,7 +34,7 @@
         max-width: 100%;
         background: var(--panel);
         border: 1px solid var(--border);
-        border-radius: 8px;          /* was 16px */
+        border-radius: 8px;
         overflow: hidden;
         box-shadow: 0 10px 25px rgba(0,0,0,.08);
         box-sizing: border-box;
@@ -43,7 +43,7 @@
       /* Bigger banner like Salesforce */
       .header{
         position: relative;
-        padding: 26px 18px 22px 18px; /* increased height */
+        padding: 26px 18px 22px 18px;
         background-image: url("./clouds.JPG");
         background-size: cover;
         background-position: center;
@@ -66,7 +66,7 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        padding-right: 112px; /* room for avatar */
+        padding-right: 112px;
         z-index: 1;
       }
 
@@ -126,7 +126,7 @@
       /* Slightly sharper inner cards */
       .section{
         border: 1px solid var(--border);
-        border-radius: 8px;     /* was 12px */
+        border-radius: 8px;
         overflow: hidden;
         background: #fff;
         margin-top: 12px;
@@ -169,6 +169,16 @@
 
       .negatives li{
         color: #374151;
+      }
+
+      /* Subtle score pop animation */
+      @keyframes pop {
+        0%   { transform: scale(0.85); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+
+      .scorePill {
+        animation: pop 0.25s ease-out;
       }
     </style>
   </head>
@@ -224,12 +234,18 @@
         .then(data => {
           const pill = document.getElementById("scorePill");
           const s = Number(data.score ?? 0);
+
           pill.textContent = (data.score ?? "--");
 
           pill.style.borderColor =
             (s >= 80) ? "#16a34a" :
             (s >= 50) ? "#f59e0b" :
                          "#ef4444";
+
+          /* re-trigger animation */
+          pill.style.animation = "none";
+          pill.offsetHeight; // force reflow
+          pill.style.animation = "pop 0.25s ease-out";
 
           document.getElementById("positives").innerHTML =
             (data.positives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
