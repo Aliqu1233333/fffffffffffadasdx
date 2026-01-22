@@ -73,22 +73,34 @@
 
       /* ====== SCORE PROGRESS RING (SVG) ====== */
       .scoreWrap{
-        width: 56px;
-        height: 56px;
+        width: 60px;
+        height: 60px;
         position: relative;
         flex: 0 0 auto;
       }
 
+      /* White backing plate so banner never bleeds through */
+      .scorePlate{
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.98);
+        box-shadow: 0 0 0 2px rgba(255,255,255,0.95);
+      }
+
       .scoreSvg{
-        width: 56px;
-        height: 56px;
+        position: absolute;
+        inset: 0;
+        width: 60px;
+        height: 60px;
         display:block;
         transform: rotate(-90deg);
+        z-index: 1;
       }
 
       .scoreTrack{
         fill: none;
-        stroke: rgba(17,24,39,0.10);
+        stroke: rgba(17,24,39,0.12);
         stroke-width: 6;
       }
 
@@ -109,8 +121,8 @@
         align-items:center;
         justify-content:center;
         border-radius: 999px;
-        background: rgba(255,255,255,0.92);
-        box-shadow: 0 0 0 2px rgba(255,255,255,.90);
+        background: transparent;
+        z-index: 2;
       }
 
       .scoreNumber{
@@ -210,10 +222,14 @@
         <div class="headerRow">
           <!-- Progress Ring + Count-up number -->
           <div class="scoreWrap" aria-label="Einstein Lead Score">
-            <svg class="scoreSvg" viewBox="0 0 56 56" role="img" aria-hidden="true">
-              <circle class="scoreTrack" cx="28" cy="28" r="22"></circle>
-              <circle class="scoreProgress" id="scoreProgress" cx="28" cy="28" r="22"></circle>
+            <div class="scorePlate"></div>
+
+            <svg class="scoreSvg" viewBox="0 0 60 60" role="img" aria-hidden="true">
+              <!-- r=24 => circumference ~ 150.80 -->
+              <circle class="scoreTrack" cx="30" cy="30" r="24"></circle>
+              <circle class="scoreProgress" id="scoreProgress" cx="30" cy="30" r="24"></circle>
             </svg>
+
             <div class="scoreCenter">
               <div class="scoreNumber" id="scoreNumber">0</div>
             </div>
@@ -259,7 +275,8 @@
       const progressCircle = document.getElementById("scoreProgress");
       const scoreNumberEl = document.getElementById("scoreNumber");
 
-      const r = 22;
+      // Circle geometry (must match r in SVG above)
+      const r = 24;
       const circumference = 2 * Math.PI * r;
 
       progressCircle.style.strokeDasharray = `${circumference}`;
@@ -279,7 +296,8 @@
                          "#ef4444";
           progressCircle.style.stroke = ringColor;
 
-          animateScore(s, 750);
+          // Slightly longer animation
+          animateScore(s, 1100);
 
           document.getElementById("positives").innerHTML =
             (data.positives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
