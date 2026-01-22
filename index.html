@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Einstein Advice</title>
+    <title>Einstein Lead Score</title>
 
     <style>
       :root{
@@ -12,22 +12,23 @@
         --border:#e5e7eb;
         --panel:#ffffff;
         --bar:#f3f4f6;
-        --accent:#364a6a;
         --pos:#16a34a;
         --warn:#f59e0b;
         --neg:#ef4444;
       }
 
-      body{
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-                     Arial, "Noto Sans", "Liberation Sans", sans-serif;
-        margin: 16px;
+      /* Fill the embed area */
+      html, body{
+        margin: 0;
+        padding: 0;
         background: transparent;
         color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+                     Arial, "Noto Sans", "Liberation Sans", sans-serif;
       }
 
       .card{
-        width: 520px;
+        width: 100%;
         max-width: 100%;
         background: var(--panel);
         border: 1px solid var(--border);
@@ -39,10 +40,11 @@
       /* HEADER WITH IMAGE BACKGROUND */
       .header{
         position: relative;
-        padding: 16px;
-        background-image: url("./clouds.JPG"); /* ← change filename if needed */
+        padding: 18px 18px 16px 18px;
+        background-image: url("./clouds.JPG"); /* make sure this file exists in your repo */
         background-size: cover;
         background-position: center;
+        border-bottom: 1px solid var(--border); /* light grey line under banner */
       }
 
       /* subtle overlay to keep text readable */
@@ -51,8 +53,8 @@
         position:absolute;
         inset:0;
         background: linear-gradient(
-          rgba(255,255,255,0.75),
-          rgba(255,255,255,0.9)
+          rgba(255,255,255,0.70),
+          rgba(255,255,255,0.92)
         );
       }
 
@@ -61,14 +63,14 @@
         display: flex;
         align-items: center;
         gap: 14px;
-        padding-right: 100px;
+        padding-right: 110px; /* room for avatar */
         z-index: 1;
       }
 
-      /* SCORE RING */
+      /* SCORE RING (slightly bigger) */
       .scorePill{
-        width: 46px;
-        height: 46px;
+        width: 54px;
+        height: 54px;
         border-radius: 999px;
         display:flex;
         align-items:center;
@@ -76,12 +78,12 @@
         background:#fff;
 
         border: 3px solid var(--neg);
-        box-shadow: 0 0 0 2px rgba(255,255,255,.85);
+        box-shadow: 0 0 0 2px rgba(255,255,255,.90);
 
         font-weight: 600;
-        font-size: 19px;
-        letter-spacing: -0.3px;
-        color: var(--ink);
+        font-size: 22px;
+        letter-spacing: -0.4px;
+        color: var(--ink); /* keep neutral */
         flex: 0 0 auto;
       }
 
@@ -91,25 +93,26 @@
         line-height: 1.2;
       }
 
+      /* Slightly bigger words */
       .title{
         font-weight: 600;
-        font-size: 16.5px;
+        font-size: 18px;
         letter-spacing: -0.2px;
       }
 
       .subtitle{
-        font-size: 13px;
+        font-size: 14px;
         color: var(--muted);
         margin-top: 2px;
       }
 
-      /* SLIGHTLY BIGGER EINSTEIN */
+      /* Einstein */
       .avatar{
         position:absolute;
-        right: 6px;
-        top: -6px;
-        width: 86px;   /* was ~70 */
-        height: 86px;
+        right: 8px;
+        top: -10px;
+        width: 92px;
+        height: 92px;
         object-fit: contain;
         pointer-events:none;
         z-index: 2;
@@ -127,11 +130,12 @@
         margin-top: 12px;
       }
 
+      /* Slightly bigger section labels */
       .sectionHeader{
         background: var(--bar);
-        padding: 10px 12px;
+        padding: 11px 12px;
         font-weight: 600;
-        font-size: 14px;
+        font-size: 15px;
         display:flex;
         align-items:center;
         gap: 8px;
@@ -154,8 +158,8 @@
       .sectionList{
         margin: 0;
         padding: 0 0 0 18px;
-        font-size: 14px;
-        line-height: 1.45;
+        font-size: 15px;      /* bigger list text */
+        line-height: 1.5;
       }
 
       .sectionList li{
@@ -182,7 +186,7 @@
           <div class="scorePill" id="scorePill">--</div>
 
           <div class="titleWrap">
-            <div class="title">Einstein Scoring</div>
+            <div class="title">Einstein Lead Score</div>
             <div class="subtitle">Sales advice &amp; risk flags</div>
           </div>
         </div>
