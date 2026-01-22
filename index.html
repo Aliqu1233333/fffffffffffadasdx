@@ -14,7 +14,7 @@
         --bar:#f3f4f6;
         --pos:#16a34a;
         --warn:#f59e0b;
-        --neg:#ef4444;
+        --neg:#ef4444; /* red */
       }
 
       html, body{
@@ -70,6 +70,7 @@
         z-index: 2;
       }
 
+      /* ====== SCORE PROGRESS RING (SVG) ====== */
       .scoreWrap{
         width: 60px;
         height: 60px;
@@ -95,17 +96,18 @@
         z-index: 1;
       }
 
-      /* EVEN THINNER RING */
+      /* Ring thinner already; now also "closer to outer edge"
+         by increasing radius and slightly reducing stroke width */
       .scoreTrack{
         fill: none;
         stroke: rgba(17,24,39,0.10);
-        stroke-width: 3px;
+        stroke-width: 2px;   /* was 3px -> thinner */
       }
 
       .scoreProgress{
         fill: none;
         stroke: var(--neg);
-        stroke-width: 3px;
+        stroke-width: 2px;   /* was 3px -> thinner */
         stroke-linecap: round;
         stroke-dasharray: 0;
         stroke-dashoffset: 0;
@@ -123,7 +125,6 @@
         z-index: 2;
       }
 
-      /* SCORE 1PT SMALLER */
       .scoreNumber{
         font-weight: 600;
         font-size: 23px;
@@ -198,11 +199,11 @@
         padding: 13px 14px;
       }
 
-      /* CONTEXT 1PT BIGGER */
+      /* Context back down 1pt: was 17px -> 16px */
       .sectionList{
         margin: 0;
         padding: 0 0 0 18px;
-        font-size: 17px;
+        font-size: 16px;
         line-height: 1.6;
       }
 
@@ -224,8 +225,11 @@
             <div class="scorePlate"></div>
 
             <svg class="scoreSvg" viewBox="0 0 60 60">
-              <circle class="scoreTrack" cx="30" cy="30" r="24"></circle>
-              <circle class="scoreProgress" id="scoreProgress" cx="30" cy="30" r="24"></circle>
+              <!-- Ring 1pt "smaller" visually by shifting outward:
+                   Increase radius to 27 so it sits closer to the edge.
+                   With stroke-width 2, it still fits inside 60x60. -->
+              <circle class="scoreTrack" cx="30" cy="30" r="27"></circle>
+              <circle class="scoreProgress" id="scoreProgress" cx="30" cy="30" r="27"></circle>
             </svg>
 
             <div class="scoreCenter">
@@ -273,7 +277,8 @@
       const progressCircle = document.getElementById("scoreProgress");
       const scoreNumberEl = document.getElementById("scoreNumber");
 
-      const r = 24;
+      // Circle geometry MUST match r=27 above
+      const r = 27;
       const circumference = 2 * Math.PI * r;
 
       progressCircle.style.strokeDasharray = `${circumference}`;
@@ -287,6 +292,8 @@
         .then(data => {
           const s = clamp(Number(data.score ?? 0), 0, 100);
 
+          // Color thresholds:
+          // Green >= 80, Yellow 50-79, Red < 50
           const ringColor =
             (s >= 80) ? "#16a34a" :
             (s >= 50) ? "#f59e0b" :
@@ -300,6 +307,13 @@
 
           document.getElementById("negatives").innerHTML =
             (data.negatives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+        })
+        .catch(err => {
+          document.getElementById("positives").innerHTML = "";
+          document.getElementById("negatives").innerHTML = `<li>${escapeHtml(err.message)}</li>`;
+          scoreNumberEl.textContent = "0";
+          progressCircle.style.stroke = "#ef4444";
+          progressCircle.style.strokeDashoffset = `${circumference}`;
         });
 
       function animateScore(target, durationMs){
