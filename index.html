@@ -17,7 +17,6 @@
         --neg:#ef4444;
       }
 
-      /* Kill iframe scrollbars as much as possible */
       html, body{
         margin: 0;
         padding: 0;
@@ -28,32 +27,29 @@
         overflow: hidden;
       }
 
-      /* Card container (sharper corners) */
       .card{
         width: 100%;
         max-width: 100%;
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 8px;
-        overflow: visible; /* IMPORTANT: allow Einstein to hang outside header area */
+        overflow: visible; /* allow Einstein to hang */
         box-shadow: 0 10px 25px rgba(0,0,0,.08);
         box-sizing: border-box;
       }
 
-      /* Header banner image */
       .header{
         position: relative;
         padding: 26px 18px 22px 18px;
-        background-image: url("./Backround.png");
+        background-image: url("./Background.png"); /* fixed filename */
         background-size: cover;
         background-position: center;
         border-bottom: 1px solid var(--border);
-        overflow: visible; /* IMPORTANT: allow overhang */
+        overflow: visible;
         border-top-left-radius: 8px;
         border-top-right-radius: 8px;
       }
 
-      /* Readability overlay */
       .header::after{
         content:"";
         position:absolute;
@@ -74,7 +70,6 @@
         z-index: 2;
       }
 
-      /* Score ring */
       .scorePill{
         width: 56px;
         height: 56px;
@@ -112,13 +107,13 @@
         margin-top: 2px;
       }
 
-      /* Einstein overlay (Salesforce-style hang over) */
+      /* Einstein overlay: moved up slightly */
       .avatar{
         position:absolute;
         right: 10px;
 
-        /* This creates the "arm hanging over" effect */
-        bottom: -18px; /* adjust between -12 and -28 as needed */
+        /* was -18px; reduce overhang */
+        bottom: -10px;
 
         width: 120px;
         height: auto;
@@ -180,14 +175,25 @@
         color: #374151;
       }
 
-      /* Subtle score pop animation */
+      /* Salesforce-like score pop */
       @keyframes pop {
         0%   { transform: scale(0.85); opacity: 0; }
         100% { transform: scale(1); opacity: 1; }
       }
 
-      .scorePill {
+      .scorePill{
         animation: pop 0.25s ease-out;
+      }
+
+      /* Remove the extra grey line at very bottom (under Top Negatives) */
+      /* In your screenshot this is coming from the content area in monday,
+         so we remove any chance we create a bottom border/padding artifact. */
+      .content{
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+      .section:last-child{
+        margin-bottom: 0;
       }
     </style>
   </head>
@@ -204,7 +210,6 @@
           </div>
         </div>
 
-        <!-- NOTE: spaces in file names must be encoded as %20 -->
         <img class="avatar" src="./New%20Einstein.png" alt="Einstein" />
       </div>
 
