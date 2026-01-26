@@ -15,6 +15,7 @@
         --pos:#16a34a;
         --warn:#f59e0b;
         --neg:#ef4444;
+        --action:#0ea5e9;
       }
 
       html, body{
@@ -49,7 +50,6 @@
         border-top-right-radius: 8px;
       }
 
-      /* Less faded overlay */
       .header::after{
         content:"";
         position:absolute;
@@ -86,6 +86,15 @@
         box-shadow:
           0 0 0 2px rgba(255,255,255,0.95),
           0 4px 10px rgba(0,0,0,0.08);
+        transition: box-shadow 300ms ease;
+      }
+
+      /* Glow when hot */
+      .scorePlate.hot{
+        box-shadow:
+          0 0 0 2px rgba(255,255,255,0.95),
+          0 0 14px rgba(22,163,74,0.45),
+          0 6px 16px rgba(22,163,74,0.35);
       }
 
       .scoreSvg{
@@ -167,7 +176,7 @@
           0 4px 10px rgba(0,0,0,0.10);
         white-space: nowrap;
         width: fit-content;
-        margin-top: -2px; /* lifts it closer to the title */
+        margin-top: -2px;
       }
 
       .badgeDot{
@@ -180,8 +189,8 @@
 
       .badge.improving{
         color: #166534;
-        background: rgba(22,163,74,0.12);
-        border-color: rgba(22,163,74,0.22);
+        background: rgba(22,163,74,0.14);
+        border-color: rgba(22,163,74,0.24);
       }
       .badge.improving .badgeDot{ background: #16a34a; }
 
@@ -261,6 +270,32 @@
       .negatives li{
         color: #374151;
       }
+
+      /* ====== ACTIONS SECTION (pops slightly) ====== */
+      .section.actions{
+        border-left: 4px solid rgba(14,165,233,0.55);
+      }
+
+      .section.actions .sectionHeader{
+        background: linear-gradient(
+          rgba(14,165,233,0.08),
+          rgba(14,165,233,0.02)
+        );
+      }
+
+      .section.actions .sectionHeader span:last-child{
+        color: #0369a1;
+      }
+
+      .section.actions .sectionList li{
+        position: relative;
+        padding-left: 6px;
+      }
+
+      .section.actions .sectionList li::marker{
+        color: #0ea5e9;
+        font-weight: bold;
+      }
     </style>
   </head>
 
@@ -269,7 +304,7 @@
       <div class="header">
         <div class="headerRow">
           <div class="scoreWrap">
-            <div class="scorePlate"></div>
+            <div class="scorePlate" id="scorePlate"></div>
 
             <svg class="scoreSvg" viewBox="0 0 63 63">
               <circle class="scoreTrack" cx="31.5" cy="31.5" r="29"></circle>
@@ -284,9 +319,9 @@
           <div class="titleWrap">
             <div class="title">Einstein Lead Score</div>
 
-            <div class="badge stagnant" id="statusBadge">
+            <div class="badge improving" id="statusBadge">
               <span class="badgeDot"></span>
-              <span id="statusText">Stagnant</span>
+              <span id="statusText">Improving</span>
             </div>
           </div>
         </div>
@@ -314,10 +349,30 @@
             <ul class="sectionList negatives" id="negatives"></ul>
           </div>
         </div>
+
+        <!-- NEW: Suggested Actions -->
+        <div class="section actions">
+          <div class="sectionHeader">
+            <span class="dot" style="background:#0ea5e9;"></span>
+            <span>Suggested Actions for Success</span>
+          </div>
+          <div class="sectionBody">
+            <ul class="sectionList">
+              <li>Focus on getting back ahold of Fredrick Franklin &amp; provide next steps for closing.</li>
+              <li>Send a concise follow-up recap email outlining the agreed timeline and decision criteria.</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
 
     <script>
+      /* =========================
+         DEMO OVERRIDES (REMOVE LATER)
+         ========================= */
+      const DEMO_SCORE = 94;
+      const DEMO_STATUS = "Improving";
+
       const params = new URLSearchParams(location.search);
       const dealId = params.get("deal_id") || "TEST-1";
       const url = `./data/${encodeURIComponent(dealId)}.json`;
@@ -326,6 +381,7 @@
       const scoreNumberEl = document.getElementById("scoreNumber");
       const statusBadge = document.getElementById("statusBadge");
       const statusText = document.getElementById("statusText");
+      const scorePlate = document.getElementById("scorePlate");
 
       const r = 29;
       const circumference = 2 * Math.PI * r;
@@ -333,31 +389,28 @@
       progressCircle.style.strokeDasharray = `${circumference}`;
       progressCircle.style.strokeDashoffset = `${circumference}`;
 
-      fetch(url, { cache: "no-store" })
-        .then(r => {
-          if (!r.ok) throw new Error(`Missing data file: data/${dealId}.json`);
-          return r.json();
-        })
-        .then(data => {
-          const s = clamp(Number(data.score ?? 0), 0, 100);
+      // DEMO LOAD (bypasses JSON for now)
+      const s = DEMO_SCORE;
+      const ringColor =
+        (s >= 80) ? "#16a34a" :
+        (s >= 50) ? "#f59e0b" :
+                     "#ef4444";
 
-          const ringColor =
-            (s >= 80) ? "#16a34a" :
-            (s >= 50) ? "#f59e0b" :
-                         "#ef4444";
-          progressCircle.style.stroke = ringColor;
+      progressCircle.style.stroke = ringColor;
+      if (s >= 80) scorePlate.classList.add("hot");
 
-          animateScore(s, 1300);
+      animateScore(s, 1400);
 
-          document.getElementById("positives").innerHTML =
-            (data.positives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+      setStatusBadge(DEMO_STATUS.toLowerCase());
 
-          document.getElementById("negatives").innerHTML =
-            (data.negatives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+      document.getElementById("positives").innerHTML = `
+        <li>Strong engagement in the last 72 hours.</li>
+        <li>Decision maker confirmed budget alignment.</li>
+      `;
 
-          const rawStatus = String(data.status ?? "Stagnant").toLowerCase();
-          setStatusBadge(rawStatus);
-        });
+      document.getElementById("negatives").innerHTML = `
+        <li>Follow-up call rescheduled twice.</li>
+      `;
 
       function setStatusBadge(status){
         const s = (status === "improving" || status === "stagnant" || status === "decaying")
@@ -394,16 +447,6 @@
         }
 
         requestAnimationFrame(frame);
-      }
-
-      function clamp(n, min, max){
-        return Math.max(min, Math.min(max, n));
-      }
-
-      function escapeHtml(s) {
-        return String(s).replace(/[&<>"']/g, c => ({
-          "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-        }[c]));
       }
     </script>
   </body>
