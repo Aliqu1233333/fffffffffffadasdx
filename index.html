@@ -29,7 +29,6 @@
 
       .card{
         width: 100%;
-        max-width: 100%;
         background: var(--panel);
         border: 1px solid var(--border);
         border-radius: 8px;
@@ -40,7 +39,7 @@
 
       .header{
         position: relative;
-        padding: 28px 18px 24px 18px;
+        padding: 30px 18px 26px 18px;
         background-image: url("./Background.png");
         background-size: cover;
         background-position: center;
@@ -50,13 +49,14 @@
         border-top-right-radius: 8px;
       }
 
+      /* Less faded overlay */
       .header::after{
         content:"";
         position:absolute;
         inset:0;
         background: linear-gradient(
-          rgba(255,255,255,0.45),
-          rgba(255,255,255,0.75)
+          rgba(255,255,255,0.38),
+          rgba(255,255,255,0.65)
         );
         pointer-events: none;
       }
@@ -65,16 +65,15 @@
         position: relative;
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding-right: 140px;
+        gap: 14px;
+        padding-right: 150px;
         z-index: 2;
       }
 
       /* ====== SCORE RING ====== */
-      /* Circle + contents 1pt bigger (overall) */
       .scoreWrap{
-        width: 62px;
-        height: 62px;
+        width: 63px;
+        height: 63px;
         position: relative;
         flex: 0 0 auto;
       }
@@ -84,14 +83,16 @@
         inset: 0;
         border-radius: 999px;
         background: rgba(255,255,255,0.98);
-        box-shadow: 0 0 0 2px rgba(255,255,255,0.95);
+        box-shadow:
+          0 0 0 2px rgba(255,255,255,0.95),
+          0 4px 10px rgba(0,0,0,0.08);
       }
 
       .scoreSvg{
         position: absolute;
         inset: 0;
-        width: 62px;
-        height: 62px;
+        width: 63px;
+        height: 63px;
         display:block;
         transform: rotate(-90deg);
         z-index: 1;
@@ -124,48 +125,49 @@
         z-index: 2;
       }
 
-      /* inside circle 1pt bigger */
       .scoreNumber{
         font-weight: 600;
-        font-size: 24px; /* was 23 */
+        font-size: 25px;
         letter-spacing: -0.4px;
         color: var(--ink);
         line-height: 1;
       }
 
-      /* Title area: centered vertically to ring */
+      /* ====== TITLE + BADGE ====== */
       .titleWrap{
         display:flex;
         flex-direction:column;
-        justify-content:center; /* centers with the score */
+        justify-content:center;
         line-height: 1.1;
-        gap: 6px;
+        gap: 4px;
       }
 
-      /* Title 2pt bigger */
       .title{
         font-weight: 600;
-        font-size: 21px; /* was 19 */
+        font-size: 22px;
         letter-spacing: -0.2px;
         margin: 0;
       }
 
-      /* ====== STATUS BADGE (replaces subtitle entirely) ====== */
       .badge{
         display:inline-flex;
         align-items:center;
         gap: 6px;
-        padding: 5px 10px;
+        padding: 5px 11px;
         border-radius: 999px;
         font-size: 12px;
         font-weight: 600;
         letter-spacing: -0.1px;
         border: 1px solid rgba(17,24,39,0.10);
-        background: rgba(255,255,255,0.75);
+        background: rgba(255,255,255,0.70);
         color: #374151;
-        backdrop-filter: blur(6px);
+        backdrop-filter: blur(8px);
+        box-shadow:
+          inset 0 0 0 1px rgba(255,255,255,0.25),
+          0 4px 10px rgba(0,0,0,0.10);
         white-space: nowrap;
         width: fit-content;
+        margin-top: -2px; /* lifts it closer to the title */
       }
 
       .badgeDot{
@@ -178,35 +180,35 @@
 
       .badge.improving{
         color: #166534;
-        background: rgba(22,163,74,0.10);
-        border-color: rgba(22,163,74,0.18);
+        background: rgba(22,163,74,0.12);
+        border-color: rgba(22,163,74,0.22);
       }
       .badge.improving .badgeDot{ background: #16a34a; }
 
       .badge.stagnant{
         color: #374151;
-        background: rgba(107,114,128,0.10);
-        border-color: rgba(107,114,128,0.18);
+        background: rgba(107,114,128,0.12);
+        border-color: rgba(107,114,128,0.22);
       }
       .badge.stagnant .badgeDot{ background: #9ca3af; }
 
       .badge.decaying{
         color: #991b1b;
-        background: rgba(239,68,68,0.10);
-        border-color: rgba(239,68,68,0.18);
+        background: rgba(239,68,68,0.12);
+        border-color: rgba(239,68,68,0.22);
       }
       .badge.decaying .badgeDot{ background: #ef4444; }
 
       .avatar{
         position:absolute;
         right: 10px;
-        bottom: -10px;
-        width: 120px;
+        bottom: -12px;
+        width: 122px;
         height: auto;
         object-fit: contain;
         pointer-events:none;
         z-index: 3;
-        filter: drop-shadow(0 6px 10px rgba(0,0,0,0.12));
+        filter: drop-shadow(0 6px 12px rgba(0,0,0,0.14));
       }
 
       .content{
@@ -269,10 +271,9 @@
           <div class="scoreWrap">
             <div class="scorePlate"></div>
 
-            <!-- Updated viewBox and radii for 62px ring -->
-            <svg class="scoreSvg" viewBox="0 0 62 62">
-              <circle class="scoreTrack" cx="31" cy="31" r="28"></circle>
-              <circle class="scoreProgress" id="scoreProgress" cx="31" cy="31" r="28"></circle>
+            <svg class="scoreSvg" viewBox="0 0 63 63">
+              <circle class="scoreTrack" cx="31.5" cy="31.5" r="29"></circle>
+              <circle class="scoreProgress" id="scoreProgress" cx="31.5" cy="31.5" r="29"></circle>
             </svg>
 
             <div class="scoreCenter">
@@ -283,8 +284,7 @@
           <div class="titleWrap">
             <div class="title">Einstein Lead Score</div>
 
-            <!-- Subtitle removed; badge sits here instead -->
-            <div class="badge stagnant" id="statusBadge" title="Lead momentum">
+            <div class="badge stagnant" id="statusBadge">
               <span class="badgeDot"></span>
               <span id="statusText">Stagnant</span>
             </div>
@@ -327,8 +327,7 @@
       const statusBadge = document.getElementById("statusBadge");
       const statusText = document.getElementById("statusText");
 
-      // Geometry MUST match r=28 above
-      const r = 28;
+      const r = 29;
       const circumference = 2 * Math.PI * r;
 
       progressCircle.style.strokeDasharray = `${circumference}`;
@@ -342,14 +341,13 @@
         .then(data => {
           const s = clamp(Number(data.score ?? 0), 0, 100);
 
-          // Green >= 80, Yellow 50-79, Red < 50
           const ringColor =
             (s >= 80) ? "#16a34a" :
             (s >= 50) ? "#f59e0b" :
                          "#ef4444";
           progressCircle.style.stroke = ringColor;
 
-          animateScore(s, 1100);
+          animateScore(s, 1300);
 
           document.getElementById("positives").innerHTML =
             (data.positives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
@@ -357,17 +355,8 @@
           document.getElementById("negatives").innerHTML =
             (data.negatives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
 
-          // Optional in JSON: "status": "Improving" | "Stagnant" | "Decaying"
           const rawStatus = String(data.status ?? "Stagnant").toLowerCase();
           setStatusBadge(rawStatus);
-        })
-        .catch(err => {
-          document.getElementById("positives").innerHTML = "";
-          document.getElementById("negatives").innerHTML = `<li>${escapeHtml(err.message)}</li>`;
-          scoreNumberEl.textContent = "0";
-          progressCircle.style.stroke = "#ef4444";
-          progressCircle.style.strokeDashoffset = `${circumference}`;
-          setStatusBadge("stagnant");
         });
 
       function setStatusBadge(status){
