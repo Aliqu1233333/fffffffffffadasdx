@@ -14,7 +14,7 @@
         --bar:#f3f4f6;
         --pos:#16a34a;
         --warn:#f59e0b;
-        --neg:#ef4444; /* red */
+        --neg:#ef4444;
       }
 
       html, body{
@@ -70,7 +70,7 @@
         z-index: 2;
       }
 
-      /* ====== SCORE PROGRESS RING (SVG) ====== */
+      /* ====== SCORE RING ====== */
       .scoreWrap{
         width: 60px;
         height: 60px;
@@ -96,18 +96,17 @@
         z-index: 1;
       }
 
-      /* Ring thinner already; now also "closer to outer edge"
-         by increasing radius and slightly reducing stroke width */
+      /* Ring small + near outer edge */
       .scoreTrack{
         fill: none;
         stroke: rgba(17,24,39,0.10);
-        stroke-width: 2px;   /* was 3px -> thinner */
+        stroke-width: 2px;
       }
 
       .scoreProgress{
         fill: none;
         stroke: var(--neg);
-        stroke-width: 2px;   /* was 3px -> thinner */
+        stroke-width: 2px;
         stroke-linecap: round;
         stroke-dasharray: 0;
         stroke-dashoffset: 0;
@@ -127,7 +126,7 @@
 
       .scoreNumber{
         font-weight: 600;
-        font-size: 23px;
+        font-size: 24px;
         letter-spacing: -0.4px;
         color: var(--ink);
         line-height: 1;
@@ -145,11 +144,63 @@
         letter-spacing: -0.2px;
       }
 
+      .subtitleRow{
+        display:flex;
+        align-items:center;
+        gap: 10px;
+        margin-top: 2px;
+      }
+
       .subtitle{
         font-size: 15px;
         color: var(--muted);
-        margin-top: 2px;
       }
+
+      /* ====== STATUS BADGE (Salesforce-style) ====== */
+      .badge{
+        display:inline-flex;
+        align-items:center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: -0.1px;
+        border: 1px solid rgba(17,24,39,0.10);
+        background: rgba(255,255,255,0.75);
+        color: #374151;
+        backdrop-filter: blur(6px);
+        white-space: nowrap;
+      }
+
+      .badgeDot{
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
+        background: #9ca3af; /* default */
+      }
+
+      .badge.improving{
+        color: #166534;
+        background: rgba(22,163,74,0.10);
+        border-color: rgba(22,163,74,0.18);
+      }
+      .badge.improving .badgeDot{ background: #16a34a; }
+
+      .badge.stagnant{
+        color: #374151;
+        background: rgba(107,114,128,0.10);
+        border-color: rgba(107,114,128,0.18);
+      }
+      .badge.stagnant .badgeDot{ background: #9ca3af; }
+
+      .badge.decaying{
+        color: #991b1b;
+        background: rgba(239,68,68,0.10);
+        border-color: rgba(239,68,68,0.18);
+      }
+      .badge.decaying .badgeDot{ background: #ef4444; }
 
       .avatar{
         position:absolute;
@@ -199,11 +250,10 @@
         padding: 13px 14px;
       }
 
-      /* Context back down 1pt: was 17px -> 16px */
       .sectionList{
         margin: 0;
         padding: 0 0 0 18px;
-        font-size: 16px;
+        font-size: 16px; /* back down 1pt */
         line-height: 1.6;
       }
 
@@ -225,9 +275,7 @@
             <div class="scorePlate"></div>
 
             <svg class="scoreSvg" viewBox="0 0 60 60">
-              <!-- Ring 1pt "smaller" visually by shifting outward:
-                   Increase radius to 27 so it sits closer to the edge.
-                   With stroke-width 2, it still fits inside 60x60. -->
+              <!-- Keep r=27 to sit near the outer edge -->
               <circle class="scoreTrack" cx="30" cy="30" r="27"></circle>
               <circle class="scoreProgress" id="scoreProgress" cx="30" cy="30" r="27"></circle>
             </svg>
@@ -239,7 +287,16 @@
 
           <div class="titleWrap">
             <div class="title">Einstein Lead Score</div>
-            <div class="subtitle">Sales advice &amp; risk flags</div>
+
+            <div class="subtitleRow">
+              <div class="subtitle">Sales advice &amp; risk flags</div>
+
+              <!-- Badge -->
+              <div class="badge stagnant" id="statusBadge" title="Lead momentum">
+                <span class="badgeDot"></span>
+                <span id="statusText">Stagnant</span>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -276,8 +333,10 @@
 
       const progressCircle = document.getElementById("scoreProgress");
       const scoreNumberEl = document.getElementById("scoreNumber");
+      const statusBadge = document.getElementById("statusBadge");
+      const statusText = document.getElementById("statusText");
 
-      // Circle geometry MUST match r=27 above
+      // Geometry MUST match r=27 above
       const r = 27;
       const circumference = 2 * Math.PI * r;
 
@@ -292,7 +351,6 @@
         .then(data => {
           const s = clamp(Number(data.score ?? 0), 0, 100);
 
-          // Color thresholds:
           // Green >= 80, Yellow 50-79, Red < 50
           const ringColor =
             (s >= 80) ? "#16a34a" :
@@ -307,6 +365,11 @@
 
           document.getElementById("negatives").innerHTML =
             (data.negatives || []).filter(Boolean).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+
+          // Status badge (optional in JSON)
+          // Add this field in your JSON: "status": "Improving" | "Stagnant" | "Decaying"
+          const rawStatus = String(data.status ?? "Stagnant").toLowerCase();
+          setStatusBadge(rawStatus);
         })
         .catch(err => {
           document.getElementById("positives").innerHTML = "";
@@ -314,7 +377,20 @@
           scoreNumberEl.textContent = "0";
           progressCircle.style.stroke = "#ef4444";
           progressCircle.style.strokeDashoffset = `${circumference}`;
+          setStatusBadge("stagnant");
         });
+
+      function setStatusBadge(status){
+        const s = (status === "improving" || status === "stagnant" || status === "decaying")
+          ? status
+          : "stagnant";
+
+        statusBadge.classList.remove("improving","stagnant","decaying");
+        statusBadge.classList.add(s);
+
+        const label = s.charAt(0).toUpperCase() + s.slice(1);
+        statusText.textContent = label;
+      }
 
       function animateScore(target, durationMs){
         const start = performance.now();
