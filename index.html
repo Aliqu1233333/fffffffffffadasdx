@@ -79,6 +79,7 @@
       flex:0 0 auto;
     }
 
+    /* Glow is set dynamically in JS so it matches green/yellow/red */
     .scorePlate{
       position:absolute;
       inset:0;
@@ -87,12 +88,7 @@
       border:none !important;
       outline:none !important;
       box-shadow:none !important;
-      filter: drop-shadow(0 0 8px rgba(22,50,92,.18));
-    }
-    .scorePlate.hot{
-      filter:
-        drop-shadow(0 0 8px rgba(22,50,92,.18))
-        drop-shadow(0 0 14px rgba(34,197,94,.45));
+      filter: drop-shadow(0 0 10px rgba(22,50,92,.22));
     }
 
     .scoreSvg{
@@ -215,14 +211,18 @@
 
     .sectionBody{ padding: 12px 14px; }
 
-    /* ✅ ONLY make these (positives/negatives/actions list text) +1pt */
     .list{
       margin:0;
       padding:0 0 0 18px;
-      font-size:18px; /* was 17 */
+      font-size:18px;
       line-height:1.55;
     }
     .list li{ margin:6px 0; }
+
+    /* ✅ Change #2: Positives + Negatives list text to SF blue (exclude actions) */
+    .section:not(.actions) .list li{
+      color: var(--sfBlue);
+    }
 
     .section.actions{
       border-color:#bae6fd;
@@ -283,8 +283,8 @@
 
   <script>
     const data = {
-      score: 94,
-      status: "Improving",
+      score: 56,
+      status: "Decaying",
       positives: [
         "Strong engagement in the last 72 hours.",
         "Decision maker confirmed budget alignment."
@@ -298,6 +298,7 @@
       ]
     };
 
+    // ===== STATUS PILL =====
     const pill = document.getElementById("statusPill");
     const statusText = document.getElementById("statusText");
     const st = String(data.status || "Stagnant").toLowerCase();
@@ -307,6 +308,7 @@
     else pill.classList.add("stagnant");
     statusText.textContent = st.charAt(0).toUpperCase() + st.slice(1);
 
+    // ===== LISTS =====
     document.getElementById("positives").innerHTML =
       (data.positives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
 
@@ -316,16 +318,20 @@
     document.getElementById("actions").innerHTML =
       (data.actions || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
 
+    // ===== SCORE ANIMATION (COUNT + RING) =====
     const scoreTarget = Math.max(0, Math.min(100, Number(data.score ?? 0)));
-    const scoreText = document.getElementById("scoreText");
+    const scoreTextEl = document.getElementById("scoreText");
     const progressCircle = document.getElementById("progressCircle");
     const scorePlate = document.getElementById("scorePlate");
 
     const color = (scoreTarget >= 80) ? "#22c55e" : (scoreTarget >= 50) ? "#f59e0b" : "#ef4444";
     progressCircle.style.stroke = color;
 
-    if (scoreTarget >= 80) scorePlate.classList.add("hot");
+    // ✅ Glow matches score color (green/yellow/red) + subtle SF blue depth
+    scorePlate.style.filter =
+      `drop-shadow(0 0 10px rgba(22,50,92,.22)) drop-shadow(0 0 18px ${hexToRgba(color, 0.30)})`;
 
+    // set up circumference math for SVG ring
     const r = 27;
     const C = 2 * Math.PI * r;
     progressCircle.style.strokeDasharray = `${C}`;
@@ -340,7 +346,7 @@
       const e = easeOutCubic(t);
 
       const current = Math.round(scoreTarget * e);
-      scoreText.textContent = String(current);
+      scoreTextEl.textContent = String(current);
 
       const offset = C * (1 - (current / 100));
       progressCircle.style.strokeDashoffset = `${offset}`;
@@ -353,6 +359,16 @@
       return String(s).replace(/[&<>"']/g, c => ({
         "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
       }[c]));
+    }
+
+    function hexToRgba(hex, a){
+      const h = String(hex).replace("#","").trim();
+      const full = h.length === 3 ? h.split("").map(ch => ch + ch).join("") : h;
+      const n = parseInt(full, 16);
+      const r = (n >> 16) & 255;
+      const g = (n >> 8) & 255;
+      const b = n & 255;
+      return `rgba(${r},${g},${b},${a})`;
     }
   </script>
 </body>
