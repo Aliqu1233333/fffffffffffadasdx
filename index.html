@@ -30,7 +30,6 @@
         overflow: hidden;
       }
 
-      /* More “Lightning” feel: slightly larger radius + stronger shadow */
       .card{
         width: 100%;
         background: var(--panel);
@@ -41,11 +40,11 @@
         box-sizing: border-box;
       }
 
-      /* Banner is now more obviously a banner */
+      /* Banner returned to original proportions */
       .header{
         position: relative;
-        padding: 34px 18px 30px 18px;   /* taller */
-        background-image: url("./Background.png");
+        padding: 26px 18px 22px 18px;
+        background-image: url("./new einstein background.png");
         background-size: cover;
         background-position: center;
         border-bottom: 1px solid var(--border);
@@ -55,7 +54,6 @@
         isolation: isolate;
       }
 
-      /* This overlay is intentionally more visible now */
       .header::after{
         content:"";
         position:absolute;
@@ -67,12 +65,11 @@
         z-index: 0;
       }
 
-      /* A clear bottom fade like SF banners */
       .header::before{
         content:"";
         position:absolute;
         left:0; right:0; bottom:0;
-        height: 22px;
+        height: 18px;
         background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0.70));
         pointer-events:none;
         z-index: 1;
@@ -89,13 +86,12 @@
 
       /* ====== SCORE RING ====== */
       .scoreWrap{
-        width: 66px;  /* slightly larger = more noticeable */
+        width: 66px;
         height: 66px;
         position: relative;
         flex: 0 0 auto;
       }
 
-      /* Stronger “chip” feel */
       .scorePlate{
         position: absolute;
         inset: 0;
@@ -107,7 +103,6 @@
         transition: box-shadow 250ms ease;
       }
 
-      /* Hot glow is more visible */
       .scorePlate.hot{
         box-shadow:
           inset 0 0 0 1px rgba(15,23,42,0.08),
@@ -155,7 +150,7 @@
 
       .scoreNumber{
         font-weight: 700;
-        font-size: 26px;         /* more obvious */
+        font-size: 26px;
         letter-spacing: -0.6px;
         color: var(--ink);
         text-shadow: 0 1px 0 rgba(255,255,255,0.65);
@@ -170,14 +165,14 @@
         gap: 6px;
       }
 
+      /* Unboldened back to semibold */
       .title{
-        font-weight: 700;
-        font-size: 24px;         /* bigger so it reads as a header */
-        letter-spacing: -0.3px;
+        font-weight: 600;
+        font-size: 22px;
+        letter-spacing: -0.25px;
         margin: 0;
       }
 
-      /* More noticeable “glass” badge */
       .badge{
         display:inline-flex;
         align-items:center;
@@ -224,7 +219,6 @@
       }
       .badge.decaying .badgeDot{ background: #ef4444; }
 
-      /* Einstein: slightly tighter + cleaner */
       .avatar{
         position:absolute;
         right: 10px;
@@ -244,7 +238,6 @@
         border-bottom-right-radius: 12px;
       }
 
-      /* Cards: more “Lightning section” look */
       .section{
         border: 1px solid rgba(15,23,42,0.12);
         border-radius: 12px;
@@ -293,7 +286,6 @@
         color: #334155;
       }
 
-      /* Actions pop more noticeably (still not loud) */
       .section.actions{
         border-left: 5px solid rgba(14,165,233,0.65);
       }
@@ -382,7 +374,6 @@
     </div>
 
     <script>
-      /* DEMO OVERRIDES (REMOVE LATER) */
       const DEMO_SCORE = 94;
       const DEMO_STATUS = "Improving";
 
