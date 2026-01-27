@@ -1,446 +1,284 @@
 <!doctype html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Einstein Lead Score</title>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Einstein Lead Score</title>
 
-    <style>
-      :root{
-        --ink:#0b1220;
-        --muted:#5b667a;
-        --border:rgba(15,23,42,0.12);
-        --panel:#ffffff;
-        --shadow: 0 12px 30px rgba(2,6,23,0.14);
-        --bar:rgba(15,23,42,0.05);
+  <style>
+    :root{
+      --ink:#111827;
+      --muted:#6b7280;
+      --border:#e5e7eb;
+      --panel:#ffffff;
+      --bar:#f3f4f6;
+      --accent:#2563eb;
+      --pos:#16a34a;
+      --neg:#ef4444;
+      --warn:#f59e0b;
+      --info:#0ea5e9;
+    }
 
-        --pos:#16a34a;
-        --warn:#f59e0b;
-        --neg:#ef4444;
-        --action:#0ea5e9;
-      }
+    body{
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin:0;
+      background:transparent;
+      color:var(--ink);
+    }
 
-      html, body{
-        margin: 0;
-        padding: 0;
-        background: transparent;
-        color: var(--ink);
-        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-                     Arial, "Noto Sans", "Liberation Sans", sans-serif;
-        overflow: hidden;
-      }
+    .card{
+      width:520px;
+      max-width:100%;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 12px 26px rgba(0,0,0,.08);
+    }
 
-      .card{
-        width: 100%;
-        background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 12px;
-        overflow: visible;
-        box-shadow: var(--shadow);
-        box-sizing: border-box;
-      }
+    /* HEADER */
+    .header{
+      position:relative;
+      padding:22px 18px 18px 18px;
+      background-image:url("./new einstein background.png");
+      background-size:cover;
+      background-position:center;
+      border-bottom:1px solid var(--border);
+    }
 
-      /* Banner returned to original proportions */
-     .header{
-  position: relative;
-  padding: 26px 18px 22px 18px;
-  background-image: url("./Background.png");
-  background-size: cover;
-  background-position: center;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-  overflow: visible;
-  isolation: isolate;
-}
+    .headerRow{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      padding-right:84px;
+    }
 
+    .scoreWrap{
+      position:relative;
+      width:60px;
+      height:60px;
+      flex:0 0 auto;
+    }
 
-      .header::after{
-        content:"";
-        position:absolute;
-        inset:0;
-        background:
-          radial-gradient(120% 90% at 10% 20%, rgba(255,255,255,0.18), rgba(255,255,255,0) 58%),
-          linear-gradient(rgba(255,255,255,0.28), rgba(255,255,255,0.66));
-        pointer-events:none;
-        z-index: 0;
-      }
+    .scoreRing{
+      width:60px;
+      height:60px;
+      border-radius:50%;
+      background:conic-gradient(var(--warn) 0deg, #e5e7eb 0deg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 0 0 3px rgba(255,255,255,.9);
+      transition:box-shadow .3s ease;
+    }
 
-      .header::before{
-        content:"";
-        position:absolute;
-        left:0; right:0; bottom:0;
-        height: 18px;
-        background: linear-gradient(rgba(255,255,255,0), rgba(255,255,255,0.70));
-        pointer-events:none;
-        z-index: 1;
-      }
+    .scoreRing.glow{
+      box-shadow:0 0 12px rgba(34,197,94,.6), 0 0 0 3px rgba(255,255,255,.9);
+    }
 
-      .headerRow{
-        position: relative;
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        padding-right: 160px;
-        z-index: 2;
-      }
+    .scoreInner{
+      width:48px;
+      height:48px;
+      background:#fff;
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:18px;
+      font-weight:600;
+      letter-spacing:-0.3px;
+    }
 
-      /* ====== SCORE RING ====== */
-      .scoreWrap{
-        width: 66px;
-        height: 66px;
-        position: relative;
-        flex: 0 0 auto;
-      }
+    .titleWrap{
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:4px;
+    }
 
-      .scorePlate{
-        position: absolute;
-        inset: 0;
-        border-radius: 999px;
-        background: rgba(255,255,255,0.94);
-        box-shadow:
-          inset 0 0 0 1px rgba(15,23,42,0.08),
-          0 10px 20px rgba(2,6,23,0.16);
-        transition: box-shadow 250ms ease;
-      }
+    .title{
+      font-size:18px;
+      font-weight:500;
+      letter-spacing:-0.2px;
+    }
 
-      .scorePlate.hot{
-        box-shadow:
-          inset 0 0 0 1px rgba(15,23,42,0.08),
-          0 10px 20px rgba(2,6,23,0.16),
-          0 0 0 7px rgba(22,163,74,0.12),
-          0 0 22px rgba(22,163,74,0.38);
-      }
+    .momentum{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:600;
+      background:#dcfce7;
+      color:#166534;
+      width:fit-content;
+    }
 
-      .scoreSvg{
-        position: absolute;
-        inset: 0;
-        width: 66px;
-        height: 66px;
-        display:block;
-        transform: rotate(-90deg);
-        z-index: 1;
-      }
+    .avatar{
+      position:absolute;
+      right:12px;
+      top:6px;
+      width:82px;
+      pointer-events:none;
+    }
 
-      .scoreTrack{
-        fill: none;
-        stroke: rgba(15,23,42,0.12);
-        stroke-width: 2px;
-      }
+    /* CONTENT */
+    .content{
+      padding:14px;
+    }
 
-      .scoreProgress{
-        fill: none;
-        stroke: var(--neg);
-        stroke-width: 2px;
-        stroke-linecap: round;
-        stroke-dasharray: 0;
-        stroke-dashoffset: 0;
-        transition: stroke 200ms ease;
-        filter: drop-shadow(0 2px 2px rgba(2,6,23,0.10));
-      }
+    .section{
+      border:1px solid var(--border);
+      border-radius:10px;
+      overflow:hidden;
+      margin-bottom:12px;
+      background:#fff;
+    }
 
-      .scoreCenter{
-        position:absolute;
-        inset: 0;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        border-radius: 999px;
-        z-index: 2;
-      }
+    .sectionHeader{
+      background:var(--bar);
+      padding:10px 12px;
+      font-size:14px;
+      font-weight:600;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border-bottom:1px solid var(--border);
+    }
 
-      .scoreNumber{
-        font-weight: 700;
-        font-size: 26px;
-        letter-spacing: -0.6px;
-        color: var(--ink);
-        text-shadow: 0 1px 0 rgba(255,255,255,0.65);
-        line-height: 1;
-      }
+    .dot{
+      width:9px;
+      height:9px;
+      border-radius:50%;
+      display:inline-block;
+    }
 
-      /* ====== TITLE + BADGE ====== */
-      .titleWrap{
-        display:flex;
-        flex-direction:column;
-        justify-content:center;
-        gap: 6px;
-      }
+    .dot.pos{ background:var(--pos); }
+    .dot.neg{ background:var(--neg); }
+    .dot.info{ background:var(--info); }
 
-      /* Unboldened back to semibold */
-      .title{
-        font-weight: 600;
-        font-size: 22px;
-        letter-spacing: -0.25px;
-        margin: 0;
-      }
+    .sectionBody{
+      padding:12px 14px;
+    }
 
-      .badge{
-        display:inline-flex;
-        align-items:center;
-        gap: 7px;
-        padding: 6px 12px;
-        border-radius: 999px;
-        font-size: 12px;
-        font-weight: 700;
-        border: 1px solid rgba(15,23,42,0.12);
-        background: rgba(255,255,255,0.62);
-        backdrop-filter: blur(12px);
-        box-shadow:
-          inset 0 0 0 1px rgba(255,255,255,0.18),
-          0 8px 18px rgba(2,6,23,0.16);
-        width: fit-content;
-      }
+    .sectionList{
+      margin:0;
+      padding:0 0 0 18px;
+      font-size:13px;
+      line-height:1.5;
+    }
 
-      .badgeDot{
-        width: 8px;
-        height: 8px;
-        border-radius: 999px;
-        box-shadow: inset 0 0 0 1px rgba(2,6,23,0.12);
-        background: #94a3b8;
-      }
+    .sectionList li{
+      margin:6px 0;
+    }
 
-      .badge.improving{
-        color: #14532d;
-        background: rgba(22,163,74,0.14);
-        border-color: rgba(22,163,74,0.22);
-      }
-      .badge.improving .badgeDot{ background: #16a34a; }
+    .actions{
+      border:1px solid #bae6fd;
+      background:linear-gradient(#f0f9ff,#ffffff);
+      border-radius:10px;
+    }
 
-      .badge.stagnant{
-        color: rgba(15,23,42,0.82);
-        background: rgba(100,116,139,0.12);
-        border-color: rgba(100,116,139,0.20);
-      }
-      .badge.stagnant .badgeDot{ background: #94a3b8; }
+    .actions .sectionHeader{
+      background:#e0f2fe;
+      color:#0369a1;
+      border-bottom:1px solid #bae6fd;
+    }
 
-      .badge.decaying{
-        color: #7f1d1d;
-        background: rgba(239,68,68,0.13);
-        border-color: rgba(239,68,68,0.22);
-      }
-      .badge.decaying .badgeDot{ background: #ef4444; }
+    .actions .sectionList li{
+      color:#075985;
+      font-weight:500;
+    }
+  </style>
+</head>
 
-      .avatar{
-        position:absolute;
-        right: 10px;
-        bottom: -10px;
-        width: 128px;
-        height: auto;
-        object-fit: contain;
-        pointer-events:none;
-        z-index: 3;
-        filter: drop-shadow(0 10px 18px rgba(2,6,23,0.18));
-      }
+<body>
+<div class="card">
 
-      .content{
-        padding: 14px 14px 16px 14px;
-        background: linear-gradient(#ffffff, #ffffff);
-        border-bottom-left-radius: 12px;
-        border-bottom-right-radius: 12px;
-      }
+  <!-- HEADER -->
+  <div class="header">
+    <div class="headerRow">
 
-      .section{
-        border: 1px solid rgba(15,23,42,0.12);
-        border-radius: 12px;
-        overflow: hidden;
-        background: #fff;
-        margin-top: 12px;
-        box-shadow: 0 1px 0 rgba(2,6,23,0.04);
-      }
-
-      .sectionHeader{
-        background: rgba(15,23,42,0.045);
-        padding: 12px 12px;
-        font-weight: 750;
-        font-size: 16px;
-        display:flex;
-        align-items:center;
-        gap: 8px;
-        border-bottom: 1px solid rgba(15,23,42,0.10);
-      }
-
-      .dot{
-        width: 10px;
-        height: 10px;
-        border-radius: 999px;
-        box-shadow: inset 0 0 0 1px rgba(2,6,23,0.14);
-      }
-      .dot.pos{ background: var(--pos); }
-      .dot.neg{ background: var(--neg); }
-
-      .sectionBody{
-        padding: 14px 14px;
-      }
-
-      .sectionList{
-        margin: 0;
-        padding: 0 0 0 18px;
-        font-size: 16px;
-        line-height: 1.65;
-      }
-
-      .sectionList li{
-        margin: 7px 0;
-      }
-
-      .negatives li{
-        color: #334155;
-      }
-
-      .section.actions{
-        border-left: 5px solid rgba(14,165,233,0.65);
-      }
-
-      .section.actions .sectionHeader{
-        background:
-          linear-gradient(90deg, rgba(14,165,233,0.10), rgba(14,165,233,0.02)),
-          rgba(15,23,42,0.045);
-      }
-
-      .section.actions .sectionHeader span:last-child{
-        color: #075985;
-      }
-
-      .section.actions .sectionBody{
-        background: linear-gradient(rgba(14,165,233,0.06), rgba(14,165,233,0.00));
-      }
-
-      .section.actions .sectionList li::marker{
-        color: #0ea5e9;
-        font-weight: 800;
-      }
-    </style>
-  </head>
-
-  <body>
-    <div class="card">
-      <div class="header">
-        <div class="headerRow">
-          <div class="scoreWrap">
-            <div class="scorePlate" id="scorePlate"></div>
-
-            <svg class="scoreSvg" viewBox="0 0 66 66">
-              <circle class="scoreTrack" cx="33" cy="33" r="30"></circle>
-              <circle class="scoreProgress" id="scoreProgress" cx="33" cy="33" r="30"></circle>
-            </svg>
-
-            <div class="scoreCenter">
-              <div class="scoreNumber" id="scoreNumber">0</div>
-            </div>
-          </div>
-
-          <div class="titleWrap">
-            <div class="title">Einstein Lead Score</div>
-            <div class="badge improving" id="statusBadge">
-              <span class="badgeDot"></span>
-              <span id="statusText">Improving</span>
-            </div>
-          </div>
+      <div class="scoreWrap">
+        <div class="scoreRing glow" id="scoreRing">
+          <div class="scoreInner" id="scoreText">94</div>
         </div>
-
-        <img class="avatar" src="./New%20Einstein.png" alt="Einstein" />
       </div>
 
-      <div class="content">
-        <div class="section">
-          <div class="sectionHeader">
-            <span class="dot pos"></span>
-            <span>Top Positives</span>
-          </div>
-          <div class="sectionBody">
-            <ul class="sectionList" id="positives"></ul>
-          </div>
-        </div>
+      <div class="titleWrap">
+        <div class="title">Einstein Lead Score</div>
+        <div class="momentum" id="momentumPill">Improving</div>
+      </div>
 
-        <div class="section">
-          <div class="sectionHeader">
-            <span class="dot neg"></span>
-            <span>Top Negatives</span>
-          </div>
-          <div class="sectionBody">
-            <ul class="sectionList negatives" id="negatives"></ul>
-          </div>
-        </div>
+    </div>
 
-        <div class="section actions">
-          <div class="sectionHeader">
-            <span class="dot" style="background:#0ea5e9;"></span>
-            <span>Suggested Actions for Success</span>
-          </div>
-          <div class="sectionBody">
-            <ul class="sectionList" id="actions"></ul>
-          </div>
-        </div>
+    <img class="avatar" src="./New Einstein.png" alt="Einstein"/>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <div class="section">
+      <div class="sectionHeader">
+        <span class="dot pos"></span>
+        Top Positives
+      </div>
+      <div class="sectionBody">
+        <ul class="sectionList" id="positives">
+          <li>Strong engagement in the last 72 hours.</li>
+          <li>Decision maker confirmed budget alignment.</li>
+        </ul>
       </div>
     </div>
 
-    <script>
-      const DEMO_SCORE = 94;
-      const DEMO_STATUS = "Improving";
+    <div class="section">
+      <div class="sectionHeader">
+        <span class="dot neg"></span>
+        Top Negatives
+      </div>
+      <div class="sectionBody">
+        <ul class="sectionList" id="negatives">
+          <li>Follow-up call rescheduled twice.</li>
+        </ul>
+      </div>
+    </div>
 
-      const progressCircle = document.getElementById("scoreProgress");
-      const scoreNumberEl = document.getElementById("scoreNumber");
-      const statusBadge = document.getElementById("statusBadge");
-      const statusText = document.getElementById("statusText");
-      const scorePlate = document.getElementById("scorePlate");
+    <div class="section actions">
+      <div class="sectionHeader">
+        <span class="dot info"></span>
+        Suggested Actions for Success
+      </div>
+      <div class="sectionBody">
+        <ul class="sectionList" id="actions">
+          <li>Focus on getting back ahold of Fredrick Franklin & providing next steps for closing.</li>
+          <li>Send a concise recap with timeline + the single decision needed to move forward.</li>
+        </ul>
+      </div>
+    </div>
 
-      const r = 30;
-      const circumference = 2 * Math.PI * r;
+  </div>
 
-      progressCircle.style.strokeDasharray = `${circumference}`;
-      progressCircle.style.strokeDashoffset = `${circumference}`;
+</div>
 
-      const s = DEMO_SCORE;
-      const ringColor =
-        (s >= 80) ? "#16a34a" :
-        (s >= 50) ? "#f59e0b" :
-                     "#ef4444";
+<script>
+  const score = 94;
+  const ring = document.getElementById("scoreRing");
+  const text = document.getElementById("scoreText");
 
-      progressCircle.style.stroke = ringColor;
-      if (s >= 80) scorePlate.classList.add("hot");
-      animateScore(s, 1400);
+  let deg = 0;
+  const target = Math.min(score,100) * 3.6;
 
-      setStatusBadge(DEMO_STATUS.toLowerCase());
+  const color = score >= 80 ? "#22c55e" : score >= 50 ? "#f59e0b" : "#ef4444";
 
-      document.getElementById("positives").innerHTML = `
-        <li>Strong engagement in the last 72 hours.</li>
-        <li>Decision maker confirmed budget alignment.</li>
-      `;
-      document.getElementById("negatives").innerHTML = `
-        <li>Follow-up call rescheduled twice.</li>
-      `;
-      document.getElementById("actions").innerHTML = `
-        <li>Focus on getting back ahold of Fredrick Franklin &amp; provide next steps for closing.</li>
-        <li>Send a concise recap with timeline + the single decision needed to move forward.</li>
-      `;
+  const interval = setInterval(()=>{
+    deg += 2;
+    ring.style.background = `conic-gradient(${color} ${deg}deg, #e5e7eb ${deg}deg)`;
+    if(deg >= target){
+      ring.style.background = `conic-gradient(${color} ${target}deg, #e5e7eb ${target}deg)`;
+      clearInterval(interval);
+    }
+  }, 18);
+</script>
 
-      function setStatusBadge(status){
-        const s = (status === "improving" || status === "stagnant" || status === "decaying")
-          ? status : "stagnant";
-        statusBadge.classList.remove("improving","stagnant","decaying");
-        statusBadge.classList.add(s);
-        statusText.textContent = s.charAt(0).toUpperCase() + s.slice(1);
-      }
-
-      function animateScore(target, durationMs){
-        const start = performance.now();
-        const from = 0;
-        function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-
-        function frame(now){
-          const t = Math.min(1, (now - start) / durationMs);
-          const eased = easeOutCubic(t);
-          const current = Math.round(from + (target - from) * eased);
-
-          scoreNumberEl.textContent = String(current);
-
-          const progress = current / 100;
-          const offset = circumference * (1 - progress);
-          progressCircle.style.strokeDashoffset = `${offset}`;
-
-          if (t < 1) requestAnimationFrame(frame);
-        }
-        requestAnimationFrame(frame);
-      }
-    </script>
-  </body>
+</body>
 </html>
