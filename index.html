@@ -8,6 +8,7 @@
   <style>
     :root{
       --ink:#111827;
+      --muted:#6b7280;
       --border:#e5e7eb;
       --panel:#ffffff;
       --bar:#f3f4f6;
@@ -28,7 +29,7 @@
                    Arial, "Noto Sans", "Liberation Sans", sans-serif;
       color:var(--ink);
       overflow:hidden;
-      font-size:16px; /* +2px */
+      font-size:16px;
     }
 
     .card{
@@ -49,9 +50,10 @@
       background-image: url("./new%20einstein%20background.png");
       background-size: cover;
       background-position: center;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border); /* clean grey divider */
     }
 
+    /* 2pts less faded (stronger image) */
     .header::after{
       content:"";
       position:absolute;
@@ -70,7 +72,7 @@
       z-index:1;
     }
 
-    /* ===== SCORE RING ===== */
+    /* ===== SCORE RING (SVG = easy to make thinner) ===== */
     .scoreWrap{
       width:62px;
       height:62px;
@@ -78,21 +80,19 @@
       flex:0 0 auto;
     }
 
-    /* NO outline ring — just the plate + glow */
     .scorePlate{
       position:absolute;
       inset:0;
       border-radius:999px;
       background: rgba(255,255,255,0.92);
-      border:none !important;
-      outline:none !important;
-      box-shadow:none !important; /* kill any ring */
-      filter: drop-shadow(0 0 8px rgba(22,50,92,.18)); /* light glow */
+      box-shadow: 0 0 0 4px rgba(255,255,255,.88);
     }
+
+    /* subtle glow when 80+ */
     .scorePlate.hot{
-      filter:
-        drop-shadow(0 0 8px rgba(22,50,92,.18))
-        drop-shadow(0 0 14px rgba(34,197,94,.45));
+      box-shadow:
+        0 0 0 4px rgba(255,255,255,.88),
+        0 0 18px rgba(34,197,94,.45);
     }
 
     .scoreSvg{
@@ -101,14 +101,18 @@
       width:62px;
       height:62px;
       transform: rotate(-90deg);
-      background: transparent;
     }
 
-    /* Only the green/orange/red progress ring exists now */
+    /* ✅ THINNER RING HERE */
+    .track{
+      fill:none;
+      stroke:#e5e7eb;
+      stroke-width:2.2; /* thinner */
+    }
     .progress{
       fill:none;
       stroke: var(--warn);
-      stroke-width:2.2;
+      stroke-width:2.2; /* thinner */
       stroke-linecap:round;
       stroke-dasharray: 0;
       stroke-dashoffset: 0;
@@ -120,7 +124,7 @@
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:22px; /* +2px */
+      font-size:22px;
       font-weight:600;
       letter-spacing:-0.3px;
     }
@@ -133,7 +137,7 @@
     }
 
     .title{
-      font-size:20px; /* +2px */
+      font-size:20px;
       font-weight:600;
       letter-spacing:-0.2px;
       line-height:1.1;
@@ -145,7 +149,7 @@
       gap:6px;
       padding: 5px 10px;
       border-radius:999px;
-      font-size:14px; /* +2px */
+      font-size:14px;
       font-weight:600;
       width:fit-content;
       border:1px solid rgba(17,24,39,0.10);
@@ -195,7 +199,7 @@
     .sectionHeader{
       background: var(--bar);
       padding: 10px 12px;
-      font-size:16px; /* +2px */
+      font-size:16px;
       font-weight:600;
       display:flex;
       align-items:center;
@@ -219,7 +223,7 @@
     .list{
       margin:0;
       padding:0 0 0 18px;
-      font-size:15px; /* +2px */
+      font-size:15px;
       line-height:1.55;
     }
     .list li{ margin:6px 0; }
@@ -233,7 +237,7 @@
       color:#0369a1;
       border-bottom-color:#bae6fd;
     }
-    .section.actions .list li{ color: var(--sfBlue); }
+    .section.actions .list li{ color:#075985; }
   </style>
 </head>
 
@@ -245,8 +249,9 @@
           <div class="scorePlate" id="scorePlate"></div>
 
           <svg class="scoreSvg" viewBox="0 0 64 64" aria-hidden="true">
-            <!-- track removed to eliminate the grey ring -->
-            <circle class="progress" id="progressCircle" cx="32" cy="32" r="27"></circle>
+            <!-- r=28 gives good padding inside 64x64 -->
+            <circle class="track" cx="32" cy="32" r="28"></circle>
+            <circle class="progress" id="progressCircle" cx="32" cy="32" r="28"></circle>
           </svg>
 
           <div class="scoreInner" id="scoreText">0</div>
@@ -261,4 +266,108 @@
         </div>
       </div>
 
-      <img c
+      <img class="einstein" src="./New%20Einstein.png" alt="Einstein" />
+    </div>
+
+    <div class="content">
+      <div class="section">
+        <div class="sectionHeader"><span class="dot pos"></span>Top Positives</div>
+        <div class="sectionBody"><ul class="list" id="positives"></ul></div>
+      </div>
+
+      <div class="section">
+        <div class="sectionHeader"><span class="dot neg"></span>Top Negatives</div>
+        <div class="sectionBody"><ul class="list" id="negatives"></ul></div>
+      </div>
+
+      <div class="section actions">
+        <div class="sectionHeader"><span class="dot info"></span>Suggested Actions for Success</div>
+        <div class="sectionBody"><ul class="list" id="actions"></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ===== DEMO (swap with your JSON fetch later) =====
+    const data = {
+      score: 94,
+      status: "Improving", // Improving | Stagnant | Decaying
+      positives: [
+        "Strong engagement in the last 72 hours.",
+        "Decision maker confirmed budget alignment."
+      ],
+      negatives: [
+        "Follow-up call rescheduled twice."
+      ],
+      actions: [
+        "Focus on getting back ahold of Fredrick Franklin & providing next steps for closing.",
+        "Send a concise recap with timeline + the single decision needed to move forward."
+      ]
+    };
+
+    // ===== STATUS PILL =====
+    const pill = document.getElementById("statusPill");
+    const statusText = document.getElementById("statusText");
+    const st = String(data.status || "Stagnant").toLowerCase();
+    pill.classList.remove("improving","stagnant","decaying");
+    if (st === "improving") pill.classList.add("improving");
+    else if (st === "decaying") pill.classList.add("decaying");
+    else pill.classList.add("stagnant");
+    statusText.textContent = st.charAt(0).toUpperCase() + st.slice(1);
+
+    // ===== LISTS =====
+    document.getElementById("positives").innerHTML =
+      (data.positives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+
+    document.getElementById("negatives").innerHTML =
+      (data.negatives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+
+    document.getElementById("actions").innerHTML =
+      (data.actions || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+
+    // ===== SCORE ANIMATION (COUNT + RING) =====
+    const scoreTarget = Math.max(0, Math.min(100, Number(data.score ?? 0)));
+    const scoreText = document.getElementById("scoreText");
+    const progressCircle = document.getElementById("progressCircle");
+    const scorePlate = document.getElementById("scorePlate");
+
+    const color = (scoreTarget >= 80) ? "#22c55e" : (scoreTarget >= 50) ? "#f59e0b" : "#ef4444";
+    progressCircle.style.stroke = color;
+
+    // glow 80+
+    if (scoreTarget >= 80) scorePlate.classList.add("hot");
+
+    // set up circumference math for SVG ring
+    const r = 28;
+    const C = 2 * Math.PI * r;
+    progressCircle.style.strokeDasharray = `${C}`;
+    progressCircle.style.strokeDashoffset = `${C}`;
+
+    // animation duration (slightly longer)
+    const duration = 1600;
+
+    const start = performance.now();
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+    function tick(now){
+      const t = Math.min(1, (now - start) / duration);
+      const e = easeOutCubic(t);
+
+      const current = Math.round(scoreTarget * e);
+      scoreText.textContent = String(current);
+
+      const offset = C * (1 - (current / 100));
+      progressCircle.style.strokeDashoffset = `${offset}`;
+
+      if (t < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"']/g, c => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[c]));
+    }
+  </script>
+</body>
+</html>
