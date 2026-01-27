@@ -7,15 +7,19 @@
 
     <style>
       :root{
-        --ink:#111827;
-        --muted:#6b7280;
-        --border:#e5e7eb;
+        --ink:#0f172a;          /* slate-900 */
+        --muted:#64748b;        /* slate-500 */
+        --border:#e5e7eb;       /* gray-200 */
         --panel:#ffffff;
-        --bar:#f3f4f6;
+        --bar:rgba(15,23,42,0.04);
         --pos:#16a34a;
         --warn:#f59e0b;
         --neg:#ef4444;
         --action:#0ea5e9;
+
+        /* subtle “Salesforcey” glow tones */
+        --sf-blue: rgba(14,165,233,0.28);
+        --sf-blue-2: rgba(56,189,248,0.18);
       }
 
       html, body{
@@ -31,10 +35,10 @@
       .card{
         width: 100%;
         background: var(--panel);
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        border: 1px solid rgba(229,231,235,0.9);
+        border-radius: 10px;
         overflow: visible;
-        box-shadow: 0 10px 25px rgba(0,0,0,.08);
+        box-shadow: 0 10px 25px rgba(2,6,23,.10);
         box-sizing: border-box;
       }
 
@@ -44,21 +48,35 @@
         background-image: url("./Background.png");
         background-size: cover;
         background-position: center;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid rgba(229,231,235,0.9);
         overflow: visible;
-        border-top-left-radius: 8px;
-        border-top-right-radius: 8px;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        isolation: isolate;
       }
 
+      /* a touch more “crisp” vs washed */
       .header::after{
         content:"";
         position:absolute;
         inset:0;
-        background: linear-gradient(
-          rgba(255,255,255,0.38),
-          rgba(255,255,255,0.65)
-        );
-        pointer-events: none;
+        background:
+          radial-gradient(110% 90% at 10% 20%, rgba(255,255,255,0.28), rgba(255,255,255,0) 60%),
+          linear-gradient(rgba(255,255,255,0.34), rgba(255,255,255,0.58));
+        pointer-events:none;
+        z-index: 0;
+      }
+
+      /* subtle top sheen line (Salesforce-ish) */
+      .header::before{
+        content:"";
+        position:absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 1px;
+        background: rgba(255,255,255,0.55);
+        z-index: 1;
       }
 
       .headerRow{
@@ -82,19 +100,20 @@
         position: absolute;
         inset: 0;
         border-radius: 999px;
-        background: rgba(255,255,255,0.98);
+        background: rgba(255,255,255,0.96);
         box-shadow:
-          0 0 0 2px rgba(255,255,255,0.95),
-          0 4px 10px rgba(0,0,0,0.08);
+          inset 0 0 0 1px rgba(15,23,42,0.06),
+          0 8px 16px rgba(2,6,23,0.12);
         transition: box-shadow 300ms ease;
       }
 
       /* Glow when hot */
       .scorePlate.hot{
         box-shadow:
-          0 0 0 2px rgba(255,255,255,0.95),
-          0 0 14px rgba(22,163,74,0.45),
-          0 6px 16px rgba(22,163,74,0.35);
+          inset 0 0 0 1px rgba(15,23,42,0.06),
+          0 8px 16px rgba(2,6,23,0.12),
+          0 0 0 6px rgba(22,163,74,0.12),
+          0 0 18px rgba(22,163,74,0.34);
       }
 
       .scoreSvg{
@@ -109,7 +128,7 @@
 
       .scoreTrack{
         fill: none;
-        stroke: rgba(17,24,39,0.10);
+        stroke: rgba(15,23,42,0.10);
         stroke-width: 2px;
       }
 
@@ -121,6 +140,7 @@
         stroke-dasharray: 0;
         stroke-dashoffset: 0;
         transition: stroke 200ms ease;
+        filter: drop-shadow(0 2px 2px rgba(2,6,23,0.08));
       }
 
       .scoreCenter{
@@ -135,11 +155,12 @@
       }
 
       .scoreNumber{
-        font-weight: 600;
+        font-weight: 650;
         font-size: 25px;
-        letter-spacing: -0.4px;
+        letter-spacing: -0.5px;
         color: var(--ink);
         line-height: 1;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.55);
       }
 
       /* ====== TITLE + BADGE ====== */
@@ -149,31 +170,32 @@
         justify-content:center;
         line-height: 1.1;
         gap: 4px;
+        padding-top: 1px; /* micro-align */
       }
 
       .title{
-        font-weight: 600;
+        font-weight: 650;
         font-size: 22px;
-        letter-spacing: -0.2px;
+        letter-spacing: -0.25px;
         margin: 0;
       }
 
       .badge{
         display:inline-flex;
         align-items:center;
-        gap: 6px;
-        padding: 5px 11px;
+        gap: 7px;
+        padding: 6px 12px;
         border-radius: 999px;
         font-size: 12px;
-        font-weight: 600;
+        font-weight: 650;
         letter-spacing: -0.1px;
-        border: 1px solid rgba(17,24,39,0.10);
-        background: rgba(255,255,255,0.70);
-        color: #374151;
-        backdrop-filter: blur(8px);
+        border: 1px solid rgba(15,23,42,0.10);
+        background: rgba(255,255,255,0.68);
+        color: rgba(15,23,42,0.82);
+        backdrop-filter: blur(10px);
         box-shadow:
-          inset 0 0 0 1px rgba(255,255,255,0.25),
-          0 4px 10px rgba(0,0,0,0.10);
+          inset 0 0 0 1px rgba(255,255,255,0.24),
+          0 6px 14px rgba(2,6,23,0.12);
         white-space: nowrap;
         width: fit-content;
         margin-top: -2px;
@@ -183,27 +205,27 @@
         width: 8px;
         height: 8px;
         border-radius: 999px;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
+        box-shadow: inset 0 0 0 1px rgba(2,6,23,0.12);
         background: #9ca3af;
       }
 
       .badge.improving{
-        color: #166534;
-        background: rgba(22,163,74,0.14);
-        border-color: rgba(22,163,74,0.24);
+        color: #14532d;
+        background: rgba(22,163,74,0.12);
+        border-color: rgba(22,163,74,0.22);
       }
       .badge.improving .badgeDot{ background: #16a34a; }
 
       .badge.stagnant{
-        color: #374151;
-        background: rgba(107,114,128,0.12);
-        border-color: rgba(107,114,128,0.22);
+        color: rgba(15,23,42,0.78);
+        background: rgba(100,116,139,0.10);
+        border-color: rgba(100,116,139,0.20);
       }
-      .badge.stagnant .badgeDot{ background: #9ca3af; }
+      .badge.stagnant .badgeDot{ background: #94a3b8; }
 
       .badge.decaying{
-        color: #991b1b;
-        background: rgba(239,68,68,0.12);
+        color: #7f1d1d;
+        background: rgba(239,68,68,0.11);
         border-color: rgba(239,68,68,0.22);
       }
       .badge.decaying .badgeDot{ background: #ef4444; }
@@ -217,37 +239,39 @@
         object-fit: contain;
         pointer-events:none;
         z-index: 3;
-        filter: drop-shadow(0 6px 12px rgba(0,0,0,0.14));
+        filter: drop-shadow(0 8px 14px rgba(2,6,23,0.16));
       }
 
       .content{
         padding: 14px;
       }
 
+      /* Slightly tighter, more “Salesforce card” spacing */
       .section{
-        border: 1px solid var(--border);
-        border-radius: 8px;
+        border: 1px solid rgba(229,231,235,0.9);
+        border-radius: 10px;
         overflow: hidden;
         background: #fff;
         margin-top: 12px;
+        box-shadow: 0 1px 0 rgba(2,6,23,0.03);
       }
 
       .sectionHeader{
         background: var(--bar);
         padding: 12px 12px;
-        font-weight: 600;
+        font-weight: 650;
         font-size: 16px;
         display:flex;
         align-items:center;
         gap: 8px;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid rgba(229,231,235,0.9);
       }
 
       .dot{
         width: 10px;
         height: 10px;
         border-radius: 999px;
-        box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+        box-shadow: inset 0 0 0 1px rgba(2,6,23,0.12);
       }
       .dot.pos{ background: var(--pos); }
       .dot.neg{ background: var(--neg); }
@@ -268,33 +292,45 @@
       }
 
       .negatives li{
-        color: #374151;
+        color: #334155;
       }
 
-      /* ====== ACTIONS SECTION (pops slightly) ====== */
+      /* ====== ACTIONS SECTION (pops slightly, but still Salesforcey) ====== */
       .section.actions{
         border-left: 4px solid rgba(14,165,233,0.55);
       }
 
       .section.actions .sectionHeader{
-        background: linear-gradient(
-          rgba(14,165,233,0.08),
-          rgba(14,165,233,0.02)
-        );
+        background:
+          radial-gradient(110% 140% at 0% 0%, rgba(14,165,233,0.12), rgba(14,165,233,0.00) 60%),
+          var(--bar);
       }
 
       .section.actions .sectionHeader span:last-child{
-        color: #0369a1;
+        color: #075985;
       }
 
-      .section.actions .sectionList li{
+      .section.actions .sectionBody{
         position: relative;
-        padding-left: 6px;
+      }
+
+      /* subtle “focus” glow behind actions list */
+      .section.actions .sectionBody::before{
+        content:"";
+        position:absolute;
+        inset: -10px -10px -10px -10px;
+        background: radial-gradient(70% 70% at 20% 20%, var(--sf-blue), rgba(14,165,233,0) 60%);
+        pointer-events:none;
+        opacity: 0.35;
+      }
+
+      .section.actions .sectionList{
+        position: relative;
       }
 
       .section.actions .sectionList li::marker{
         color: #0ea5e9;
-        font-weight: bold;
+        font-weight: 700;
       }
     </style>
   </head>
@@ -350,17 +386,13 @@
           </div>
         </div>
 
-        <!-- NEW: Suggested Actions -->
         <div class="section actions">
           <div class="sectionHeader">
             <span class="dot" style="background:#0ea5e9;"></span>
             <span>Suggested Actions for Success</span>
           </div>
           <div class="sectionBody">
-            <ul class="sectionList">
-              <li>Focus on getting back ahold of Fredrick Franklin &amp; provide next steps for closing.</li>
-              <li>Send a concise follow-up recap email outlining the agreed timeline and decision criteria.</li>
-            </ul>
+            <ul class="sectionList" id="actions"></ul>
           </div>
         </div>
       </div>
@@ -372,10 +404,6 @@
          ========================= */
       const DEMO_SCORE = 94;
       const DEMO_STATUS = "Improving";
-
-      const params = new URLSearchParams(location.search);
-      const dealId = params.get("deal_id") || "TEST-1";
-      const url = `./data/${encodeURIComponent(dealId)}.json`;
 
       const progressCircle = document.getElementById("scoreProgress");
       const scoreNumberEl = document.getElementById("scoreNumber");
@@ -389,7 +417,7 @@
       progressCircle.style.strokeDasharray = `${circumference}`;
       progressCircle.style.strokeDashoffset = `${circumference}`;
 
-      // DEMO LOAD (bypasses JSON for now)
+      // Demo render
       const s = DEMO_SCORE;
       const ringColor =
         (s >= 80) ? "#16a34a" :
@@ -398,7 +426,6 @@
 
       progressCircle.style.stroke = ringColor;
       if (s >= 80) scorePlate.classList.add("hot");
-
       animateScore(s, 1400);
 
       setStatusBadge(DEMO_STATUS.toLowerCase());
@@ -410,6 +437,11 @@
 
       document.getElementById("negatives").innerHTML = `
         <li>Follow-up call rescheduled twice.</li>
+      `;
+
+      document.getElementById("actions").innerHTML = `
+        <li>Focus on getting back ahold of Fredrick Franklin &amp; provide next steps for closing.</li>
+        <li>Send a concise recap with timeline + the single decision needed to move forward.</li>
       `;
 
       function setStatusBadge(status){
