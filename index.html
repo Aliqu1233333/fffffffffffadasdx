@@ -1,362 +1,485 @@
 <!doctype html>
 <html>
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Einstein Lead Score</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Einstein Lead Score</title>
 
-  <style>
-    :root{
-      --ink:#111827;
-      --muted:#6b7280;
-      --border:#e5e7eb;
-      --panel:#ffffff;
-      --bar:#f3f4f6;
+    <style>
+      :root{
+        --ink:#0f172a;          /* slate-900 */
+        --muted:#64748b;        /* slate-500 */
+        --border:#e5e7eb;       /* gray-200 */
+        --panel:#ffffff;
+        --bar:rgba(15,23,42,0.04);
+        --pos:#16a34a;
+        --warn:#f59e0b;
+        --neg:#ef4444;
+        --action:#0ea5e9;
 
-      --pos:#16a34a;
-      --warn:#f59e0b;
-      --neg:#ef4444;
-      --info:#0ea5e9;
+        /* subtle “Salesforcey” glow tones */
+        --sf-blue: rgba(14,165,233,0.28);
+        --sf-blue-2: rgba(56,189,248,0.18);
+      }
 
-      --sfBlue:#16325c;
-    }
+      html, body{
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        color: var(--ink);
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
+                     Arial, "Noto Sans", "Liberation Sans", sans-serif;
+        overflow: hidden;
+      }
 
-    html,body{
-      margin:0;
-      padding:0;
-      background:transparent;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-                   Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      color:var(--ink);
-      overflow:hidden;
-      font-size:16px; /* +2px */
-    }
+      .card{
+        width: 100%;
+        background: var(--panel);
+        border: 1px solid rgba(229,231,235,0.9);
+        border-radius: 10px;
+        overflow: visible;
+        box-shadow: 0 10px 25px rgba(2,6,23,.10);
+        box-sizing: border-box;
+      }
 
-    .card{
-      width:520px;
-      max-width:100%;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 10px 25px rgba(0,0,0,.08);
-      box-sizing:border-box;
-    }
+      .header{
+        position: relative;
+        padding: 30px 18px 26px 18px;
+        background-image: url("./Background.png");
+        background-size: cover;
+        background-position: center;
+        border-bottom: 1px solid rgba(229,231,235,0.9);
+        overflow: visible;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+        isolation: isolate;
+      }
 
-    /* ===== HEADER ===== */
-    .header{
-      position:relative;
-      padding: 22px 16px 18px 16px;
-      background-image: url("./new%20einstein%20background.png");
-      background-size: cover;
-      background-position: center;
-      border-bottom: 1px solid var(--border);
-    }
+      /* a touch more “crisp” vs washed */
+      .header::after{
+        content:"";
+        position:absolute;
+        inset:0;
+        background:
+          radial-gradient(110% 90% at 10% 20%, rgba(255,255,255,0.28), rgba(255,255,255,0) 60%),
+          linear-gradient(rgba(255,255,255,0.34), rgba(255,255,255,0.58));
+        pointer-events:none;
+        z-index: 0;
+      }
 
-    .header::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.40));
-      pointer-events:none;
-      z-index:0;
-    }
+      /* subtle top sheen line (Salesforce-ish) */
+      .header::before{
+        content:"";
+        position:absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        height: 1px;
+        background: rgba(255,255,255,0.55);
+        z-index: 1;
+      }
 
-    .headerRow{
-      position:relative;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding-right: 120px;
-      z-index:1;
-    }
+      .headerRow{
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding-right: 150px;
+        z-index: 2;
+      }
 
-    /* ===== SCORE RING ===== */
-    .scoreWrap{
-      width:62px;
-      height:62px;
-      position:relative;
-      flex:0 0 auto;
-    }
+      /* ====== SCORE RING ====== */
+      .scoreWrap{
+        width: 63px;
+        height: 63px;
+        position: relative;
+        flex: 0 0 auto;
+      }
 
-    /* REMOVE any “ring/outline” entirely; keep clean plate + glow via filter only */
-    .scorePlate{
-      position:absolute;
-      inset:0;
-      border-radius:999px;
-      background: rgba(255,255,255,0.92);
-      border:none;
-      outline:none;
-      box-shadow:none;                 /* <-- kills the grey outline */
-      filter: drop-shadow(0 0 8px rgba(22,50,92,.18)); /* light glow */
-    }
-    .scorePlate.hot{
-      filter:
-        drop-shadow(0 0 8px rgba(22,50,92,.18))
-        drop-shadow(0 0 14px rgba(34,197,94,.45));
-    }
+      .scorePlate{
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.96);
+        box-shadow:
+          inset 0 0 0 1px rgba(15,23,42,0.06),
+          0 8px 16px rgba(2,6,23,0.12);
+        transition: box-shadow 300ms ease;
+      }
 
-    .scoreSvg{
-      position:absolute;
-      inset:0;
-      width:62px;
-      height:62px;
-      transform: rotate(-90deg);
-    }
+      /* Glow when hot */
+      .scorePlate.hot{
+        box-shadow:
+          inset 0 0 0 1px rgba(15,23,42,0.06),
+          0 8px 16px rgba(2,6,23,0.12),
+          0 0 0 6px rgba(22,163,74,0.12),
+          0 0 18px rgba(22,163,74,0.34);
+      }
 
-    /* hard remove any grey track */
-    .track{ display:none; }
+      .scoreSvg{
+        position: absolute;
+        inset: 0;
+        width: 63px;
+        height: 63px;
+        display:block;
+        transform: rotate(-90deg);
+        z-index: 1;
+      }
 
-    .progress{
-      fill:none;
-      stroke: var(--warn);
-      stroke-width:2.2;
-      stroke-linecap:round;
-      stroke-dasharray: 0;
-      stroke-dashoffset: 0;
-    }
+      .scoreTrack{
+        fill: none;
+        stroke: rgba(15,23,42,0.10);
+        stroke-width: 2px;
+      }
 
-    .scoreInner{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:22px; /* +2px */
-      font-weight:600;
-      letter-spacing:-0.3px;
-    }
+      .scoreProgress{
+        fill: none;
+        stroke: var(--neg);
+        stroke-width: 2px;
+        stroke-linecap: round;
+        stroke-dasharray: 0;
+        stroke-dashoffset: 0;
+        transition: stroke 200ms ease;
+        filter: drop-shadow(0 2px 2px rgba(2,6,23,0.08));
+      }
 
-    .titleWrap{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      justify-content:center;
-    }
+      .scoreCenter{
+        position:absolute;
+        inset: 0;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        border-radius: 999px;
+        background: transparent;
+        z-index: 2;
+      }
 
-    .title{
-      font-size:20px; /* +2px */
-      font-weight:600;
-      letter-spacing:-0.2px;
-      line-height:1.1;
-    }
+      .scoreNumber{
+        font-weight: 650;
+        font-size: 25px;
+        letter-spacing: -0.5px;
+        color: var(--ink);
+        line-height: 1;
+        text-shadow: 0 1px 0 rgba(255,255,255,0.55);
+      }
 
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 5px 10px;
-      border-radius:999px;
-      font-size:14px; /* +2px */
-      font-weight:600;
-      width:fit-content;
-      border:1px solid rgba(17,24,39,0.10);
-      background: rgba(255,255,255,0.65);
-      backdrop-filter: blur(10px);
-    }
+      /* ====== TITLE + BADGE ====== */
+      .titleWrap{
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+        line-height: 1.1;
+        gap: 4px;
+        padding-top: 1px; /* micro-align */
+      }
 
-    .pillDot{
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:#94a3b8;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
-    }
+      .title{
+        font-weight: 650;
+        font-size: 22px;
+        letter-spacing: -0.25px;
+        margin: 0;
+      }
 
-    .pill.improving{ color:#166534; background: rgba(22,163,74,0.14); border-color: rgba(22,163,74,0.22); }
-    .pill.improving .pillDot{ background:#16a34a; }
+      .badge{
+        display:inline-flex;
+        align-items:center;
+        gap: 7px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 650;
+        letter-spacing: -0.1px;
+        border: 1px solid rgba(15,23,42,0.10);
+        background: rgba(255,255,255,0.68);
+        color: rgba(15,23,42,0.82);
+        backdrop-filter: blur(10px);
+        box-shadow:
+          inset 0 0 0 1px rgba(255,255,255,0.24),
+          0 6px 14px rgba(2,6,23,0.12);
+        white-space: nowrap;
+        width: fit-content;
+        margin-top: -2px;
+      }
 
-    .pill.stagnant{ color:#334155; background: rgba(148,163,184,0.18); border-color: rgba(148,163,184,0.26); }
-    .pill.stagnant .pillDot{ background:#94a3b8; }
+      .badgeDot{
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 1px rgba(2,6,23,0.12);
+        background: #9ca3af;
+      }
 
-    .pill.decaying{ color:#7f1d1d; background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.22); }
-    .pill.decaying .pillDot{ background:#ef4444; }
+      .badge.improving{
+        color: #14532d;
+        background: rgba(22,163,74,0.12);
+        border-color: rgba(22,163,74,0.22);
+      }
+      .badge.improving .badgeDot{ background: #16a34a; }
 
-    .einstein{
-      position:absolute;
-      right:10px;
-      bottom:-10px;
-      width:110px;
-      height:auto;
-      z-index:2;
-      pointer-events:none;
-      filter: drop-shadow(0 10px 16px rgba(0,0,0,.18));
-    }
+      .badge.stagnant{
+        color: rgba(15,23,42,0.78);
+        background: rgba(100,116,139,0.10);
+        border-color: rgba(100,116,139,0.20);
+      }
+      .badge.stagnant .badgeDot{ background: #94a3b8; }
 
-    /* ===== CONTENT ===== */
-    .content{ padding: 14px; }
+      .badge.decaying{
+        color: #7f1d1d;
+        background: rgba(239,68,68,0.11);
+        border-color: rgba(239,68,68,0.22);
+      }
+      .badge.decaying .badgeDot{ background: #ef4444; }
 
-    .section{
-      border:1px solid var(--border);
-      border-radius:10px;
-      overflow:hidden;
-      background:#fff;
-      margin-top: 12px;
-    }
+      .avatar{
+        position:absolute;
+        right: 10px;
+        bottom: -12px;
+        width: 122px;
+        height: auto;
+        object-fit: contain;
+        pointer-events:none;
+        z-index: 3;
+        filter: drop-shadow(0 8px 14px rgba(2,6,23,0.16));
+      }
 
-    .sectionHeader{
-      background: var(--bar);
-      padding: 10px 12px;
-      font-size:16px; /* +2px */
-      font-weight:600;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      border-bottom:1px solid var(--border);
-    }
+      .content{
+        padding: 14px;
+      }
 
-    .dot{
-      width:9px;
-      height:9px;
-      border-radius:999px;
-      display:inline-block;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
-    }
-    .dot.pos{ background:var(--pos); }
-    .dot.neg{ background:var(--neg); }
-    .dot.info{ background:var(--info); }
+      /* Slightly tighter, more “Salesforce card” spacing */
+      .section{
+        border: 1px solid rgba(229,231,235,0.9);
+        border-radius: 10px;
+        overflow: hidden;
+        background: #fff;
+        margin-top: 12px;
+        box-shadow: 0 1px 0 rgba(2,6,23,0.03);
+      }
 
-    .sectionBody{ padding: 12px 14px; }
+      .sectionHeader{
+        background: var(--bar);
+        padding: 12px 12px;
+        font-weight: 650;
+        font-size: 16px;
+        display:flex;
+        align-items:center;
+        gap: 8px;
+        border-bottom: 1px solid rgba(229,231,235,0.9);
+      }
 
-    .list{
-      margin:0;
-      padding:0 0 0 18px;
-      font-size:15px; /* +2px */
-      line-height:1.55;
-    }
-    .list li{ margin:6px 0; }
+      .dot{
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        box-shadow: inset 0 0 0 1px rgba(2,6,23,0.12);
+      }
+      .dot.pos{ background: var(--pos); }
+      .dot.neg{ background: var(--neg); }
 
-    .section.actions{
-      border-color:#bae6fd;
-      background: linear-gradient(#f0f9ff,#fff);
-    }
-    .section.actions .sectionHeader{
-      background:#e0f2fe;
-      color:#0369a1;
-      border-bottom-color:#bae6fd;
-    }
-    .section.actions .list li{ color: var(--sfBlue); }
-  </style>
-</head>
+      .sectionBody{
+        padding: 13px 14px;
+      }
 
-<body>
-  <div class="card">
-    <div class="header">
-      <div class="headerRow">
-        <div class="scoreWrap">
-          <div class="scorePlate" id="scorePlate"></div>
+      .sectionList{
+        margin: 0;
+        padding: 0 0 0 18px;
+        font-size: 16px;
+        line-height: 1.6;
+      }
 
-          <svg class="scoreSvg" viewBox="0 0 64 64" aria-hidden="true">
-            <circle class="track" cx="32" cy="32" r="27"></circle>
-            <circle class="progress" id="progressCircle" cx="32" cy="32" r="27"></circle>
-          </svg>
+      .sectionList li{
+        margin: 7px 0;
+      }
 
-          <div class="scoreInner" id="scoreText">0</div>
+      .negatives li{
+        color: #334155;
+      }
+
+      /* ====== ACTIONS SECTION (pops slightly, but still Salesforcey) ====== */
+      .section.actions{
+        border-left: 4px solid rgba(14,165,233,0.55);
+      }
+
+      .section.actions .sectionHeader{
+        background:
+          radial-gradient(110% 140% at 0% 0%, rgba(14,165,233,0.12), rgba(14,165,233,0.00) 60%),
+          var(--bar);
+      }
+
+      .section.actions .sectionHeader span:last-child{
+        color: #075985;
+      }
+
+      .section.actions .sectionBody{
+        position: relative;
+      }
+
+      /* subtle “focus” glow behind actions list */
+      .section.actions .sectionBody::before{
+        content:"";
+        position:absolute;
+        inset: -10px -10px -10px -10px;
+        background: radial-gradient(70% 70% at 20% 20%, var(--sf-blue), rgba(14,165,233,0) 60%);
+        pointer-events:none;
+        opacity: 0.35;
+      }
+
+      .section.actions .sectionList{
+        position: relative;
+      }
+
+      .section.actions .sectionList li::marker{
+        color: #0ea5e9;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="card">
+      <div class="header">
+        <div class="headerRow">
+          <div class="scoreWrap">
+            <div class="scorePlate" id="scorePlate"></div>
+
+            <svg class="scoreSvg" viewBox="0 0 63 63">
+              <circle class="scoreTrack" cx="31.5" cy="31.5" r="29"></circle>
+              <circle class="scoreProgress" id="scoreProgress" cx="31.5" cy="31.5" r="29"></circle>
+            </svg>
+
+            <div class="scoreCenter">
+              <div class="scoreNumber" id="scoreNumber">0</div>
+            </div>
+          </div>
+
+          <div class="titleWrap">
+            <div class="title">Einstein Lead Score</div>
+
+            <div class="badge improving" id="statusBadge">
+              <span class="badgeDot"></span>
+              <span id="statusText">Improving</span>
+            </div>
+          </div>
         </div>
 
-        <div class="titleWrap">
-          <div class="title">Einstein Lead Score</div>
-          <div class="pill improving" id="statusPill">
-            <span class="pillDot"></span>
-            <span id="statusText">Improving</span>
+        <img class="avatar" src="./New%20Einstein.png" alt="Einstein" />
+      </div>
+
+      <div class="content">
+        <div class="section">
+          <div class="sectionHeader">
+            <span class="dot pos"></span>
+            <span>Top Positives</span>
+          </div>
+          <div class="sectionBody">
+            <ul class="sectionList" id="positives"></ul>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="sectionHeader">
+            <span class="dot neg"></span>
+            <span>Top Negatives</span>
+          </div>
+          <div class="sectionBody">
+            <ul class="sectionList negatives" id="negatives"></ul>
+          </div>
+        </div>
+
+        <div class="section actions">
+          <div class="sectionHeader">
+            <span class="dot" style="background:#0ea5e9;"></span>
+            <span>Suggested Actions for Success</span>
+          </div>
+          <div class="sectionBody">
+            <ul class="sectionList" id="actions"></ul>
           </div>
         </div>
       </div>
-
-      <img class="einstein" src="./New%20Einstein.png" alt="Einstein" />
     </div>
 
-    <div class="content">
-      <div class="section">
-        <div class="sectionHeader"><span class="dot pos"></span>Top Positives</div>
-        <div class="sectionBody"><ul class="list" id="positives"></ul></div>
-      </div>
+    <script>
+      /* =========================
+         DEMO OVERRIDES (REMOVE LATER)
+         ========================= */
+      const DEMO_SCORE = 94;
+      const DEMO_STATUS = "Improving";
 
-      <div class="section">
-        <div class="sectionHeader"><span class="dot neg"></span>Top Negatives</div>
-        <div class="sectionBody"><ul class="list" id="negatives"></ul></div>
-      </div>
+      const progressCircle = document.getElementById("scoreProgress");
+      const scoreNumberEl = document.getElementById("scoreNumber");
+      const statusBadge = document.getElementById("statusBadge");
+      const statusText = document.getElementById("statusText");
+      const scorePlate = document.getElementById("scorePlate");
 
-      <div class="section actions">
-        <div class="sectionHeader"><span class="dot info"></span>Suggested Actions for Success</div>
-        <div class="sectionBody"><ul class="list" id="actions"></ul></div>
-      </div>
-    </div>
-  </div>
+      const r = 29;
+      const circumference = 2 * Math.PI * r;
 
-  <script>
-    const data = {
-      score: 94,
-      status: "Improving",
-      positives: [
-        "Strong engagement in the last 72 hours.",
-        "Decision maker confirmed budget alignment."
-      ],
-      negatives: [
-        "Follow-up call rescheduled twice."
-      ],
-      actions: [
-        "Focus on getting back ahold of Fredrick Franklin & providing next steps for closing.",
-        "Send a concise recap with timeline + the single decision needed to move forward."
-      ]
-    };
+      progressCircle.style.strokeDasharray = `${circumference}`;
+      progressCircle.style.strokeDashoffset = `${circumference}`;
 
-    const pill = document.getElementById("statusPill");
-    const statusText = document.getElementById("statusText");
-    const st = String(data.status || "Stagnant").toLowerCase();
-    pill.classList.remove("improving","stagnant","decaying");
-    if (st === "improving") pill.classList.add("improving");
-    else if (st === "decaying") pill.classList.add("decaying");
-    else pill.classList.add("stagnant");
-    statusText.textContent = st.charAt(0).toUpperCase() + st.slice(1);
+      // Demo render
+      const s = DEMO_SCORE;
+      const ringColor =
+        (s >= 80) ? "#16a34a" :
+        (s >= 50) ? "#f59e0b" :
+                     "#ef4444";
 
-    document.getElementById("positives").innerHTML =
-      (data.positives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+      progressCircle.style.stroke = ringColor;
+      if (s >= 80) scorePlate.classList.add("hot");
+      animateScore(s, 1400);
 
-    document.getElementById("negatives").innerHTML =
-      (data.negatives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+      setStatusBadge(DEMO_STATUS.toLowerCase());
 
-    document.getElementById("actions").innerHTML =
-      (data.actions || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+      document.getElementById("positives").innerHTML = `
+        <li>Strong engagement in the last 72 hours.</li>
+        <li>Decision maker confirmed budget alignment.</li>
+      `;
 
-    const scoreTarget = Math.max(0, Math.min(100, Number(data.score ?? 0)));
-    const scoreText = document.getElementById("scoreText");
-    const progressCircle = document.getElementById("progressCircle");
-    const scorePlate = document.getElementById("scorePlate");
+      document.getElementById("negatives").innerHTML = `
+        <li>Follow-up call rescheduled twice.</li>
+      `;
 
-    const color = (scoreTarget >= 80) ? "#22c55e" : (scoreTarget >= 50) ? "#f59e0b" : "#ef4444";
-    progressCircle.style.stroke = color;
+      document.getElementById("actions").innerHTML = `
+        <li>Focus on getting back ahold of Fredrick Franklin &amp; provide next steps for closing.</li>
+        <li>Send a concise recap with timeline + the single decision needed to move forward.</li>
+      `;
 
-    if (scoreTarget >= 80) scorePlate.classList.add("hot");
+      function setStatusBadge(status){
+        const s = (status === "improving" || status === "stagnant" || status === "decaying")
+          ? status
+          : "stagnant";
 
-    const r = 27;
-    const C = 2 * Math.PI * r;
-    progressCircle.style.strokeDasharray = `${C}`;
-    progressCircle.style.strokeDashoffset = `${C}`;
+        statusBadge.classList.remove("improving","stagnant","decaying");
+        statusBadge.classList.add(s);
 
-    const duration = 1600;
-    const start = performance.now();
-    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+        const label = s.charAt(0).toUpperCase() + s.slice(1);
+        statusText.textContent = label;
+      }
 
-    function tick(now){
-      const t = Math.min(1, (now - start) / duration);
-      const e = easeOutCubic(t);
+      function animateScore(target, durationMs){
+        const start = performance.now();
+        const from = 0;
 
-      const current = Math.round(scoreTarget * e);
-      scoreText.textContent = String(current);
+        function easeOutCubic(t){
+          return 1 - Math.pow(1 - t, 3);
+        }
 
-      const offset = C * (1 - (current / 100));
-      progressCircle.style.strokeDashoffset = `${offset}`;
+        function frame(now){
+          const t = Math.min(1, (now - start) / durationMs);
+          const eased = easeOutCubic(t);
+          const current = Math.round(from + (target - from) * eased);
 
-      if (t < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
+          scoreNumberEl.textContent = String(current);
 
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[c]));
-    }
-  </script>
-</body>
+          const progress = current / 100;
+          const offset = circumference * (1 - progress);
+          progressCircle.style.strokeDashoffset = `${offset}`;
+
+          if (t < 1) requestAnimationFrame(frame);
+        }
+
+        requestAnimationFrame(frame);
+      }
+    </script>
+  </body>
 </html>
