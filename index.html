@@ -28,10 +28,9 @@
                    Arial, "Noto Sans", "Liberation Sans", sans-serif;
       color:var(--ink);
       overflow:hidden;
-      font-size:16px; /* keep same */
+      font-size:16px;
     }
 
-    /* ✅ remove fixed width so it fills embed container */
     .card{
       width:100%;
       max-width:100%;
@@ -79,7 +78,6 @@
       flex:0 0 auto;
     }
 
-    /* Glow is set dynamically in JS so it matches green/yellow/red */
     .scorePlate{
       position:absolute;
       inset:0;
@@ -176,58 +174,35 @@
       filter: drop-shadow(0 10px 16px rgba(0,0,0,.18));
     }
 
-    /* ===== CONTENT (Upgraded UI for sections only) ===== */
+    /* ===== CONTENT (Option A + small B) ===== */
     .content{
       padding: 14px;
-      /* subtle enterprise surface so sections don’t feel flat */
-      background: linear-gradient(#ffffff, #fbfcfe);
+      background: linear-gradient(#ffffff, #fbfcfe); /* subtle surface */
     }
 
-    /* More premium card feel: softer border, subtle shadow, better spacing */
+    /* Minimal, enterprise panels: no hover lift, no accent bars, no custom bullets */
     .section{
-      position:relative;
       border:1px solid rgba(17,24,39,0.10);
       border-radius:12px;
       overflow:hidden;
       background:#fff;
       margin-top: 12px;
       box-shadow:
-        0 1px 0 rgba(17,24,39,0.04),
-        0 10px 18px rgba(17,24,39,0.05);
-      transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-    }
-    .section:hover{
-      border-color: rgba(17,24,39,0.14);
-      box-shadow:
-        0 1px 0 rgba(17,24,39,0.05),
-        0 14px 26px rgba(17,24,39,0.08);
-      transform: translateY(-1px);
+        0 1px 0 rgba(17,24,39,0.03),
+        0 8px 16px rgba(17,24,39,0.04); /* subtle depth */
     }
 
-    /* Header with left accent strip + cleaner typography */
     .sectionHeader{
-      position:relative;
-      background: #f8fafc; /* slightly cleaner than bar */
-      padding: 12px 14px 12px 14px;
+      background: var(--bar);
+      padding: 12px 14px;
       font-size:18px;
-      font-weight:700;
+      font-weight:600;
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:8px;
       border-bottom:1px solid rgba(17,24,39,0.08);
     }
 
-    .sectionHeader::before{
-      content:"";
-      position:absolute;
-      left:0;
-      top:0;
-      bottom:0;
-      width:4px;
-      background: rgba(148,163,184,0.65); /* default; overridden below */
-    }
-
-    /* keep your dots but make them sit in a subtle badge */
     .dot{
       width:9px;
       height:9px;
@@ -235,71 +210,45 @@
       display:inline-block;
       box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
     }
-
     .dot.pos{ background:var(--pos); }
     .dot.neg{ background:var(--neg); }
     .dot.info{ background:var(--info); }
 
-    /* accent strip per section type (enterprise subtle) */
-    .section.pos .sectionHeader::before{ background: rgba(22,163,74,0.55); }
-    .section.neg .sectionHeader::before{ background: rgba(239,68,68,0.55); }
-    .section.actions .sectionHeader::before{ background: rgba(14,165,233,0.55); }
-
-    /* Body spacing upgraded */
+    /* Inset body surface (small piece of B) */
     .sectionBody{
       padding: 12px 14px 14px 14px;
+      background: #fbfcfe;
+      box-shadow: inset 0 1px 0 rgba(17,24,39,0.04);
     }
 
-    /* Bullets: cleaner spacing, subtle custom marker */
+    /* Standard bullets (no custom markers) */
     .list{
       margin:0;
-      padding:0;
-      list-style:none;
+      padding:0 0 0 18px;
       font-size:18px;
       line-height:1.55;
     }
+    .list li{ margin:8px 0; }
 
-    .list li{
-      position:relative;
-      padding-left:18px;
-      margin:10px 0;
-    }
-
-    .list li::before{
-      content:"";
-      position:absolute;
-      left:2px;
-      top:.65em;
-      width:6px;
-      height:6px;
-      border-radius:999px;
-      background: rgba(17,24,39,0.28); /* overridden per section */
-    }
-
-    /* section-specific bullet markers */
-    .section.pos .list li::before{ background: rgba(22,163,74,0.65); }
-    .section.neg .list li::before{ background: rgba(239,68,68,0.65); }
-    .section.actions .list li::before{ background: rgba(14,165,233,0.65); }
-
-    /* keep your SF blue text rules intact */
+    /* keep SF blue text for positives/negatives */
     .section:not(.actions) .list li{
       color: var(--sfBlue);
     }
 
     .section.actions{
       border-color:#bae6fd;
-      background: linear-gradient(#f0f9ff,#fff);
+      background: #fff;
     }
-
     .section.actions .sectionHeader{
       background:#e0f2fe;
       color:#0369a1;
       border-bottom-color:#bae6fd;
     }
-
-    .section.actions .list li{
-      color: var(--sfBlue);
+    .section.actions .sectionBody{
+      background:#f7fbff;
+      box-shadow: inset 0 1px 0 rgba(14,165,233,0.12);
     }
+    .section.actions .list li{ color: var(--sfBlue); }
   </style>
 </head>
 
@@ -330,12 +279,12 @@
     </div>
 
     <div class="content">
-      <div class="section pos">
+      <div class="section">
         <div class="sectionHeader"><span class="dot pos"></span>Top Positives</div>
         <div class="sectionBody"><ul class="list" id="positives"></ul></div>
       </div>
 
-      <div class="section neg">
+      <div class="section">
         <div class="sectionHeader"><span class="dot neg"></span>Top Negatives</div>
         <div class="sectionBody"><ul class="list" id="negatives"></ul></div>
       </div>
@@ -397,7 +346,6 @@
     scorePlate.style.filter =
       `drop-shadow(0 0 10px rgba(22,50,92,.22)) drop-shadow(0 0 18px ${hexToRgba(color, 0.30)})`;
 
-    // set up circumference math for SVG ring
     const r = 27;
     const C = 2 * Math.PI * r;
     progressCircle.style.strokeDasharray = `${C}`;
