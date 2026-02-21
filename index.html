@@ -14,7 +14,6 @@
       --muted: #6b7280;
       --label: #374151;
       --blue: #0176d3;
-      --blue-light: #e0f2fe;
       --green: #059669;
       --green-bg: #d1fae5;
       --green-text: #065f46;
@@ -23,12 +22,13 @@
     }
 
     *{ box-sizing: border-box; }
-    body{
+    html, body{
       margin: 0;
-      padding: 20px;
-      background: var(--bg);
+      padding: 0;
+      background: transparent;
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
+      overflow: hidden;
     }
 
     .widget{
@@ -37,18 +37,24 @@
       border-radius: var(--radius);
       box-shadow: 0 1px 3px rgba(0,0,0,.04);
       overflow: hidden;
-      max-width: 480px;
+      max-width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
     /* ========== COMPACT VIEW ========== */
     .compact-view{
-      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     .widget-header{
       padding: 16px 20px;
       border-bottom: 1px solid var(--line);
       background: var(--surface);
+      flex-shrink: 0;
     }
 
     .header-row{
@@ -72,18 +78,12 @@
 
     .widget-body{
       padding: 20px;
+      flex: 1;
+      overflow-y: auto;
     }
 
-    .section{
-      margin-bottom: 20px;
-      padding-bottom: 20px;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .section:last-child{
-      margin-bottom: 0;
-      padding-bottom: 0;
-      border-bottom: none;
+    .contact-section{
+      margin-bottom: 18px;
     }
 
     .section-label{
@@ -102,27 +102,23 @@
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .contact-name:hover{
       text-decoration: underline;
     }
 
-    .field-row{
+    .contact-meta{
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .outcome-section{
       display: flex;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .field-label{
-      color: var(--label);
-      font-weight: 500;
-      min-width: 100px;
-    }
-
-    .field-value{
-      color: var(--text);
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
     }
 
     .outcome-badge{
@@ -134,13 +130,43 @@
       border-radius: 4px;
       font-size: 13px;
       font-weight: 600;
-      margin-bottom: 8px;
     }
 
     .outcome-detail{
       font-size: 14px;
-      color: var(--muted);
-      line-height: 1.4;
+      color: var(--text);
+    }
+
+    /* KEY POINTS - HIGHLIGHTED SECTION */
+    .key-points-section{
+      background: #f9fafb;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .key-points-header{
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .key-points-icon{
+      width: 20px;
+      height: 20px;
+      background: var(--blue);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
     }
 
     .key-points-list{
@@ -152,8 +178,12 @@
     .key-points-list li{
       font-size: 14px;
       color: var(--text);
-      line-height: 1.6;
+      line-height: 1.7;
       margin: 8px 0;
+    }
+
+    .key-points-list li::marker{
+      color: var(--blue);
     }
 
     .actions{
@@ -162,6 +192,7 @@
       padding: 16px 20px;
       border-top: 1px solid var(--line);
       background: #fafbfc;
+      flex-shrink: 0;
     }
 
     .btn{
@@ -201,10 +232,12 @@
     /* ========== TIMELINE VIEW ========== */
     .timeline-view{
       display: none;
+      flex-direction: column;
+      height: 100%;
     }
 
     .timeline-view.active{
-      display: block;
+      display: flex;
     }
 
     .timeline-header{
@@ -214,6 +247,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-shrink: 0;
     }
 
     .timeline-title{
@@ -222,100 +256,201 @@
       color: var(--text);
     }
 
-    .back-btn{
-      padding: 8px 14px;
-      border-radius: 6px;
-      border: 1px solid var(--line);
-      background: white;
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.15s ease;
-      font-family: var(--font);
+    .timeline-meta-row{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+      display: flex;
+      gap: 10px;
     }
-    .back-btn:hover{
+
+    .timeline-meta-row span{
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .close-btn{
+      width: 28px;
+      height: 28px;
+      border-radius: 4px;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 400;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .close-btn:hover{
       background: var(--bg);
+      color: var(--text);
     }
 
     .timeline-body{
-      padding: 20px;
-      max-height: 600px;
+      flex: 1;
       overflow-y: auto;
+      background: #fafbfc;
+    }
+
+    .timeline-track{
+      position: relative;
+      padding: 16px 20px 16px 28px;
+    }
+
+    /* Thinner timeline line */
+    .timeline-track::before{
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 24px;
+      bottom: 24px;
+      width: 1px;
+      background: #d1d5db;
     }
 
     .timeline-item{
-      margin-bottom: 20px;
-      padding: 18px;
+      position: relative;
+      margin-bottom: 14px;
+      background: white;
       border: 1px solid var(--line);
       border-radius: 8px;
-      background: var(--surface);
-      transition: box-shadow 0.15s ease;
+      padding: 14px 16px;
+      transition: all 0.2s ease;
     }
 
     .timeline-item:hover{
-      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      transform: translateY(-1px);
     }
 
     .timeline-item:last-child{
       margin-bottom: 0;
     }
 
-    .timeline-item.positive{
-      border-left: 3px solid var(--green);
+    /* Smaller dots */
+    .timeline-dot{
+      position: absolute;
+      left: -20px;
+      top: 18px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid #10b981;
+      z-index: 1;
+      box-shadow: 0 0 0 3px white;
     }
 
-    .timeline-item.warning{
-      border-left: 3px solid #f59e0b;
+    .timeline-item.interested .timeline-dot{
+      border-color: #10b981;
+      background: #10b981;
     }
 
-    .timeline-item.negative{
-      border-left: 3px solid #ef4444;
+    .timeline-item.warm .timeline-dot{
+      border-color: #f59e0b;
+      background: #f59e0b;
     }
 
-    .timeline-meta{
+    .timeline-item.no-answer .timeline-dot{
+      border-color: #94a3b8;
+      background: #94a3b8;
+    }
+
+    .timeline-item.not-interested .timeline-dot{
+      border-color: #ef4444;
+      background: #ef4444;
+    }
+
+    .timeline-item-header{
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--line);
+      margin-bottom: 10px;
+    }
+
+    .timeline-left{
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .timeline-contact-name{
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 600;
-      color: var(--blue);
-      cursor: pointer;
-      text-decoration: none;
+      color: var(--text);
     }
-    .timeline-contact-name:hover{
-      text-decoration: underline;
+
+    .timeline-status-badge{
+      display: inline-flex;
+      padding: 3px 9px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .timeline-status-badge.interested{
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .timeline-status-badge.warm{
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .timeline-status-badge.no-answer{
+      background: #f1f5f9;
+      color: #475569;
+    }
+
+    .timeline-status-badge.not-interested{
+      background: #fee2e2;
+      color: #991b1b;
     }
 
     .timeline-date{
       font-size: 12px;
-      font-weight: 500;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .timeline-notes{
+      margin: 0;
+      padding: 0 0 0 16px;
+      list-style: disc;
+    }
+
+    .timeline-notes li{
+      font-size: 13px;
+      color: var(--text);
+      line-height: 1.6;
+      margin: 5px 0;
+    }
+
+    .timeline-notes li::marker{
       color: var(--muted);
     }
 
-    .timeline-content{
-      font-size: 14px;
-      color: var(--text);
-      line-height: 1.6;
-    }
-
     /* Scrollbar styling */
+    .widget-body::-webkit-scrollbar,
     .timeline-body::-webkit-scrollbar {
-      width: 8px;
+      width: 6px;
     }
+    .widget-body::-webkit-scrollbar-track,
     .timeline-body::-webkit-scrollbar-track {
       background: transparent;
     }
+    .widget-body::-webkit-scrollbar-thumb,
     .timeline-body::-webkit-scrollbar-thumb {
-      background: var(--line);
-      border-radius: 4px;
+      background: #d1d5db;
+      border-radius: 3px;
     }
+    .widget-body::-webkit-scrollbar-thumb:hover,
     .timeline-body::-webkit-scrollbar-thumb:hover {
       background: var(--muted);
     }
@@ -334,27 +469,26 @@
       </div>
 
       <div class="widget-body">
-        <div class="section">
+        <div class="contact-section">
           <div class="section-label">SPOKE WITH</div>
           <a href="#" class="contact-name" id="contactName">Rebeca McCrory</a>
-          <div class="field-row">
-            <div class="field-label">Her Role</div>
-            <div class="field-value" id="roleField">Daughter • 20% ownership</div>
-          </div>
-          <div class="field-row">
-            <div class="field-label">Status</div>
-            <div class="field-value" id="statusField">Decision maker (has POA)</div>
+          <div class="contact-meta" id="contactMeta">
+            Daughter • 20% ownership<br>
+            Decision maker (has POA)
           </div>
         </div>
 
-        <div class="section">
-          <div class="section-label">OUTCOME</div>
+        <div class="outcome-section">
           <div class="outcome-badge" id="outcomeBadge">Interested</div>
           <div class="outcome-detail" id="outcomeDetail">Wants to see written offer</div>
         </div>
 
-        <div class="section">
-          <div class="section-label">KEY POINTS</div>
+        <!-- KEY POINTS - HIGHLIGHTED -->
+        <div class="key-points-section">
+          <div class="key-points-header">
+            <div class="key-points-icon">★</div>
+            <span>Key Conversation Points</span>
+          </div>
           <ul class="key-points-list" id="keyPointsList">
             <li>Confirmed she can sign on behalf of siblings (has POA)</li>
             <li>Needs offer by end of month for tax deadline</li>
@@ -373,12 +507,23 @@
     <!-- TIMELINE VIEW -->
     <div class="timeline-view" id="timelineView">
       <div class="timeline-header">
-        <div class="timeline-title">Recent Updates</div>
-        <button class="back-btn" id="closeTimelineBtn">← Back</button>
+        <div>
+          <div class="timeline-title">Conversation History</div>
+          <div class="timeline-meta-row">
+            <span><strong id="totalConversations">12</strong> total conversations</span>
+            <span>•</span>
+            <span><strong id="heirsContacted">5</strong> heirs contacted</span>
+            <span>•</span>
+            <span>Last update: <strong id="lastUpdate">Yesterday</strong></span>
+          </div>
+        </div>
+        <button class="close-btn" id="closeTimelineBtn">×</button>
       </div>
 
-      <div class="timeline-body" id="timelineContainer">
-        <!-- Timeline items will be inserted here -->
+      <div class="timeline-body">
+        <div class="timeline-track" id="timelineContainer">
+          <!-- Timeline items will be inserted here -->
+        </div>
       </div>
     </div>
   </div>
@@ -404,44 +549,75 @@
 
     const timelineUpdates = [
       {
-        date: "Feb 17, 2026 - 3:45 PM",
-        relativeTime: "4 days ago",
+        date: "Feb 18th",
+        daysAgo: "14 days ago",
         contact: "Rebeca McCrory",
-        contactUrl: "#",
-        content: "Spoke with Rebeca - very interested in selling her 20%. Mentioned she needs funds for medical bills by end of month. Has POA for siblings. Sending written offer by Friday.",
-        type: "positive" // positive, warning, negative, neutral
+        status: "Interested",
+        statusClass: "interested",
+        notes: [
+          "Agreed to $90k offer",
+          "Will sign next week",
+          "Changed mind after discussing with siblings"
+        ]
       },
       {
-        date: "Feb 15, 2026 - 11:20 AM",
-        relativeTime: "6 days ago",
-        contact: "John McCrory",
-        contactUrl: "#",
-        content: "Left voicemail. Will try again tomorrow afternoon. Need to confirm if he's willing to sell his 20% stake.",
-        type: "warning"
+        date: "Feb 15th",
+        daysAgo: "4 days ago",
+        contact: "Rebeca McCrory",
+        status: "Warm",
+        statusClass: "warm",
+        notes: [
+          "Needs more time to think",
+          "Discussed $90k price point",
+          "Will get back to us by Friday"
+        ]
       },
       {
-        date: "Feb 13, 2026 - 2:15 PM",
-        relativeTime: "8 days ago",
+        date: "Feb 11th",
+        daysAgo: "8 days ago",
+        contact: "Rebeca McCrory",
+        status: "Interested",
+        statusClass: "interested",
+        notes: [
+          "Has POA for siblings",
+          "Needs offer by end of month for tax deadline",
+          "Prefers email communication over phone",
+          "Mentioned property needs $15k in repairs"
+        ]
+      },
+      {
+        date: "Feb 10th",
+        daysAgo: "9 days ago",
         contact: "Sarah McCrory",
-        contactUrl: "#",
-        content: "Wrong number - disconnected. Need to get updated contact from Patricia or county records.",
-        type: "negative"
+        status: "Interested",
+        statusClass: "interested",
+        notes: [
+          "Spoke with siblings, now on board",
+          "Supports Rebeca's decision to sell"
+        ]
       },
       {
-        date: "Feb 11, 2026 - 9:30 AM",
-        relativeTime: "10 days ago",
-        contact: "Patricia Franklin",
-        contactUrl: "#",
-        content: "Cousin provided helpful background. Says Rebeca is the decision maker and has POA. Gave us Rebeca's direct number.",
-        type: "positive"
+        date: "Feb 8th",
+        daysAgo: "11 days ago",
+        contact: "Rebeca McCrory",
+        status: "No Answer",
+        statusClass: "no-answer",
+        notes: [
+          "Left voicemail with offer details",
+          "Will try again on Monday"
+        ]
       },
       {
-        date: "Feb 8, 2026 - 4:00 PM",
-        relativeTime: "13 days ago",
-        contact: "Robert Martinez",
-        contactUrl: "#",
-        content: "Neighbor confirmed property is vacant. Says family hasn't been by in months. Property needs repairs - estimates $10-15k.",
-        type: "neutral"
+        date: "Feb 5th",
+        daysAgo: "14 days ago",
+        contact: "John McCrory",
+        status: "Not Interested",
+        statusClass: "not-interested",
+        notes: [
+          "Not interested at this time",
+          "Referred us to Rebeca (his sister) as decision maker",
+          "Confirmed she has POA"
+        ]
       }
     ];
 
@@ -449,8 +625,7 @@
     document.getElementById('lastConversationTime').textContent = lastConversation.date;
     document.getElementById('contactName').textContent = lastConversation.contactName;
     document.getElementById('contactName').href = lastConversation.contactUrl;
-    document.getElementById('roleField').textContent = lastConversation.role;
-    document.getElementById('statusField').textContent = lastConversation.roleDetail;
+    document.getElementById('contactMeta').innerHTML = `${lastConversation.role}<br>${lastConversation.roleDetail}`;
     document.getElementById('outcomeBadge').textContent = lastConversation.outcome;
     document.getElementById('outcomeDetail').textContent = lastConversation.outcomeDetail;
     
@@ -462,12 +637,18 @@
     // Render timeline
     const timelineContainer = document.getElementById('timelineContainer');
     timelineContainer.innerHTML = timelineUpdates.map(update => `
-      <div class="timeline-item ${update.type}">
-        <div class="timeline-meta">
-          <a href="${update.contactUrl}" class="timeline-contact-name">${escapeHtml(update.contact)}</a>
-          <span class="timeline-date">${escapeHtml(update.date)}</span>
+      <div class="timeline-item ${update.statusClass}">
+        <div class="timeline-dot"></div>
+        <div class="timeline-item-header">
+          <div class="timeline-left">
+            <span class="timeline-contact-name">${escapeHtml(update.contact)}</span>
+            <span class="timeline-status-badge ${update.statusClass}">${escapeHtml(update.status)}</span>
+          </div>
+          <span class="timeline-date">${escapeHtml(update.date)} • ${escapeHtml(update.daysAgo)}</span>
         </div>
-        <div class="timeline-content">${escapeHtml(update.content)}</div>
+        <ul class="timeline-notes">
+          ${update.notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}
+        </ul>
       </div>
     `).join('');
 
