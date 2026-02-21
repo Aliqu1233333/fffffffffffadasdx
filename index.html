@@ -1,388 +1,495 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Opportunity Score</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Last Conversation - Modern Salesforce Style</title>
 
   <style>
     :root{
-      --ink:#111827;
-      --border:#e5e7eb;
-      --panel:#ffffff;
-      --bar:#f3f4f6;
-
-      --pos:#16a34a;
-      --warn:#f59e0b;
-      --neg:#ef4444;
-      --info:#0ea5e9;
-
-      --sfBlue:#16325c;
+      --bg: #f3f4f6;
+      --surface: #ffffff;
+      --line: #e5e7eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --label: #374151;
+      --blue: #0176d3;
+      --blue-light: #e0f2fe;
+      --green: #059669;
+      --green-bg: #d1fae5;
+      --green-text: #065f46;
+      --radius: 10px;
+      --font: "Salesforce Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
-    html,body{
-      margin:0;
-      padding:0;
-      background:transparent;
-      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue",
-                   Arial, "Noto Sans", "Liberation Sans", sans-serif;
-      color:var(--ink);
-      overflow:hidden;
-      font-size:16px;
+    *{ box-sizing: border-box; }
+    body{
+      margin: 0;
+      padding: 20px;
+      background: var(--bg);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
     }
 
-    .card{
-      width:100%;
-      max-width:100%;
-      background:var(--panel);
-      border:1px solid var(--border);
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 10px 25px rgba(0,0,0,.08);
-      box-sizing:border-box;
+    .widget{
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 1px 3px rgba(0,0,0,.04);
+      overflow: hidden;
+      max-width: 480px;
     }
 
-    /* ===== HEADER ===== */
-    .header{
-      position:relative;
-      padding: 22px 16px 18px 16px;
-      background-image: url("./new%20einstein%20background.png");
-      background-size: cover;
-      background-position: center;
-      border-bottom: 1px solid var(--border);
+    /* ========== COMPACT VIEW ========== */
+    .compact-view{
+      padding: 0;
     }
 
-    .header::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background: linear-gradient(rgba(255,255,255,0.12), rgba(255,255,255,0.40));
-      pointer-events:none;
-      z-index:0;
+    .widget-header{
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
     }
 
-    .headerRow{
-      position:relative;
-      display:flex;
-      align-items:center;
-      gap:12px;
-      padding-right: 120px;
-      z-index:1;
+    .header-row{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    /* ===== SCORE RING ===== */
-    .scoreWrap{
-      width:62px;
-      height:62px;
-      position:relative;
-      flex:0 0 auto;
+    .widget-title{
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.01em;
     }
 
-    .scorePlate{
-      position:absolute;
-      inset:0;
-      border-radius:999px;
-      background: rgba(255,255,255,0.92);
-      border:none !important;
-      outline:none !important;
-      box-shadow:none !important;
-      filter: drop-shadow(0 0 10px rgba(22,50,92,.22));
+    .timestamp{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
     }
 
-    .scoreSvg{
-      position:absolute;
-      inset:0;
-      width:62px;
-      height:62px;
-      transform: rotate(-90deg);
+    .widget-body{
+      padding: 20px;
+    }
+
+    .section{
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .section:last-child{
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    .section-label{
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .contact-name{
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--blue);
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 8px;
+    }
+    .contact-name:hover{
+      text-decoration: underline;
+    }
+
+    .field-row{
+      display: flex;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .field-label{
+      color: var(--label);
+      font-weight: 500;
+      min-width: 100px;
+    }
+
+    .field-value{
+      color: var(--text);
+    }
+
+    .outcome-badge{
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      background: var(--green-bg);
+      color: var(--green-text);
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .outcome-detail{
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .key-points-list{
+      margin: 0;
+      padding: 0 0 0 20px;
+      list-style: disc;
+    }
+
+    .key-points-list li{
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      margin: 8px 0;
+    }
+
+    .actions{
+      display: flex;
+      gap: 10px;
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+      background: #fafbfc;
+    }
+
+    .btn{
+      flex: 1;
+      padding: 11px 16px;
+      border-radius: 6px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-primary{
+      background: var(--blue);
+      color: white;
+    }
+    .btn-primary:hover{
+      background: #0161b3;
+    }
+
+    .btn-secondary{
+      background: white;
+      color: var(--text);
+      border: 1px solid var(--line);
+    }
+    .btn-secondary:hover{
+      background: var(--bg);
+      border-color: #d1d5db;
+    }
+
+    /* ========== TIMELINE VIEW ========== */
+    .timeline-view{
+      display: none;
+    }
+
+    .timeline-view.active{
+      display: block;
+    }
+
+    .timeline-header{
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .timeline-title{
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .back-btn{
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: white;
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font);
+    }
+    .back-btn:hover{
+      background: var(--bg);
+    }
+
+    .timeline-body{
+      padding: 20px;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .timeline-item{
+      margin-bottom: 20px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      transition: box-shadow 0.15s ease;
+    }
+
+    .timeline-item:hover{
+      box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+
+    .timeline-item:last-child{
+      margin-bottom: 0;
+    }
+
+    .timeline-item.positive{
+      border-left: 3px solid var(--green);
+    }
+
+    .timeline-item.warning{
+      border-left: 3px solid #f59e0b;
+    }
+
+    .timeline-item.negative{
+      border-left: 3px solid #ef4444;
+    }
+
+    .timeline-meta{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .timeline-contact-name{
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--blue);
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .timeline-contact-name:hover{
+      text-decoration: underline;
+    }
+
+    .timeline-date{
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .timeline-content{
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Scrollbar styling */
+    .timeline-body::-webkit-scrollbar {
+      width: 8px;
+    }
+    .timeline-body::-webkit-scrollbar-track {
       background: transparent;
     }
-
-    .progress{
-      fill:none;
-      stroke: var(--warn);
-      stroke-width:2.4;
-      stroke-linecap:round;
-      stroke-dasharray: 0;
-      stroke-dashoffset: 0;
+    .timeline-body::-webkit-scrollbar-thumb {
+      background: var(--line);
+      border-radius: 4px;
     }
-
-    .scoreInner{
-      position:absolute;
-      inset:0;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:22px;
-      font-weight:600;
-      letter-spacing:-0.3px;
+    .timeline-body::-webkit-scrollbar-thumb:hover {
+      background: var(--muted);
     }
-
-    .titleWrap{
-      display:flex;
-      flex-direction:column;
-      gap:4px;
-      justify-content:center;
-    }
-
-    .title{
-      font-size:20px;
-      font-weight:600;
-      letter-spacing:-0.2px;
-      line-height:1.1;
-    }
-
-    .pill{
-      display:inline-flex;
-      align-items:center;
-      gap:6px;
-      padding: 5px 10px;
-      border-radius:999px;
-      font-size:14px;
-      font-weight:600;
-      width:fit-content;
-      border:1px solid rgba(17,24,39,0.10);
-      background: rgba(255,255,255,0.65);
-      backdrop-filter: blur(10px);
-    }
-
-    .pillDot{
-      width:8px;
-      height:8px;
-      border-radius:999px;
-      background:#94a3b8;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
-    }
-
-    .pill.improving{ color:#166534; background: rgba(22,163,74,0.14); border-color: rgba(22,163,74,0.22); }
-    .pill.improving .pillDot{ background:#16a34a; }
-
-    .pill.stagnant{ color:#334155; background: rgba(148,163,184,0.18); border-color: rgba(148,163,184,0.26); }
-    .pill.stagnant .pillDot{ background:#94a3b8; }
-
-    .pill.decaying{ color:#7f1d1d; background: rgba(239,68,68,0.14); border-color: rgba(239,68,68,0.22); }
-    .pill.decaying .pillDot{ background:#ef4444; }
-
-    .einstein{
-      position:absolute;
-      right:10px;
-      bottom:-10px;
-      width:110px;
-      height:auto;
-      z-index:2;
-      pointer-events:none;
-      filter: drop-shadow(0 10px 16px rgba(0,0,0,.18));
-    }
-
-    /* ===== CONTENT (Option A + small B) ===== */
-    .content{
-      padding: 14px;
-      background: linear-gradient(#ffffff, #fbfcfe); /* subtle surface */
-    }
-
-    /* Minimal, enterprise panels: no hover lift, no accent bars, no custom bullets */
-    .section{
-      border:1px solid rgba(17,24,39,0.10);
-      border-radius:12px;
-      overflow:hidden;
-      background:#fff;
-      margin-top: 12px;
-      box-shadow:
-        0 1px 0 rgba(17,24,39,0.03),
-        0 8px 16px rgba(17,24,39,0.04); /* subtle depth */
-    }
-
-    .sectionHeader{
-      background: var(--bar);
-      padding: 12px 14px;
-      font-size:18px;
-      font-weight:600;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      border-bottom:1px solid rgba(17,24,39,0.08);
-    }
-
-    .dot{
-      width:9px;
-      height:9px;
-      border-radius:999px;
-      display:inline-block;
-      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.10);
-    }
-    .dot.pos{ background:var(--pos); }
-    .dot.neg{ background:var(--neg); }
-    .dot.info{ background:var(--info); }
-
-    /* Inset body surface (small piece of B) */
-    .sectionBody{
-      padding: 12px 14px 14px 14px;
-      background: #fbfcfe;
-      box-shadow: inset 0 1px 0 rgba(17,24,39,0.04);
-    }
-
-    /* Standard bullets (no custom markers) */
-    .list{
-      margin:0;
-      padding:0 0 0 18px;
-      font-size:18px;
-      line-height:1.55;
-    }
-    .list li{ margin:8px 0; }
-
-    /* keep SF blue text for positives/negatives */
-    .section:not(.actions) .list li{
-      color: var(--sfBlue);
-    }
-
-    .section.actions{
-      border-color:#bae6fd;
-      background: #fff;
-    }
-    .section.actions .sectionHeader{
-      background:#e0f2fe;
-      color:#0369a1;
-      border-bottom-color:#bae6fd;
-    }
-    .section.actions .sectionBody{
-      background:#f7fbff;
-      box-shadow: inset 0 1px 0 rgba(14,165,233,0.12);
-    }
-    .section.actions .list li{ color: var(--sfBlue); }
   </style>
 </head>
 
 <body>
-  <div class="card">
-    <div class="header">
-      <div class="headerRow">
-        <div class="scoreWrap">
-          <div class="scorePlate" id="scorePlate"></div>
-
-          <svg class="scoreSvg" viewBox="0 0 64 64" aria-hidden="true">
-            <circle class="progress" id="progressCircle" cx="32" cy="32" r="27"></circle>
-          </svg>
-
-          <div class="scoreInner" id="scoreText">0</div>
+  <div class="widget">
+    <!-- COMPACT VIEW -->
+    <div class="compact-view" id="compactView">
+      <div class="widget-header">
+        <div class="header-row">
+          <div class="widget-title">Last Conversation</div>
+          <div class="timestamp" id="lastConversationTime">Feb 17, 2026</div>
         </div>
+      </div>
 
-        <div class="titleWrap">
-          <div class="title">Einstein Lead Score</div>
-          <div class="pill improving" id="statusPill">
-            <span class="pillDot"></span>
-            <span id="statusText">Improving</span>
+      <div class="widget-body">
+        <div class="section">
+          <div class="section-label">SPOKE WITH</div>
+          <a href="#" class="contact-name" id="contactName">Rebeca McCrory</a>
+          <div class="field-row">
+            <div class="field-label">Her Role</div>
+            <div class="field-value" id="roleField">Daughter • 20% ownership</div>
+          </div>
+          <div class="field-row">
+            <div class="field-label">Status</div>
+            <div class="field-value" id="statusField">Decision maker (has POA)</div>
           </div>
         </div>
+
+        <div class="section">
+          <div class="section-label">OUTCOME</div>
+          <div class="outcome-badge" id="outcomeBadge">Interested</div>
+          <div class="outcome-detail" id="outcomeDetail">Wants to see written offer</div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">KEY POINTS</div>
+          <ul class="key-points-list" id="keyPointsList">
+            <li>Confirmed she can sign on behalf of siblings (has POA)</li>
+            <li>Needs offer by end of month for tax deadline</li>
+            <li>Prefers email communication over phone</li>
+            <li>Mentioned property needs $15k in repairs</li>
+          </ul>
+        </div>
       </div>
 
-      <img class="einstein" src="./New%20Einstein.png" alt="Einstein" />
+      <div class="actions">
+        <button class="btn btn-primary" id="logNewCallBtn">Log New Call</button>
+        <button class="btn btn-secondary" id="exploreUpdatesBtn">Explore Updates</button>
+      </div>
     </div>
 
-    <div class="content">
-      <div class="section">
-        <div class="sectionHeader"><span class="dot pos"></span>Top Positives</div>
-        <div class="sectionBody"><ul class="list" id="positives"></ul></div>
+    <!-- TIMELINE VIEW -->
+    <div class="timeline-view" id="timelineView">
+      <div class="timeline-header">
+        <div class="timeline-title">Recent Updates</div>
+        <button class="back-btn" id="closeTimelineBtn">← Back</button>
       </div>
 
-      <div class="section">
-        <div class="sectionHeader"><span class="dot neg"></span>Top Negatives</div>
-        <div class="sectionBody"><ul class="list" id="negatives"></ul></div>
-      </div>
-
-      <div class="section actions">
-        <div class="sectionHeader"><span class="dot info"></span>Suggested Actions for Success</div>
-        <div class="sectionBody"><ul class="list" id="actions"></ul></div>
+      <div class="timeline-body" id="timelineContainer">
+        <!-- Timeline items will be inserted here -->
       </div>
     </div>
   </div>
 
   <script>
-    const data = {
-      score: 56,
-      status: "Decaying",
-      positives: [
-        "Strong engagement in the last 72 hours.",
-        "Decision maker confirmed budget alignment."
-      ],
-      negatives: [
-        "Follow-up call rescheduled twice."
-      ],
-      actions: [
-        "Focus on getting back ahold of Fredrick Franklin & providing next steps for closing.",
-        "Send a concise recap with timeline + the single decision needed to move forward."
+    // Sample data
+    const lastConversation = {
+      date: "Feb 17, 2026",
+      daysAgo: "4 days ago",
+      contactName: "Rebeca McCrory",
+      contactUrl: "#",
+      role: "Daughter • 20% ownership",
+      roleDetail: "Decision maker (has POA)",
+      outcome: "Interested",
+      outcomeDetail: "Wants to see written offer",
+      keyPoints: [
+        "Confirmed she can sign on behalf of siblings (has POA)",
+        "Needs offer by end of month for tax deadline",
+        "Prefers email communication over phone",
+        "Mentioned property needs $15k in repairs"
       ]
     };
 
-    // ===== STATUS PILL =====
-    const pill = document.getElementById("statusPill");
-    const statusText = document.getElementById("statusText");
-    const st = String(data.status || "Stagnant").toLowerCase();
-    pill.classList.remove("improving","stagnant","decaying");
-    if (st === "improving") pill.classList.add("improving");
-    else if (st === "decaying") pill.classList.add("decaying");
-    else pill.classList.add("stagnant");
-    statusText.textContent = st.charAt(0).toUpperCase() + st.slice(1);
+    const timelineUpdates = [
+      {
+        date: "Feb 17, 2026 - 3:45 PM",
+        relativeTime: "4 days ago",
+        contact: "Rebeca McCrory",
+        contactUrl: "#",
+        content: "Spoke with Rebeca - very interested in selling her 20%. Mentioned she needs funds for medical bills by end of month. Has POA for siblings. Sending written offer by Friday.",
+        type: "positive" // positive, warning, negative, neutral
+      },
+      {
+        date: "Feb 15, 2026 - 11:20 AM",
+        relativeTime: "6 days ago",
+        contact: "John McCrory",
+        contactUrl: "#",
+        content: "Left voicemail. Will try again tomorrow afternoon. Need to confirm if he's willing to sell his 20% stake.",
+        type: "warning"
+      },
+      {
+        date: "Feb 13, 2026 - 2:15 PM",
+        relativeTime: "8 days ago",
+        contact: "Sarah McCrory",
+        contactUrl: "#",
+        content: "Wrong number - disconnected. Need to get updated contact from Patricia or county records.",
+        type: "negative"
+      },
+      {
+        date: "Feb 11, 2026 - 9:30 AM",
+        relativeTime: "10 days ago",
+        contact: "Patricia Franklin",
+        contactUrl: "#",
+        content: "Cousin provided helpful background. Says Rebeca is the decision maker and has POA. Gave us Rebeca's direct number.",
+        type: "positive"
+      },
+      {
+        date: "Feb 8, 2026 - 4:00 PM",
+        relativeTime: "13 days ago",
+        contact: "Robert Martinez",
+        contactUrl: "#",
+        content: "Neighbor confirmed property is vacant. Says family hasn't been by in months. Property needs repairs - estimates $10-15k.",
+        type: "neutral"
+      }
+    ];
 
-    // ===== LISTS =====
-    document.getElementById("positives").innerHTML =
-      (data.positives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+    // Apply last conversation data
+    document.getElementById('lastConversationTime').textContent = lastConversation.date;
+    document.getElementById('contactName').textContent = lastConversation.contactName;
+    document.getElementById('contactName').href = lastConversation.contactUrl;
+    document.getElementById('roleField').textContent = lastConversation.role;
+    document.getElementById('statusField').textContent = lastConversation.roleDetail;
+    document.getElementById('outcomeBadge').textContent = lastConversation.outcome;
+    document.getElementById('outcomeDetail').textContent = lastConversation.outcomeDetail;
+    
+    const keyPointsList = document.getElementById('keyPointsList');
+    keyPointsList.innerHTML = lastConversation.keyPoints.map(point => 
+      `<li>${escapeHtml(point)}</li>`
+    ).join('');
 
-    document.getElementById("negatives").innerHTML =
-      (data.negatives || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+    // Render timeline
+    const timelineContainer = document.getElementById('timelineContainer');
+    timelineContainer.innerHTML = timelineUpdates.map(update => `
+      <div class="timeline-item ${update.type}">
+        <div class="timeline-meta">
+          <a href="${update.contactUrl}" class="timeline-contact-name">${escapeHtml(update.contact)}</a>
+          <span class="timeline-date">${escapeHtml(update.date)}</span>
+        </div>
+        <div class="timeline-content">${escapeHtml(update.content)}</div>
+      </div>
+    `).join('');
 
-    document.getElementById("actions").innerHTML =
-      (data.actions || []).map(x => `<li>${escapeHtml(x)}</li>`).join("");
+    // Toggle views
+    document.getElementById('exploreUpdatesBtn').addEventListener('click', () => {
+      document.getElementById('compactView').style.display = 'none';
+      document.getElementById('timelineView').classList.add('active');
+    });
 
-    // ===== SCORE ANIMATION (COUNT + RING) =====
-    const scoreTarget = Math.max(0, Math.min(100, Number(data.score ?? 0)));
-    const scoreTextEl = document.getElementById("scoreText");
-    const progressCircle = document.getElementById("progressCircle");
-    const scorePlate = document.getElementById("scorePlate");
+    document.getElementById('closeTimelineBtn').addEventListener('click', () => {
+      document.getElementById('compactView').style.display = 'block';
+      document.getElementById('timelineView').classList.remove('active');
+    });
 
-    const color = (scoreTarget >= 80) ? "#22c55e" : (scoreTarget >= 50) ? "#f59e0b" : "#ef4444";
-    progressCircle.style.stroke = color;
+    document.getElementById('logNewCallBtn').addEventListener('click', () => {
+      alert('Log New Call functionality - would open a modal or navigate to call logging');
+    });
 
-    // Glow matches score color (green/yellow/red) + subtle SF blue depth
-    scorePlate.style.filter =
-      `drop-shadow(0 0 10px rgba(22,50,92,.22)) drop-shadow(0 0 18px ${hexToRgba(color, 0.30)})`;
-
-    const r = 27;
-    const C = 2 * Math.PI * r;
-    progressCircle.style.strokeDasharray = `${C}`;
-    progressCircle.style.strokeDashoffset = `${C}`;
-
-    const duration = 1600;
-    const start = performance.now();
-    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
-
-    function tick(now){
-      const t = Math.min(1, (now - start) / duration);
-      const e = easeOutCubic(t);
-
-      const current = Math.round(scoreTarget * e);
-      scoreTextEl.textContent = String(current);
-
-      const offset = C * (1 - (current / 100));
-      progressCircle.style.strokeDashoffset = `${offset}`;
-
-      if (t < 1) requestAnimationFrame(tick);
-    }
-    requestAnimationFrame(tick);
-
-    function escapeHtml(s) {
-      return String(s).replace(/[&<>"']/g, c => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[c]));
-    }
-
-    function hexToRgba(hex, a){
-      const h = String(hex).replace("#","").trim();
-      const full = h.length === 3 ? h.split("").map(ch => ch + ch).join("") : h;
-      const n = parseInt(full, 16);
-      const r = (n >> 16) & 255;
-      const g = (n >> 8) & 255;
-      const b = n & 255;
-      return `rgba(${r},${g},${b},${a})`;
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
     }
   </script>
 </body>
