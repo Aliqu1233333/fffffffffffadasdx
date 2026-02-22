@@ -59,7 +59,7 @@
       border: 0;
       background: transparent;
       font-family: var(--font);
-      font-size: 15px;
+      font-size: 16px;
       padding: 14px 0;
       color: var(--muted);
       cursor: pointer;
@@ -100,19 +100,25 @@
 
     /* ========== LAST CONVERSATION TAB ========== */
     .conversation-header{
-      padding: 16px 20px;
+      padding: 18px 20px;
       border-bottom: 1px solid var(--line);
       background: var(--surface);
       flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+    }
+
+    .header-label{
+      font-size: 11px;
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 4px;
     }
 
     .conversation-date{
-      font-size: 13.5px;
-      color: var(--muted);
-      font-weight: 500;
+      font-size: 15px;
+      color: var(--text);
+      font-weight: 600;
     }
 
     .conversation-body{
@@ -121,17 +127,17 @@
       overflow-y: auto;
     }
 
-    .contact-section{
-      margin-bottom: 20px;
+    .section{
+      margin-bottom: 24px;
     }
 
     .section-label{
-      font-size: 12.5px;
+      font-size: 12px;
       text-transform: uppercase;
       font-weight: 600;
       letter-spacing: 0.05em;
       color: var(--muted);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .contact-name{
@@ -140,24 +146,37 @@
       color: var(--blue);
       cursor: pointer;
       text-decoration: none;
-      display: inline-block;
-      margin-bottom: 8px;
+      display: block;
+      margin-bottom: 12px;
     }
     .contact-name:hover{
       text-decoration: underline;
     }
 
-    .contact-meta{
-      font-size: 15.5px;
-      color: var(--muted);
+    .contact-details{
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .detail-line{
+      font-size: 14.5px;
+      color: var(--text);
       line-height: 1.5;
+    }
+
+    .detail-label{
+      color: var(--muted);
+      font-weight: 500;
+      min-width: 90px;
+      display: inline-block;
     }
 
     .outcome-section{
       display: flex;
       align-items: center;
       gap: 10px;
-      margin-bottom: 22px;
+      margin-bottom: 24px;
     }
 
     .outcome-badge{
@@ -167,26 +186,25 @@
       background: var(--green-bg);
       color: var(--green-text);
       border-radius: 4px;
-      font-size: 14.5px;
+      font-size: 14px;
       font-weight: 600;
     }
 
     .outcome-detail{
-      font-size: 15.5px;
+      font-size: 14.5px;
       color: var(--text);
     }
 
     /* KEY POINTS - HIGHLIGHTED SECTION */
     .key-points-section{
-      background: #f9fafb;
-      border: 1px solid var(--line);
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
       border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 18px;
+      padding: 18px;
     }
 
     .key-points-header{
-      font-size: 15.5px;
+      font-size: 15px;
       font-weight: 600;
       color: var(--text);
       margin-bottom: 14px;
@@ -196,26 +214,27 @@
     }
 
     .key-points-icon{
-      width: 22px;
-      height: 22px;
+      width: 20px;
+      height: 20px;
       background: var(--blue);
       border-radius: 4px;
       display: flex;
       align-items: center;
       justify-content: center;
       color: white;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
+      flex-shrink: 0;
     }
 
     .key-points-list{
       margin: 0;
-      padding: 0 0 0 22px;
+      padding: 0 0 0 20px;
       list-style: disc;
     }
 
     .key-points-list li{
-      font-size: 15.5px;
+      font-size: 15px;
       color: var(--text);
       line-height: 1.7;
       margin: 10px 0;
@@ -223,6 +242,230 @@
 
     .key-points-list li::marker{
       color: var(--blue);
+    }
+
+    /* ========== UPDATE INPUT (Salesforce-style) ========== */
+    .update-input-section{
+      padding: 16px 20px;
+      border-top: 1px solid var(--line);
+      background: white;
+      flex-shrink: 0;
+    }
+
+    .input-row{
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .input-label{
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      padding-top: 10px;
+      white-space: nowrap;
+    }
+
+    .note-textarea{
+      flex: 1;
+      min-height: 60px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text);
+      resize: vertical;
+      transition: border-color 0.15s ease;
+    }
+
+    .note-textarea:focus{
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.1);
+    }
+
+    .note-textarea::placeholder{
+      color: var(--muted);
+    }
+
+    .save-btn{
+      padding: 10px 32px;
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-family: var(--font);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      white-space: nowrap;
+      align-self: flex-start;
+    }
+
+    .save-btn:hover{
+      background: #0161b3;
+    }
+
+    .save-btn:disabled{
+      background: #94a3b8;
+      cursor: not-allowed;
+    }
+
+    /* Success Alert */
+    .success-alert{
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #d1fae5;
+      border: 1px solid #6ee7b7;
+      border-radius: 6px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15);
+      z-index: 1000;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .success-alert.show{
+      opacity: 1;
+      transform: translateY(0);
+      pointer-events: auto;
+    }
+
+    .success-icon{
+      width: 20px;
+      height: 20px;
+      background: #059669;
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .success-text{
+      font-size: 14px;
+      color: #065f46;
+      font-weight: 600;
+    }
+
+    /* ========== DEAL HIGHLIGHTS TAB ========== */
+    .highlights-header{
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .highlights-meta{
+      font-size: 12.5px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+    }
+
+    .highlights-body{
+      flex: 1;
+      overflow-y: auto;
+      background: #fafbfc;
+    }
+
+    .highlights-track{
+      position: relative;
+      padding: 24px 20px 24px 28px;
+    }
+
+    .highlights-track::before{
+      content: '';
+      position: absolute;
+      left: 14px;
+      top: 32px;
+      bottom: 32px;
+      width: 1px;
+      background: #d1d5db;
+    }
+
+    .highlight-item{
+      position: relative;
+      margin-bottom: 20px;
+      background: white;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px 18px;
+      transition: all 0.2s ease;
+    }
+
+    .highlight-item:hover{
+      box-shadow: 0 4px 12px rgba(0,0,0,.08);
+      transform: translateY(-1px);
+    }
+
+    .highlight-item:last-child{
+      margin-bottom: 0;
+    }
+
+    .highlight-dot{
+      position: absolute;
+      left: -20px;
+      top: 20px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: 2px solid var(--blue);
+      z-index: 1;
+      box-shadow: 0 0 0 3px white;
+    }
+
+    .highlight-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .highlight-author{
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .highlight-date{
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    .highlight-text{
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .empty-state{
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state-icon{
+      font-size: 48px;
+      margin-bottom: 12px;
+      opacity: 0.3;
+    }
+
+    .empty-state-text{
+      font-size: 15px;
+      font-weight: 500;
     }
 
     /* ========== UPDATE HISTORY TAB ========== */
@@ -414,31 +657,55 @@
 
 <body>
   <div class="widget">
+    <!-- SUCCESS ALERT -->
+    <div class="success-alert" id="successAlert">
+      <div class="success-icon">✓</div>
+      <div class="success-text">Note saved to Deal Highlights</div>
+    </div>
+
     <!-- SALESFORCE-STYLE TABS -->
     <div class="tabs-bar">
       <button class="tab active" data-tab="conversation">Last Conversation</button>
       <button class="tab" data-tab="history">Update History</button>
+      <button class="tab" data-tab="highlights">Deal Highlights</button>
     </div>
 
     <!-- TAB 1: LAST CONVERSATION -->
     <div class="tab-content active" id="conversation-tab">
       <div class="conversation-header">
+        <div class="header-label">LAST IMPORTANT CONTACT</div>
         <div class="conversation-date" id="conversationDate">Feb 17, 2026</div>
       </div>
 
       <div class="conversation-body">
-        <div class="contact-section">
+        <!-- Contact Info -->
+        <div class="section">
           <div class="section-label">SPOKE WITH</div>
           <a href="#" class="contact-name" id="contactName">Rebeca McCrory</a>
-          <div class="contact-meta" id="contactMeta">
-            Daughter • 20% ownership<br>
-            Decision maker (has POA)
+          
+          <div class="contact-details">
+            <div class="detail-line">
+              <span class="detail-label">Relationship</span>
+              Daughter
+            </div>
+            <div class="detail-line">
+              <span class="detail-label">Ownership</span>
+              20%
+            </div>
+            <div class="detail-line">
+              <span class="detail-label">Authority</span>
+              Decision maker (has POA)
+            </div>
           </div>
         </div>
 
-        <div class="outcome-section">
-          <div class="outcome-badge" id="outcomeBadge">Interested</div>
-          <div class="outcome-detail" id="outcomeDetail">Wants to see written offer</div>
+        <!-- Outcome -->
+        <div class="section">
+          <div class="section-label">OUTCOME</div>
+          <div class="outcome-section">
+            <div class="outcome-badge" id="outcomeBadge">Interested</div>
+            <div class="outcome-detail" id="outcomeDetail">Wants to see written offer</div>
+          </div>
         </div>
 
         <!-- KEY POINTS - HIGHLIGHTED -->
@@ -453,6 +720,20 @@
             <li>Prefers email communication over phone</li>
             <li>Mentioned property needs $15k in repairs</li>
           </ul>
+        </div>
+      </div>
+
+      <!-- WRITE QUICK NOTE (Fixed at bottom) -->
+      <div class="update-input-section">
+        <div class="input-row">
+          <div class="input-label">Quick Note</div>
+          <textarea 
+            class="note-textarea" 
+            id="quickNoteInput"
+            placeholder="Add a note about this deal..."
+            rows="2"
+          ></textarea>
+          <button class="save-btn" id="saveQuickNote">Save</button>
         </div>
       </div>
     </div>
@@ -472,6 +753,39 @@
       <div class="timeline-body">
         <div class="timeline-track" id="timelineContainer">
           <!-- Timeline items will be inserted here -->
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: DEAL HIGHLIGHTS -->
+    <div class="tab-content" id="highlights-tab">
+      <div class="highlights-header">
+        <div class="highlights-meta">
+          <span><strong id="totalHighlights">0</strong> deal notes</span>
+        </div>
+      </div>
+
+      <div class="highlights-body">
+        <div class="highlights-track" id="highlightsContainer">
+          <!-- Empty state shown when no highlights -->
+          <div class="empty-state" id="emptyState">
+            <div class="empty-state-icon">📝</div>
+            <div class="empty-state-text">No deal notes yet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADD UPDATE (Fixed at bottom) -->
+      <div class="update-input-section">
+        <div class="input-row">
+          <div class="input-label">Add Update</div>
+          <textarea 
+            class="note-textarea" 
+            id="highlightNoteInput"
+            placeholder="Add a note about this deal..."
+            rows="2"
+          ></textarea>
+          <button class="save-btn" id="saveHighlightNote">Save</button>
         </div>
       </div>
     </div>
@@ -572,7 +886,6 @@
     document.getElementById('conversationDate').textContent = lastConversation.date;
     document.getElementById('contactName').textContent = lastConversation.contactName;
     document.getElementById('contactName').href = lastConversation.contactUrl;
-    document.getElementById('contactMeta').innerHTML = lastConversation.contactMeta;
     document.getElementById('outcomeBadge').textContent = lastConversation.outcome;
     document.getElementById('outcomeDetail').textContent = lastConversation.outcomeDetail;
     
@@ -598,6 +911,99 @@
         </ul>
       </div>
     `).join('');
+
+    // Sample deal highlights data
+    let dealHighlights = [];
+
+    // Render deal highlights
+    function renderHighlights() {
+      const container = document.getElementById('highlightsContainer');
+      const emptyState = document.getElementById('emptyState');
+      const totalEl = document.getElementById('totalHighlights');
+
+      if (dealHighlights.length === 0) {
+        emptyState.style.display = 'block';
+        container.innerHTML = '';
+        container.appendChild(emptyState);
+        totalEl.textContent = '0';
+        return;
+      }
+
+      emptyState.style.display = 'none';
+      totalEl.textContent = dealHighlights.length;
+
+      container.innerHTML = dealHighlights.map(highlight => `
+        <div class="highlight-item">
+          <div class="highlight-dot"></div>
+          <div class="highlight-header">
+            <span class="highlight-author">${escapeHtml(highlight.author)}</span>
+            <span class="highlight-date">${escapeHtml(highlight.date)} • ${escapeHtml(highlight.daysAgo)}</span>
+          </div>
+          <div class="highlight-text">${escapeHtml(highlight.text)}</div>
+        </div>
+      `).join('');
+    }
+
+    // Show success alert
+    function showSuccessAlert() {
+      const alert = document.getElementById('successAlert');
+      alert.classList.add('show');
+      setTimeout(() => {
+        alert.classList.remove('show');
+      }, 3000);
+    }
+
+    // Save quick note (from Last Conversation tab)
+    document.getElementById('saveQuickNote').addEventListener('click', () => {
+      const textarea = document.getElementById('quickNoteInput');
+      const noteText = textarea.value.trim();
+
+      if (!noteText) return;
+
+      // Add to highlights
+      dealHighlights.unshift({
+        id: Date.now(),
+        date: 'Today',
+        daysAgo: 'Just now',
+        author: 'You',
+        text: noteText
+      });
+
+      // Clear textarea
+      textarea.value = '';
+
+      // Update highlights view
+      renderHighlights();
+
+      // Show success alert
+      showSuccessAlert();
+    });
+
+    // Save highlight note (from Deal Highlights tab)
+    document.getElementById('saveHighlightNote').addEventListener('click', () => {
+      const textarea = document.getElementById('highlightNoteInput');
+      const noteText = textarea.value.trim();
+
+      if (!noteText) return;
+
+      // Add to highlights
+      dealHighlights.unshift({
+        id: Date.now(),
+        date: 'Today',
+        daysAgo: 'Just now',
+        author: 'You',
+        text: noteText
+      });
+
+      // Clear textarea
+      textarea.value = '';
+
+      // Update highlights view
+      renderHighlights();
+    });
+
+    // Initial render
+    renderHighlights();
 
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
