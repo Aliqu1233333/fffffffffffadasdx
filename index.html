@@ -100,7 +100,7 @@
 
     /* ========== LAST CONVERSATION TAB ========== */
     .conversation-header{
-      padding: 16px 20px;
+      padding: 14px 20px;
       border-bottom: 1px solid var(--line);
       background: var(--surface);
       flex-shrink: 0;
@@ -108,71 +108,53 @@
 
     .header-top{
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
     }
 
     .header-left{
       flex: 1;
     }
 
+    /* Label + date on one line */
+    .header-label-row{
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
     .header-label{
-      font-size: 11px;
+      font-size: 10.5px;
       text-transform: uppercase;
       font-weight: 600;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--muted);
-      margin-bottom: 6px;
+    }
+
+    .header-date-inline{
+      font-size: 10.5px;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .header-date-inline::before{
+      content: "·";
+      margin-right: 8px;
+      opacity: 0.5;
     }
 
     .header-contact-name{
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 600;
       color: var(--blue);
       cursor: pointer;
       text-decoration: none;
       display: block;
-      margin-bottom: 4px;
     }
     .header-contact-name:hover{
       text-decoration: underline;
-    }
-
-    .conversation-date{
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 500;
-    }
-
-    .header-badges{
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      align-items: flex-end;
-    }
-
-    .status-badge{
-      display: inline-flex;
-      align-items: center;
-      padding: 7px 14px;
-      border-radius: 5px;
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      box-shadow: 0 1px 3px rgba(0,0,0,.08);
-    }
-
-    .lead-status-badge{
-      background: var(--green-bg);
-      color: var(--green-text);
-      border: 1px solid #6ee7b7;
-    }
-
-    .next-action-badge{
-      background: #e0f2fe;
-      color: #0369a1;
-      border: 1px solid #7dd3fc;
     }
 
     .conversation-body{
@@ -198,23 +180,31 @@
       margin-bottom: 10px;
     }
 
+    /* ── Minimalistic contact details ── */
     .contact-details{
       display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .detail-chip{
+      display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 2px;
     }
 
-    .detail-line{
-      font-size: 14.5px;
-      color: var(--text);
-      line-height: 1.5;
-    }
-
-    .detail-label{
+    .detail-chip-label{
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: var(--muted);
+      font-weight: 600;
+    }
+
+    .detail-chip-value{
+      font-size: 13.5px;
+      color: var(--text);
       font-weight: 500;
-      min-width: 90px;
-      display: inline-block;
     }
 
     /* KEY POINTS - HIGHLIGHTED SECTION */
@@ -492,23 +482,40 @@
 
     /* ========== UPDATE HISTORY TAB ========== */
     .timeline-header{
-      padding: 16px 20px;
+      padding: 12px 20px;
       border-bottom: 1px solid var(--line);
       background: var(--surface);
       flex-shrink: 0;
-    }
-
-    .timeline-meta-row{
-      font-size: 12.5px;
-      color: var(--muted);
       display: flex;
-      gap: 10px;
+      align-items: center;
+      gap: 16px;
     }
 
-    .timeline-meta-row span{
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
+    .tl-stat{
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .tl-stat-value{
+      font-size: 16px;
+      font-weight: 400;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .tl-stat-label{
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .tl-divider{
+      width: 1px;
+      height: 28px;
+      background: var(--line);
     }
 
     .timeline-body{
@@ -517,161 +524,226 @@
       background: #fafbfc;
     }
 
+    /* The track is the scroll container — the vertical line runs through it */
     .timeline-track{
       position: relative;
-      padding: 24px 20px 24px 28px;
+      padding: 20px 20px 20px 52px; /* left space for line + dot */
     }
 
-    /* Thinner timeline line */
+    /* Full-height vertical line */
     .timeline-track::before{
       content: '';
       position: absolute;
-      left: 14px;
-      top: 32px;
-      bottom: 32px;
-      width: 1px;
-      background: #d1d5db;
+      left: 27px;
+      top: 0;
+      bottom: 0;
+      width: 1.5px;
+      background: #e5e7eb;
     }
 
-    .timeline-item{
+    /* ── Month group header ── */
+    .tl-month-header{
       position: relative;
-      margin-bottom: 20px;
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 18px;
-      transition: all 0.2s ease;
-    }
-
-    .timeline-item:hover{
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
-      transform: translateY(-1px);
-    }
-
-    .timeline-item:last-child{
-      margin-bottom: 0;
-    }
-
-    /* Smaller dots */
-    .timeline-dot{
-      position: absolute;
-      left: -20px;
-      top: 22px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: white;
-      border: 2px solid #10b981;
-      z-index: 1;
-      box-shadow: 0 0 0 3px white;
-    }
-
-    .timeline-item.interested .timeline-dot{
-      border-color: #10b981;
-      background: #10b981;
-    }
-
-    .timeline-item.warm .timeline-dot{
-      border-color: #f59e0b;
-      background: #f59e0b;
-    }
-
-    .timeline-item.no-answer .timeline-dot{
-      border-color: #94a3b8;
-      background: #94a3b8;
-    }
-
-    .timeline-item.not-interested .timeline-dot{
-      border-color: #ef4444;
-      background: #ef4444;
-    }
-
-    .timeline-item-header{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .timeline-left{
       display: flex;
       align-items: center;
       gap: 10px;
+      margin-bottom: 14px;
+      margin-top: 8px;
     }
 
-    .timeline-contact-name{
-      font-size: 14.5px;
-      font-weight: 600;
-      color: var(--text);
+    .tl-month-header:first-child{
+      margin-top: 0;
     }
 
-    .timeline-status-badge{
-      display: inline-flex;
-      padding: 3px 9px;
-      border-radius: 4px;
-      font-size: 11.5px;
-      font-weight: 600;
+    /* Small circle on the line for month marker */
+    .tl-month-dot{
+      position: absolute;
+      left: -31px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #fff;
+      border: 1.5px solid #d1d5db;
+      top: 50%;
+      transform: translateY(-50%);
     }
 
-    .timeline-status-badge.interested{
-      background: #d1fae5;
-      color: #065f46;
-    }
-
-    .timeline-status-badge.warm{
-      background: #fef3c7;
-      color: #92400e;
-    }
-
-    .timeline-status-badge.no-answer{
-      background: #f1f5f9;
-      color: #475569;
-    }
-
-    .timeline-status-badge.not-interested{
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .timeline-date{
-      font-size: 12.5px;
+    .tl-month-label{
+      font-size: 10.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: var(--muted);
-      white-space: nowrap;
     }
 
-    .timeline-notes{
-      margin: 0;
-      padding: 0 0 0 16px;
-      list-style: disc;
+    .tl-month-rule{
+      flex: 1;
+      height: 1px;
+      background: #f0f0f0;
     }
 
-    .timeline-notes li{
-      font-size: 13.5px;
+    /* ── Timeline entry — no card, just dot + content ── */
+    .timeline-item{
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: start;
+      padding: 0 0 20px 0;
+      cursor: default;
+    }
+
+    .timeline-item:last-child{
+      padding-bottom: 0;
+    }
+
+    /* Colored dot on the line */
+    .tl-dot{
+      position: absolute;
+      left: -31px;
+      top: 3px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      box-shadow: 0 0 0 1.5px currentColor;
+      flex-shrink: 0;
+      z-index: 1;
+    }
+
+    .timeline-item.interested  .tl-dot { background: #10b981; color: #10b981; }
+    .timeline-item.warm        .tl-dot { background: #f59e0b; color: #f59e0b; }
+    .timeline-item.no-answer   .tl-dot { background: #94a3b8; color: #94a3b8; }
+    .timeline-item.not-interested .tl-dot { background: #ef4444; color: #ef4444; }
+
+    .tl-body{
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+    }
+
+    .tl-top-row{
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+
+    .tl-contact{
+      font-size: 13px;
+      font-weight: 600;
       color: var(--text);
-      line-height: 1.75;
-      margin: 8px 0;
     }
 
-    .timeline-notes li::marker{
+    .tl-badge{
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+
+    .tl-badge.interested    { background: #d1fae5; color: #065f46; }
+    .tl-badge.warm          { background: #fef3c7; color: #92400e; }
+    .tl-badge.no-answer     { background: #f1f5f9; color: #475569; }
+    .tl-badge.not-interested{ background: #fee2e2; color: #991b1b; }
+
+    /* "Latest" marker */
+    .tl-latest-tag{
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 9.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--blue);
+      background: #e0f2fe;
+      border-radius: 999px;
+      padding: 2px 7px;
+    }
+
+    .tl-latest-dot{
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--blue);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse{
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    .tl-notes{
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .tl-notes li{
+      font-size: 12px;
+      color: #6b7280;
+      line-height: 1.5;
+      display: flex;
+      align-items: baseline;
+      gap: 5px;
+    }
+
+    .tl-notes li::before{
+      content: "·";
+      color: #d1d5db;
+      flex-shrink: 0;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .tl-date-col{
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+      white-space: nowrap;
+      padding-top: 2px;
+    }
+
+    .tl-date-main{
+      font-size: 12px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .tl-date-rel{
+      font-size: 10.5px;
       color: var(--muted);
     }
 
     /* Scrollbar styling */
     .conversation-body::-webkit-scrollbar,
-    .timeline-body::-webkit-scrollbar {
-      width: 6px;
+    .timeline-body::-webkit-scrollbar,
+    .highlights-body::-webkit-scrollbar {
+      width: 5px;
     }
     .conversation-body::-webkit-scrollbar-track,
-    .timeline-body::-webkit-scrollbar-track {
+    .timeline-body::-webkit-scrollbar-track,
+    .highlights-body::-webkit-scrollbar-track {
       background: transparent;
     }
     .conversation-body::-webkit-scrollbar-thumb,
-    .timeline-body::-webkit-scrollbar-thumb {
+    .timeline-body::-webkit-scrollbar-thumb,
+    .highlights-body::-webkit-scrollbar-thumb {
       background: #d1d5db;
       border-radius: 3px;
     }
     .conversation-body::-webkit-scrollbar-thumb:hover,
-    .timeline-body::-webkit-scrollbar-thumb:hover {
+    .timeline-body::-webkit-scrollbar-thumb:hover,
+    .highlights-body::-webkit-scrollbar-thumb:hover {
       background: var(--muted);
     }
   </style>
@@ -697,33 +769,31 @@
       <div class="conversation-header">
         <div class="header-top">
           <div class="header-left">
-            <div class="header-label">LAST MEANINGFUL CONTACT</div>
+            <div class="header-label-row">
+              <span class="header-label">Last Meaningful Contact</span>
+              <span class="header-date-inline" id="conversationDate">Feb 17, 2026</span>
+            </div>
             <a href="#" class="header-contact-name" id="contactName">Rebeca McCrory</a>
-            <div class="conversation-date" id="conversationDate">Feb 17, 2026</div>
-          </div>
-          <div class="header-badges">
-            <div class="status-badge lead-status-badge" id="leadStatusBadge">Interested</div>
-            <div class="status-badge next-action-badge" id="nextActionBadge">Send Offer</div>
           </div>
         </div>
       </div>
 
       <div class="conversation-body">
-        <!-- Contact Details (Moved to top) -->
+        <!-- Contact Details — minimalistic chips -->
         <div class="section">
-          <div class="section-label">CONTACT DETAILS</div>
+          <div class="section-label">Contact Details</div>
           <div class="contact-details">
-            <div class="detail-line">
-              <span class="detail-label">Relationship</span>
-              Daughter
+            <div class="detail-chip">
+              <span class="detail-chip-label">Relationship</span>
+              <span class="detail-chip-value">Daughter</span>
             </div>
-            <div class="detail-line">
-              <span class="detail-label">Ownership</span>
-              20%
+            <div class="detail-chip">
+              <span class="detail-chip-label">Ownership</span>
+              <span class="detail-chip-value">20%</span>
             </div>
-            <div class="detail-line">
-              <span class="detail-label">Authority</span>
-              Decision maker (has POA)
+            <div class="detail-chip">
+              <span class="detail-chip-label">Authority</span>
+              <span class="detail-chip-value">Decision Maker · POA</span>
             </div>
           </div>
         </div>
@@ -761,18 +831,20 @@
     <!-- TAB 2: UPDATE HISTORY -->
     <div class="tab-content" id="history-tab">
       <div class="timeline-header">
-        <div class="timeline-meta-row">
-          <span><strong id="totalConversations">12</strong> total conversations</span>
-          <span>•</span>
-          <span><strong id="heirsContacted">5</strong> heirs contacted</span>
-          <span>•</span>
-          <span>Last update: <strong id="lastUpdate">Yesterday</strong></span>
+        <div class="tl-stat">
+          <span class="tl-stat-value" id="totalConversations">12</span>
+          <span class="tl-stat-label">Notes</span>
+        </div>
+        <div class="tl-divider"></div>
+        <div class="tl-stat">
+          <span class="tl-stat-value" id="lastUpdate">Yesterday</span>
+          <span class="tl-stat-label">Last Update</span>
         </div>
       </div>
 
       <div class="timeline-body">
         <div class="timeline-track" id="timelineContainer">
-          <!-- Timeline items will be inserted here -->
+          <!-- Timeline items inserted by JS -->
         </div>
       </div>
     </div>
@@ -787,7 +859,6 @@
 
       <div class="highlights-body">
         <div class="highlights-track" id="highlightsContainer">
-          <!-- Empty state shown when no highlights -->
           <div class="empty-state" id="emptyState">
             <div class="empty-state-icon">📝</div>
             <div class="empty-state-text">No deal notes yet</div>
@@ -817,8 +888,6 @@
       date: "Feb 17, 2026",
       contactName: "Rebeca McCrory",
       contactUrl: "#",
-      leadStatus: "Interested",
-      nextAction: "Send Offer",
       keyPoints: [
         "Confirmed she can sign on behalf of siblings (has POA)",
         "Needs offer by end of month for tax deadline",
@@ -905,31 +974,59 @@
     document.getElementById('conversationDate').textContent = lastConversation.date;
     document.getElementById('contactName').textContent = lastConversation.contactName;
     document.getElementById('contactName').href = lastConversation.contactUrl;
-    document.getElementById('leadStatusBadge').textContent = lastConversation.leadStatus;
-    document.getElementById('nextActionBadge').textContent = lastConversation.nextAction;
-    
+
     const keyPointsList = document.getElementById('keyPointsList');
-    keyPointsList.innerHTML = lastConversation.keyPoints.map(point => 
+    keyPointsList.innerHTML = lastConversation.keyPoints.map(point =>
       `<li>${escapeHtml(point)}</li>`
     ).join('');
 
-    // Render timeline
+    // Render timeline — true vertical line with dots, month grouping
     const timelineContainer = document.getElementById('timelineContainer');
-    timelineContainer.innerHTML = timelineUpdates.map(update => `
-      <div class="timeline-item ${update.statusClass}">
-        <div class="timeline-dot"></div>
-        <div class="timeline-item-header">
-          <div class="timeline-left">
-            <span class="timeline-contact-name">${escapeHtml(update.contact)}</span>
-            <span class="timeline-status-badge ${update.statusClass}">${escapeHtml(update.status)}</span>
+
+    // Group updates by month
+    function getMonthLabel(dateStr) {
+      // dateStr like "Feb 18th" — extract month
+      return dateStr.replace(/\s+\d+(st|nd|rd|th)/, '');
+    }
+
+    let lastMonth = null;
+    let html = '';
+
+    timelineUpdates.forEach((update, i) => {
+      const month = getMonthLabel(update.date);
+      if (month !== lastMonth) {
+        html += `
+          <div class="tl-month-header">
+            <div class="tl-month-dot"></div>
+            <span class="tl-month-label">February 2026</span>
+            <div class="tl-month-rule"></div>
           </div>
-          <span class="timeline-date">${escapeHtml(update.date)} • ${escapeHtml(update.daysAgo)}</span>
+        `;
+        lastMonth = month;
+      }
+
+      html += `
+        <div class="timeline-item ${update.statusClass}">
+          <div class="tl-dot"></div>
+          <div class="tl-body">
+            <div class="tl-top-row">
+              <span class="tl-contact">${escapeHtml(update.contact)}</span>
+              <span class="tl-badge ${update.statusClass}">${escapeHtml(update.status)}</span>
+              ${i === 0 ? `<span class="tl-latest-tag"><span class="tl-latest-dot"></span>Latest</span>` : ''}
+            </div>
+            <ul class="tl-notes">
+              ${update.notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}
+            </ul>
+          </div>
+          <div class="tl-date-col">
+            <span class="tl-date-main">${escapeHtml(update.date)}</span>
+            <span class="tl-date-rel">${escapeHtml(update.daysAgo)}</span>
+          </div>
         </div>
-        <ul class="timeline-notes">
-          ${update.notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}
-        </ul>
-      </div>
-    `).join('');
+      `;
+    });
+
+    timelineContainer.innerHTML = html;
 
     // Sample deal highlights data
     let dealHighlights = [];
@@ -956,84 +1053,46 @@
           <div class="highlight-dot"></div>
           <div class="highlight-header">
             <span class="highlight-author">${escapeHtml(highlight.author)}</span>
-            <span class="highlight-date">${escapeHtml(highlight.date)} • ${escapeHtml(highlight.daysAgo)}</span>
+            <span class="highlight-date">${escapeHtml(highlight.date)} · ${escapeHtml(highlight.daysAgo)}</span>
           </div>
           <div class="highlight-text">${escapeHtml(highlight.text)}</div>
         </div>
       `).join('');
     }
 
-    // Show success alert
     function showSuccessAlert() {
       const alert = document.getElementById('successAlert');
       alert.classList.add('show');
-      setTimeout(() => {
-        alert.classList.remove('show');
-      }, 3000);
+      setTimeout(() => alert.classList.remove('show'), 3000);
     }
 
-    // Save quick note (from Last Conversation tab)
     document.getElementById('saveQuickNote').addEventListener('click', () => {
       const textarea = document.getElementById('quickNoteInput');
       const noteText = textarea.value.trim();
-
       if (!noteText) return;
-
-      // Add to highlights
-      dealHighlights.unshift({
-        id: Date.now(),
-        date: 'Today',
-        daysAgo: 'Just now',
-        author: 'You',
-        text: noteText
-      });
-
-      // Clear textarea
+      dealHighlights.unshift({ id: Date.now(), date: 'Today', daysAgo: 'Just now', author: 'You', text: noteText });
       textarea.value = '';
-
-      // Update highlights view
       renderHighlights();
-
-      // Show success alert
       showSuccessAlert();
     });
 
-    // Save highlight note (from Deal Highlights tab)
     document.getElementById('saveHighlightNote').addEventListener('click', () => {
       const textarea = document.getElementById('highlightNoteInput');
       const noteText = textarea.value.trim();
-
       if (!noteText) return;
-
-      // Add to highlights
-      dealHighlights.unshift({
-        id: Date.now(),
-        date: 'Today',
-        daysAgo: 'Just now',
-        author: 'You',
-        text: noteText
-      });
-
-      // Clear textarea
+      dealHighlights.unshift({ id: Date.now(), date: 'Today', daysAgo: 'Just now', author: 'You', text: noteText });
       textarea.value = '';
-
-      // Update highlights view
       renderHighlights();
     });
 
-    // Initial render
     renderHighlights();
 
     // Tab switching
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
         const tabName = tab.getAttribute('data-tab');
-        
-        // Update active tab
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
-        // Update active content
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         document.getElementById(`${tabName}-tab`).classList.add('active');
       });
