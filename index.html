@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Last Conversation - Tabbed View</title>
+  <title>Deal Summary Embed</title>
 
   <style>
     :root{
@@ -23,8 +23,7 @@
 
     *{ box-sizing: border-box; }
     html, body{
-      margin: 0;
-      padding: 0;
+      margin: 0; padding: 0;
       background: transparent;
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
@@ -43,822 +42,432 @@
       flex-direction: column;
     }
 
-    /* ========== SALESFORCE-STYLE TABS ========== */
-    .tabs-bar{
-      display: flex;
-      align-items: flex-end;
-      gap: 32px;
-      padding: 0 20px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,0.9);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.3s ease;
+    }
+    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid var(--line);
+      border-top-color: var(--blue);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── ERROR BANNER ── */
+    .error-banner {
+      display: none;
+      background: #fef2f2; border-bottom: 1px solid #fecaca;
+      padding: 10px 20px; font-size: 14px; color: #b91c1c;
       flex-shrink: 0;
     }
+    .error-banner.show { display: block; }
 
+    /* ========== TABS ========== */
+    .tabs-bar{
+      display: flex; align-items: flex-end;
+      gap: 32px; padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface); flex-shrink: 0;
+    }
     .tab{
-      appearance: none;
-      border: 0;
-      background: transparent;
-      font-family: var(--font);
-      font-size: 16.5px;
-      padding: 14px 0;
-      color: var(--muted);
-      cursor: pointer;
-      position: relative;
-      font-weight: 500;
+      appearance: none; border: 0; background: transparent;
+      font-family: var(--font); font-size: 16.5px;
+      padding: 14px 0; color: var(--muted); cursor: pointer;
+      position: relative; font-weight: 500;
       transition: color 0.15s ease;
     }
-
-    .tab:hover{
-      color: var(--text);
-    }
-
-    .tab.active{
-      color: var(--text);
-    }
-
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); }
     .tab.active::after{
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -1px;
-      height: 2px;
-      background: var(--blue);
+      content: ""; position: absolute;
+      left: 0; right: 0; bottom: -1px;
+      height: 2px; background: var(--blue);
     }
 
-    /* ========== TAB CONTENT PANELS ========== */
-    .tab-content{
-      display: none;
-      flex-direction: column;
-      flex: 1;
-      overflow: hidden;
-    }
+    /* ========== TAB CONTENT ========== */
+    .tab-content{ display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .tab-content.active{ display: flex; }
 
-    .tab-content.active{
-      display: flex;
-    }
-
-    /* ========== LAST CONVERSATION TAB ========== */
+    /* ========== TAB 1: LAST CONVERSATION ========== */
     .conversation-header{
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
-      flex-shrink: 0;
+      padding: 14px 20px; border-bottom: 1px solid var(--line);
+      background: var(--surface); flex-shrink: 0;
     }
-
-    .header-top{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .header-left{
-      flex: 1;
-    }
-
-    /* Label + date on one line */
     .header-label-row{
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 4px;
+      display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
     }
-
     .header-label{
-      font-size: 12.5px;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: var(--muted);
+      font-size: 12.5px; text-transform: uppercase;
+      font-weight: 600; letter-spacing: 0.06em; color: var(--muted);
     }
-
     .header-date-inline{
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--muted);
-      letter-spacing: 0.02em;
+      font-size: 12.5px; font-weight: 500;
+      color: var(--muted); letter-spacing: 0.02em;
     }
-
-    .header-date-inline::before{
-      content: "·";
-      margin-right: 8px;
-      opacity: 0.5;
-    }
-
+    .header-date-inline::before{ content: "·"; margin-right: 8px; opacity: 0.5; }
     .header-contact-name{
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--blue);
-      cursor: pointer;
-      text-decoration: none;
-      display: block;
+      font-size: 20px; font-weight: 600; color: var(--blue);
+      cursor: pointer; text-decoration: none; display: block;
     }
-    .header-contact-name:hover{
-      text-decoration: underline;
-    }
+    .header-contact-name:hover{ text-decoration: underline; }
 
-    .conversation-body{
-      padding: 22px 20px 18px 20px;
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    .section{
-      margin-bottom: 28px;
-    }
-
-    .section:last-child{
-      margin-bottom: 0;
-    }
-
+    .conversation-body{ padding: 22px 20px 18px 20px; flex: 1; overflow-y: auto; }
+    .section{ margin-bottom: 28px; }
+    .section:last-child{ margin-bottom: 0; }
     .section-label{
-      font-size: 13.5px;
-      text-transform: uppercase;
-      font-weight: 600;
-      letter-spacing: 0.05em;
-      color: var(--muted);
-      margin-bottom: 10px;
+      font-size: 13.5px; text-transform: uppercase;
+      font-weight: 600; letter-spacing: 0.05em;
+      color: var(--muted); margin-bottom: 10px;
     }
 
-    /* ── Minimalistic contact details ── */
-    .contact-details{
-      display: flex;
-      gap: 24px;
-      flex-wrap: wrap;
-    }
-
-    .detail-chip{
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
+    /* Contact chips */
+    .contact-details{ display: flex; gap: 24px; flex-wrap: wrap; }
+    .detail-chip{ display: flex; flex-direction: column; gap: 2px; }
     .detail-chip-label{
-      font-size: 12.5px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      font-weight: 600;
+      font-size: 12.5px; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); font-weight: 600;
     }
+    .detail-chip-value{ font-size: 16px; color: var(--text); font-weight: 500; }
 
-    .detail-chip-value{
-      font-size: 16px;
-      color: var(--text);
-      font-weight: 500;
-    }
-
-    /* KEY POINTS - HIGHLIGHTED SECTION */
+    /* Key points */
     .key-points-section{
-      background: #f0f7ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 8px;
-      padding: 16px;
+      background: #f0f7ff; border: 1px solid #bfdbfe;
+      border-radius: 8px; padding: 16px;
     }
-
     .key-points-header{
-      font-size: 17px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+      font-size: 17px; font-weight: 600; color: var(--text);
+      margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
     }
-
     .key-points-icon{
-      width: 20px;
-      height: 20px;
-      background: var(--blue);
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 14px;
-      font-weight: 700;
-      flex-shrink: 0;
-      line-height: 1;
-      padding-bottom: 1px;
+      width: 20px; height: 20px; background: var(--blue);
+      border-radius: 4px; display: flex; align-items: center;
+      justify-content: center; color: white; font-size: 14px;
+      font-weight: 700; flex-shrink: 0; line-height: 1; padding-bottom: 1px;
+    }
+    .key-points-list{ margin: 0; padding: 0 0 0 20px; list-style: disc; }
+    .key-points-list li{ font-size: 17px; color: var(--text); line-height: 1.7; margin: 9px 0; }
+    .key-points-list li::marker{ color: var(--blue); }
+
+    /* Deal info chips row */
+    .deal-info-row {
+      display: flex; gap: 24px; flex-wrap: wrap;
+      margin-bottom: 20px;
     }
 
-    .key-points-list{
-      margin: 0;
-      padding: 0 0 0 20px;
-      list-style: disc;
-    }
-
-    .key-points-list li{
-      font-size: 17px;
-      color: var(--text);
-      line-height: 1.7;
-      margin: 9px 0;
-    }
-
-    .key-points-list li::marker{
-      color: var(--blue);
-    }
-
-    /* ========== UPDATE INPUT (Salesforce-style) ========== */
+    /* ========== NOTE INPUT ========== */
     .update-input-section{
-      padding: 16px 20px;
-      border-top: 1px solid var(--line);
-      background: white;
-      flex-shrink: 0;
+      padding: 16px 20px; border-top: 1px solid var(--line);
+      background: white; flex-shrink: 0;
     }
-
-    .input-row{
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-    }
-
+    .input-row{ display: flex; gap: 12px; align-items: flex-start; }
     .input-label{
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--text);
-      padding-top: 10px;
-      white-space: nowrap;
+      font-size: 15px; font-weight: 600; color: var(--text);
+      padding-top: 10px; white-space: nowrap;
     }
-
     .note-textarea{
-      flex: 1;
-      min-height: 60px;
-      padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 4px;
-      font-family: var(--font);
-      font-size: 15px;
-      color: var(--text);
-      resize: vertical;
+      flex: 1; min-height: 60px; padding: 10px 12px;
+      border: 1px solid var(--line); border-radius: 4px;
+      font-family: var(--font); font-size: 15px;
+      color: var(--text); resize: vertical;
       transition: border-color 0.15s ease;
     }
-
     .note-textarea:focus{
-      outline: none;
-      border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(1, 118, 211, 0.1);
+      outline: none; border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(1,118,211,0.1);
     }
-
-    .note-textarea::placeholder{
-      color: var(--muted);
-    }
-
+    .note-textarea::placeholder{ color: var(--muted); }
     .save-btn{
-      padding: 10px 32px;
-      background: var(--blue);
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-family: var(--font);
-      font-size: 15px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.15s ease;
-      white-space: nowrap;
-      align-self: flex-start;
+      padding: 10px 32px; background: var(--blue); color: white;
+      border: none; border-radius: 4px; font-family: var(--font);
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: background 0.15s ease; white-space: nowrap; align-self: flex-start;
     }
-
-    .save-btn:hover{
-      background: #0161b3;
-    }
-
-    .save-btn:disabled{
-      background: #94a3b8;
-      cursor: not-allowed;
-    }
+    .save-btn:hover{ background: #0161b3; }
+    .save-btn:disabled{ background: #94a3b8; cursor: not-allowed; }
 
     /* Success Alert */
     .success-alert{
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: #d1fae5;
-      border: 1px solid #6ee7b7;
-      border-radius: 6px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.15);
-      z-index: 1000;
-      opacity: 0;
-      transform: translateY(-10px);
-      transition: all 0.3s ease;
-      pointer-events: none;
+      position: fixed; top: 20px; right: 20px;
+      background: #d1fae5; border: 1px solid #6ee7b7;
+      border-radius: 6px; padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15); z-index: 1000;
+      opacity: 0; transform: translateY(-10px);
+      transition: all 0.3s ease; pointer-events: none;
     }
-
-    .success-alert.show{
-      opacity: 1;
-      transform: translateY(0);
-      pointer-events: auto;
-    }
-
+    .success-alert.show{ opacity: 1; transform: translateY(0); pointer-events: auto; }
     .success-icon{
-      width: 20px;
-      height: 20px;
-      background: #059669;
-      border-radius: 50%;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
+      width: 20px; height: 20px; background: #059669;
+      border-radius: 50%; color: white; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 16px; font-weight: 700;
     }
+    .success-text{ font-size: 16px; color: #065f46; font-weight: 600; }
 
-    .success-text{
-      font-size: 16px;
-      color: #065f46;
-      font-weight: 600;
-    }
-
-    /* ========== DEAL HIGHLIGHTS TAB ========== */
-    .highlights-header{
-      padding: 16px 20px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
-      flex-shrink: 0;
-    }
-
-    .highlights-meta{
-      font-size: 14.5px;
-      color: var(--muted);
-      display: flex;
-      gap: 10px;
-    }
-
-    .highlights-body{
-      flex: 1;
-      overflow-y: auto;
-      background: #fafbfc;
-    }
-
-    .highlights-track{
-      position: relative;
-      padding: 24px 20px 24px 28px;
-    }
-
-    .highlights-track::before{
-      content: '';
-      position: absolute;
-      left: 14px;
-      top: 32px;
-      bottom: 32px;
-      width: 1px;
-      background: #d1d5db;
-    }
-
-    .highlight-item{
-      position: relative;
-      margin-bottom: 20px;
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      padding: 16px 18px;
-      transition: all 0.2s ease;
-    }
-
-    .highlight-item:hover{
-      box-shadow: 0 4px 12px rgba(0,0,0,.08);
-      transform: translateY(-1px);
-    }
-
-    .highlight-item:last-child{
-      margin-bottom: 0;
-    }
-
-    .highlight-dot{
-      position: absolute;
-      left: -20px;
-      top: 20px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--blue);
-      border: 2px solid var(--blue);
-      z-index: 1;
-      box-shadow: 0 0 0 3px white;
-    }
-
-    .highlight-header{
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-    }
-
-    .highlight-author{
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text);
-    }
-
-    .highlight-date{
-      font-size: 14.5px;
-      color: var(--muted);
-    }
-
-    .highlight-text{
-      font-size: 16px;
-      color: var(--text);
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-
-    .empty-state{
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--muted);
-    }
-
-    .empty-state-icon{
-      font-size: 48px;
-      margin-bottom: 12px;
-      opacity: 0.3;
-    }
-
-    .empty-state-text{
-      font-size: 17px;
-      font-weight: 500;
-    }
-
-    /* ========== UPDATE HISTORY TAB ========== */
+    /* ========== TAB 2: UPDATE HISTORY ========== */
     .timeline-header{
-      padding: 12px 20px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      gap: 16px;
+      padding: 12px 20px; border-bottom: 1px solid var(--line);
+      background: var(--surface); flex-shrink: 0;
+      display: flex; align-items: center; gap: 16px;
     }
-
-    .tl-stat{
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .tl-stat-value{
-      font-size: 18px;
-      font-weight: 400;
-      color: var(--text);
-      line-height: 1;
-    }
-
+    .tl-stat{ display: flex; flex-direction: column; gap: 1px; }
+    .tl-stat-value{ font-size: 18px; font-weight: 400; color: var(--text); line-height: 1; }
     .tl-stat-label{
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--muted);
-      font-weight: 500;
+      font-size: 12px; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--muted); font-weight: 500;
     }
+    .tl-divider{ width: 1px; height: 28px; background: var(--line); }
 
-    .tl-divider{
-      width: 1px;
-      height: 28px;
-      background: var(--line);
-    }
-
-    .timeline-body{
-      flex: 1;
-      overflow-y: auto;
-      background: #fafbfc;
-    }
-
-    /* The track is the scroll container — the vertical line runs through it */
+    .timeline-body{ flex: 1; overflow-y: auto; background: #fafbfc; }
     .timeline-track{
       position: relative;
-      padding: 20px 20px 20px 52px; /* left space for line + dot */
+      padding: 20px 20px 20px 52px;
     }
-
-    /* Full-height vertical line */
     .timeline-track::before{
-      content: '';
-      position: absolute;
-      left: 27px;
-      top: 0;
-      bottom: 0;
-      width: 1.5px;
-      background: #e5e7eb;
+      content: ''; position: absolute;
+      left: 27px; top: 0; bottom: 0;
+      width: 1.5px; background: #e5e7eb;
     }
 
-    /* ── Month group header ── */
     .tl-month-header{
-      position: relative;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 14px;
-      margin-top: 8px;
+      position: relative; display: flex; align-items: center;
+      gap: 10px; margin-bottom: 14px; margin-top: 8px;
     }
-
-    .tl-month-header:first-child{
-      margin-top: 0;
-    }
-
-    /* Small circle on the line for month marker */
+    .tl-month-header:first-child{ margin-top: 0; }
     .tl-month-dot{
-      position: absolute;
-      left: -31px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #fff;
-      border: 1.5px solid #d1d5db;
-      top: 50%;
-      transform: translateY(-50%);
+      position: absolute; left: -31px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #fff; border: 1.5px solid #d1d5db;
+      top: 50%; transform: translateY(-50%);
     }
-
     .tl-month-label{
-      font-size: 12.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--muted);
+      font-size: 12.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted);
     }
+    .tl-month-rule{ flex: 1; height: 1px; background: #f0f0f0; }
 
-    .tl-month-rule{
-      flex: 1;
-      height: 1px;
-      background: #f0f0f0;
-    }
-
-    /* ── Timeline entry — no card, just dot + content ── */
     .timeline-item{
       position: relative;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 12px;
-      align-items: start;
-      padding: 0 0 20px 0;
-      cursor: default;
+      display: grid; grid-template-columns: 1fr auto;
+      gap: 12px; align-items: start;
+      padding: 0 0 20px 0; cursor: default;
     }
-
-    .timeline-item:last-child{
-      padding-bottom: 0;
-    }
-
-    /* Colored dot on the line */
+    .timeline-item:last-child{ padding-bottom: 0; }
     .tl-dot{
-      position: absolute;
-      left: -31px;
-      top: 3px;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      border: 2px solid #fff;
-      box-shadow: 0 0 0 1.5px currentColor;
-      flex-shrink: 0;
-      z-index: 1;
+      position: absolute; left: -31px; top: 3px;
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid #fff; box-shadow: 0 0 0 1.5px currentColor;
+      flex-shrink: 0; z-index: 1;
     }
-
-    .timeline-item.interested  .tl-dot { background: #10b981; color: #10b981; }
-    .timeline-item.warm        .tl-dot { background: #f59e0b; color: #f59e0b; }
-    .timeline-item.no-answer   .tl-dot { background: #94a3b8; color: #94a3b8; }
+    .timeline-item.interested    .tl-dot { background: #10b981; color: #10b981; }
+    .timeline-item.warm          .tl-dot { background: #f59e0b; color: #f59e0b; }
+    .timeline-item.no-answer     .tl-dot { background: #94a3b8; color: #94a3b8; }
     .timeline-item.not-interested .tl-dot { background: #ef4444; color: #ef4444; }
+    .timeline-item.default       .tl-dot { background: #6b7280; color: #6b7280; }
 
-    .tl-body{
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      min-width: 0;
-    }
-
-    .tl-top-row{
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      flex-wrap: wrap;
-    }
-
-    .tl-contact{
-      font-size: 15.5px;
-      font-weight: 600;
-      color: var(--blue);
-    }
-
+    .tl-body{ display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .tl-top-row{ display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+    .tl-contact{ font-size: 15.5px; font-weight: 600; color: var(--blue); }
     .tl-badge{
-      display: inline-flex;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 600;
-      letter-spacing: 0.02em;
+      display: inline-flex; padding: 2px 8px;
+      border-radius: 999px; font-size: 12px;
+      font-weight: 600; letter-spacing: 0.02em;
     }
-
     .tl-badge.interested    { background: #d1fae5; color: #065f46; }
     .tl-badge.warm          { background: #fef3c7; color: #92400e; }
     .tl-badge.no-answer     { background: #f1f5f9; color: #475569; }
     .tl-badge.not-interested{ background: #fee2e2; color: #991b1b; }
+    .tl-badge.default       { background: #f3f4f6; color: #374151; }
 
-    /* "Latest" marker */
     .tl-latest-tag{
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 11.5px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.07em;
-      color: var(--blue);
-      background: #e0f2fe;
-      border-radius: 999px;
-      padding: 2px 7px;
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11.5px; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--blue); background: #e0f2fe;
+      border-radius: 999px; padding: 2px 7px;
     }
-
     .tl-latest-dot{
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--blue);
-      animation: pulse 2s infinite;
+      width: 5px; height: 5px; border-radius: 50%;
+      background: var(--blue); animation: pulse 2s infinite;
     }
+    @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    @keyframes pulse{
-      0%, 100% { opacity: 1; }
-      50%       { opacity: 0.4; }
-    }
-
-    .tl-notes{
-      margin: 0;
-      padding: 0;
-      list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
+    .tl-notes{ margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
     .tl-notes li{
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.5;
-      display: flex;
-      align-items: baseline;
-      gap: 5px;
+      font-size: 14px; color: #6b7280; line-height: 1.5;
+      display: flex; align-items: baseline; gap: 5px;
     }
-
-    .tl-notes li::before{
-      content: "·";
-      color: #d1d5db;
-      flex-shrink: 0;
-      font-size: 14px;
-      line-height: 1;
-    }
+    .tl-notes li::before{ content: "·"; color: #d1d5db; flex-shrink: 0; font-size: 14px; line-height: 1; }
 
     .tl-date-col{
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 1px;
-      white-space: nowrap;
-      padding-top: 2px;
+      display: flex; flex-direction: column;
+      align-items: flex-end; gap: 1px;
+      white-space: nowrap; padding-top: 2px;
     }
+    .tl-date-main{ font-size: 14px; color: var(--text); font-weight: 500; }
+    .tl-date-rel{ font-size: 12.5px; color: var(--muted); }
 
-    .tl-date-main{
-      font-size: 14px;
-      color: var(--text);
-      font-weight: 500;
+    /* ========== TAB 3: DEAL HIGHLIGHTS ========== */
+    .highlights-header{
+      padding: 16px 20px; border-bottom: 1px solid var(--line);
+      background: var(--surface); flex-shrink: 0;
     }
-
-    .tl-date-rel{
-      font-size: 12.5px;
-      color: var(--muted);
+    .highlights-meta{ font-size: 14.5px; color: var(--muted); display: flex; gap: 10px; }
+    .highlights-body{ flex: 1; overflow-y: auto; background: #fafbfc; }
+    .highlights-track{
+      position: relative;
+      padding: 24px 20px 24px 28px;
     }
+    .highlights-track::before{
+      content: ''; position: absolute;
+      left: 14px; top: 32px; bottom: 32px;
+      width: 1px; background: #d1d5db;
+    }
+    .highlight-item{
+      position: relative; margin-bottom: 20px;
+      background: white; border: 1px solid var(--line);
+      border-radius: 8px; padding: 16px 18px;
+      transition: all 0.2s ease;
+    }
+    .highlight-item:hover{ box-shadow: 0 4px 12px rgba(0,0,0,.08); transform: translateY(-1px); }
+    .highlight-item:last-child{ margin-bottom: 0; }
+    .highlight-dot{
+      position: absolute; left: -20px; top: 20px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--blue); border: 2px solid var(--blue);
+      z-index: 1; box-shadow: 0 0 0 3px white;
+    }
+    .highlight-header{
+      display: flex; align-items: center;
+      justify-content: space-between; margin-bottom: 10px;
+    }
+    .highlight-author{ font-size: 16px; font-weight: 600; color: var(--text); }
+    .highlight-date{ font-size: 14.5px; color: var(--muted); }
+    .highlight-text{ font-size: 16px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
 
-    /* Scrollbar styling */
+    .empty-state{ text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty-state-icon{ font-size: 48px; margin-bottom: 12px; opacity: 0.3; }
+    .empty-state-text{ font-size: 17px; font-weight: 500; }
+
+    /* ── Scrollbar ── */
     .conversation-body::-webkit-scrollbar,
     .timeline-body::-webkit-scrollbar,
-    .highlights-body::-webkit-scrollbar {
-      width: 5px;
-    }
+    .highlights-body::-webkit-scrollbar { width: 5px; }
     .conversation-body::-webkit-scrollbar-track,
     .timeline-body::-webkit-scrollbar-track,
-    .highlights-body::-webkit-scrollbar-track {
-      background: transparent;
-    }
+    .highlights-body::-webkit-scrollbar-track { background: transparent; }
     .conversation-body::-webkit-scrollbar-thumb,
     .timeline-body::-webkit-scrollbar-thumb,
-    .highlights-body::-webkit-scrollbar-thumb {
-      background: #d1d5db;
-      border-radius: 3px;
-    }
+    .highlights-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
     .conversation-body::-webkit-scrollbar-thumb:hover,
     .timeline-body::-webkit-scrollbar-thumb:hover,
-    .highlights-body::-webkit-scrollbar-thumb:hover {
-      background: var(--muted);
-    }
+    .highlights-body::-webkit-scrollbar-thumb:hover { background: var(--muted); }
   </style>
 </head>
 
 <body>
+  <!-- LOADING -->
+  <div class="loading-overlay" id="loadingOverlay"><div class="spinner"></div></div>
+
   <div class="widget">
+    <!-- ERROR BANNER -->
+    <div class="error-banner" id="errorBanner">⚠ Could not load deal data. Showing placeholder content.</div>
+
     <!-- SUCCESS ALERT -->
     <div class="success-alert" id="successAlert">
       <div class="success-icon">✓</div>
-      <div class="success-text">Note saved to Deal Highlights</div>
+      <div class="success-text" id="successText">Note saved to Monday.com</div>
     </div>
 
-    <!-- SALESFORCE-STYLE TABS -->
+    <!-- TABS -->
     <div class="tabs-bar">
       <button class="tab active" data-tab="conversation">Last Conversation</button>
       <button class="tab" data-tab="history">Update History</button>
-      <button class="tab" data-tab="highlights">Deal Highlights</button>
+      <button class="tab" data-tab="highlights">Deal Notes</button>
     </div>
 
-    <!-- TAB 1: LAST CONVERSATION -->
+    <!-- ===== TAB 1: LAST CONVERSATION ===== -->
     <div class="tab-content active" id="conversation-tab">
       <div class="conversation-header">
-        <div class="header-top">
-          <div class="header-left">
-            <div class="header-label-row">
-              <span class="header-label">Last Meaningful Contact</span>
-              <span class="header-date-inline" id="conversationDate">Feb 17, 2026</span>
-            </div>
-            <a href="#" class="header-contact-name" id="contactName">Rebeca McCrory</a>
-          </div>
+        <div class="header-label-row">
+          <span class="header-label">Last Meaningful Contact</span>
+          <span class="header-date-inline" id="conversationDate">—</span>
         </div>
+        <a href="#" class="header-contact-name" id="contactName">Loading…</a>
       </div>
 
       <div class="conversation-body">
-        <!-- Contact Details — minimalistic chips -->
+        <!-- Deal-level info chips -->
         <div class="section">
-          <div class="section-label">Contact Details</div>
-          <div class="contact-details">
-            <div class="detail-chip">
-              <span class="detail-chip-label">Relationship</span>
-              <span class="detail-chip-value">Daughter</span>
-            </div>
-            <div class="detail-chip">
-              <span class="detail-chip-label">Ownership</span>
-              <span class="detail-chip-value">20%</span>
-            </div>
-            <div class="detail-chip">
-              <span class="detail-chip-label">Authority</span>
-              <span class="detail-chip-value">Decision Maker · POA</span>
-            </div>
+          <div class="section-label">Deal Info</div>
+          <div class="deal-info-row" id="dealInfoRow">
+            <!-- Populated by JS -->
           </div>
         </div>
 
-        <!-- KEY POINTS - HIGHLIGHTED -->
+        <!-- Contact Details -->
+        <div class="section">
+          <div class="section-label">Contact Details</div>
+          <div class="contact-details" id="contactDetailsRow">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Key Points -->
         <div class="key-points-section">
           <div class="key-points-header">
             <div class="key-points-icon">★</div>
             <span>Key Conversation Points</span>
           </div>
           <ul class="key-points-list" id="keyPointsList">
-            <li>Confirmed she can sign on behalf of siblings (has POA)</li>
-            <li>Needs offer by end of month for tax deadline</li>
-            <li>Prefers email communication over phone</li>
-            <li>Mentioned property needs $15k in repairs</li>
+            <li style="color:var(--muted)">Loading key points…</li>
           </ul>
         </div>
       </div>
 
-      <!-- WRITE QUICK NOTE (Fixed at bottom) -->
+      <!-- Quick Note -->
       <div class="update-input-section">
         <div class="input-row">
           <div class="input-label">Quick Note</div>
-          <textarea 
-            class="note-textarea" 
-            id="quickNoteInput"
-            placeholder="Add a note about this deal..."
-            rows="2"
-          ></textarea>
+          <textarea class="note-textarea" id="quickNoteInput"
+            placeholder="Add a note about this deal…" rows="2"></textarea>
           <button class="save-btn" id="saveQuickNote">Save</button>
         </div>
       </div>
     </div>
 
-    <!-- TAB 2: UPDATE HISTORY -->
+    <!-- ===== TAB 2: UPDATE HISTORY ===== -->
     <div class="tab-content" id="history-tab">
       <div class="timeline-header">
         <div class="tl-stat">
-          <span class="tl-stat-value" id="totalConversations">12</span>
+          <span class="tl-stat-value" id="totalConversations">—</span>
           <span class="tl-stat-label">Notes</span>
         </div>
         <div class="tl-divider"></div>
         <div class="tl-stat">
-          <span class="tl-stat-value" id="lastUpdate">Yesterday</span>
+          <span class="tl-stat-value" id="lastUpdate">—</span>
           <span class="tl-stat-label">Last Update</span>
         </div>
       </div>
-
       <div class="timeline-body">
-        <div class="timeline-track" id="timelineContainer">
-          <!-- Timeline items inserted by JS -->
-        </div>
+        <div class="timeline-track" id="timelineContainer"></div>
       </div>
     </div>
 
-    <!-- TAB 3: DEAL HIGHLIGHTS -->
+    <!-- ===== TAB 3: DEAL NOTES ===== -->
     <div class="tab-content" id="highlights-tab">
       <div class="highlights-header">
         <div class="highlights-meta">
           <span><strong id="totalHighlights">0</strong> deal notes</span>
         </div>
       </div>
-
       <div class="highlights-body">
         <div class="highlights-track" id="highlightsContainer">
           <div class="empty-state" id="emptyState">
@@ -867,17 +476,11 @@
           </div>
         </div>
       </div>
-
-      <!-- ADD UPDATE (Fixed at bottom) -->
       <div class="update-input-section">
         <div class="input-row">
-          <div class="input-label">Add Update</div>
-          <textarea 
-            class="note-textarea" 
-            id="highlightNoteInput"
-            placeholder="Add a note about this deal..."
-            rows="2"
-          ></textarea>
+          <div class="input-label">Add Note</div>
+          <textarea class="note-textarea" id="highlightNoteInput"
+            placeholder="Add a note about this deal…" rows="2"></textarea>
           <button class="save-btn" id="saveHighlightNote">Save</button>
         </div>
       </div>
@@ -885,226 +488,306 @@
   </div>
 
   <script>
-    // Sample data
-    const lastConversation = {
-      date: "Feb 17, 2026",
-      contactName: "Rebeca McCrory",
-      contactUrl: "#",
-      keyPoints: [
-        "Confirmed she can sign on behalf of siblings (has POA)",
-        "Needs offer by end of month for tax deadline",
-        "Prefers email communication over phone",
-        "Mentioned property needs $15k in repairs"
-      ]
-    };
+    // ============================================================
+    //  CONFIGURATION
+    // ============================================================
+    const LOAD_WEBHOOK_URL = "https://hook.us1.make.com/3spufybkajebciu4vjz51fcuwlncm0e8";
+    const MAKE_WEBHOOK_URL = "https://hook.us1.make.com/wfh5ezjw929dnmyaeu8zlnt1uwl6ewkn";
+    //  This is the item_id passed from Monday via the iframe URL
+    //  Monday URL param format: ?item_id=123456&board_id=789
+    // ============================================================
 
-    const timelineUpdates = [
-      {
-        date: "Feb 18th",
-        daysAgo: "3 days ago",
-        contact: "Rebeca McCrory",
-        status: "Interested",
-        statusClass: "interested",
-        notes: [
-          "Agreed to $90k offer",
-          "Will sign next week",
-          "Changed mind after discussing with siblings"
-        ]
-      },
-      {
-        date: "Feb 15th",
-        daysAgo: "6 days ago",
-        contact: "Rebeca McCrory",
-        status: "Warm",
-        statusClass: "warm",
-        notes: [
-          "Needs more time to think",
-          "Discussed $90k price point",
-          "Will get back to us by Friday"
-        ]
-      },
-      {
-        date: "Feb 11th",
-        daysAgo: "10 days ago",
-        contact: "Rebeca McCrory",
-        status: "Interested",
-        statusClass: "interested",
-        notes: [
-          "Has POA for siblings",
-          "Needs offer by end of month for tax deadline",
-          "Prefers email communication over phone",
-          "Mentioned property needs $15k in repairs"
-        ]
-      },
-      {
-        date: "Feb 10th",
-        daysAgo: "11 days ago",
-        contact: "Sarah McCrory",
-        status: "Interested",
-        statusClass: "interested",
-        notes: [
-          "Spoke with siblings, now on board",
-          "Supports Rebeca's decision to sell"
-        ]
-      },
-      {
-        date: "Feb 8th",
-        daysAgo: "13 days ago",
-        contact: "Rebeca McCrory",
-        status: "No Answer",
-        statusClass: "no-answer",
-        notes: [
-          "Left voicemail with offer details",
-          "Will try again on Monday"
-        ]
-      },
-      {
-        date: "Feb 5th",
-        daysAgo: "16 days ago",
-        contact: "John McCrory",
-        status: "Not Interested",
-        statusClass: "not-interested",
-        notes: [
-          "Not interested at this time",
-          "Referred us to Rebeca (his sister) as decision maker",
-          "Confirmed she has POA"
-        ]
-      }
-    ];
-
-    // Apply last conversation data
-    document.getElementById('conversationDate').textContent = lastConversation.date;
-    document.getElementById('contactName').textContent = lastConversation.contactName;
-    document.getElementById('contactName').href = lastConversation.contactUrl;
-
-    const keyPointsList = document.getElementById('keyPointsList');
-    keyPointsList.innerHTML = lastConversation.keyPoints.map(point =>
-      `<li>${escapeHtml(point)}</li>`
-    ).join('');
-
-    // Render timeline — true vertical line with dots, month grouping
-    const timelineContainer = document.getElementById('timelineContainer');
-
-    // Group updates by month
-    function getMonthLabel(dateStr) {
-      // dateStr like "Feb 18th" — extract month
-      return dateStr.replace(/\s+\d+(st|nd|rd|th)/, '');
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      const d = document.createElement('div');
+      d.textContent = String(str);
+      return d.innerHTML;
     }
 
-    let lastMonth = null;
-    let html = '';
+    // ── Helper: relative time ──
+    function relativeTime(dateStr) {
+      if (!dateStr) return '';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      const diff = Math.floor((Date.now() - d) / 86400000);
+      if (diff === 0) return 'Today';
+      if (diff === 1) return 'Yesterday';
+      if (diff < 7) return `${diff} days ago`;
+      if (diff < 30) return `${Math.floor(diff/7)} weeks ago`;
+      return `${Math.floor(diff/30)} months ago`;
+    }
 
-    timelineUpdates.forEach((update, i) => {
-      const month = getMonthLabel(update.date);
-      if (month !== lastMonth) {
-        html += `
-          <div class="tl-month-header">
-            <div class="tl-month-dot"></div>
-            <span class="tl-month-label">February 2026</span>
-            <div class="tl-month-rule"></div>
-          </div>
-        `;
-        lastMonth = month;
-      }
+    // ── Status → CSS class ──
+    function statusClass(status) {
+      if (!status) return 'default';
+      const s = status.toLowerCase();
+      if (s.includes('interested') && !s.includes('not')) return 'interested';
+      if (s.includes('warm')) return 'warm';
+      if (s.includes('no answer') || s.includes('no-answer')) return 'no-answer';
+      if (s.includes('not interested')) return 'not-interested';
+      return 'default';
+    }
 
-      html += `
-        <div class="timeline-item ${update.statusClass}">
-          <div class="tl-dot"></div>
-          <div class="tl-body">
-            <div class="tl-top-row">
-              <span class="tl-contact">${escapeHtml(update.contact)}</span>
-              <span class="tl-badge ${update.statusClass}">${escapeHtml(update.status)}</span>
-              ${i === 0 ? `<span class="tl-latest-tag"><span class="tl-latest-dot"></span>Latest</span>` : ''}
-            </div>
-            <ul class="tl-notes">
-              ${update.notes.map(note => `<li>${escapeHtml(note)}</li>`).join('')}
-            </ul>
-          </div>
-          <div class="tl-date-col">
-            <span class="tl-date-main">${escapeHtml(update.date)}</span>
-            <span class="tl-date-rel">${escapeHtml(update.daysAgo)}</span>
-          </div>
-        </div>
-      `;
-    });
+    // ── Format date nicely ──
+    function fmtDate(dateStr) {
+      if (!dateStr) return '—';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
 
-    timelineContainer.innerHTML = html;
+    function getMonthYear(dateStr) {
+      if (!dateStr) return 'Unknown';
+      const d = new Date(dateStr);
+      if (isNaN(d)) return dateStr;
+      return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    }
 
-    // Sample deal highlights data
+    // ── State ──
+    let src = {};
     let dealHighlights = [];
 
-    // Render deal highlights
-    function renderHighlights() {
-      const container = document.getElementById('highlightsContainer');
-      const emptyState = document.getElementById('emptyState');
-      const totalEl = document.getElementById('totalHighlights');
+    // ── DEMO fallback (used when no item_id in URL) ──
+    const DEMO = {
+      item_id: 'DEMO', board_id: '',
+      deal_name: 'McCrory Property', deal_status: 'Interested', deal_value: '$90k',
+      contact_name: 'Rebeca McCrory', conv_date: '2026-02-17',
+      relationship: 'Daughter', ownership: '20%', authority: 'Decision Maker · POA',
+      key_points: 'Confirmed she can sign on behalf of siblings (has POA)|Needs offer by end of month for tax deadline|Prefers email communication over phone|Mentioned property needs $15k in repairs',
+      timeline: [
+        { date: '2026-02-18', contact: 'Rebeca McCrory', status: 'Interested', notes: ['Agreed to $90k offer', 'Will sign next week'] },
+        { date: '2026-02-15', contact: 'Rebeca McCrory', status: 'Warm',       notes: ['Needs more time to think', 'Will get back by Friday'] },
+        { date: '2026-02-11', contact: 'Rebeca McCrory', status: 'Interested', notes: ['Has POA for siblings', 'Needs offer by end of month'] },
+        { date: '2026-02-10', contact: 'Sarah McCrory',  status: 'Interested', notes: ['Supports sale decision'] },
+        { date: '2026-02-08', contact: 'Rebeca McCrory', status: 'No Answer',  notes: ['Left voicemail'] },
+        { date: '2026-02-05', contact: 'John McCrory',   status: 'Not Interested', notes: ['Referred to Rebeca as decision maker'] }
+      ],
+      highlights: []
+    };
 
-      if (dealHighlights.length === 0) {
-        emptyState.style.display = 'block';
-        container.innerHTML = '';
-        container.appendChild(emptyState);
-        totalEl.textContent = '0';
-        return;
+    // ── Render all tabs from src ──
+    function renderAll() {
+      // Tab 1
+      document.getElementById('conversationDate').textContent = fmtDate(src.conv_date);
+      document.getElementById('contactName').textContent = src.contact_name || '—';
+
+      const dealChips = [
+        { label: 'Deal',   value: src.deal_name   },
+        { label: 'Status', value: src.deal_status },
+        { label: 'Value',  value: src.deal_value  }
+      ].filter(c => c.value);
+      document.getElementById('dealInfoRow').innerHTML = dealChips.map(c => `
+        <div class="detail-chip">
+          <span class="detail-chip-label">${escapeHtml(c.label)}</span>
+          <span class="detail-chip-value">${escapeHtml(c.value)}</span>
+        </div>`).join('');
+
+      const contactChips = [
+        { label: 'Relationship', value: src.relationship },
+        { label: 'Ownership',    value: src.ownership    },
+        { label: 'Authority',    value: src.authority    }
+      ].filter(c => c.value);
+      document.getElementById('contactDetailsRow').innerHTML = contactChips.map(c => `
+        <div class="detail-chip">
+          <span class="detail-chip-label">${escapeHtml(c.label)}</span>
+          <span class="detail-chip-value">${escapeHtml(c.value)}</span>
+        </div>`).join('');
+
+      // Key points — pipe-delimited string OR already parsed array
+      const kpRaw = src.key_points || '';
+      const keyPoints = Array.isArray(kpRaw)
+        ? kpRaw
+        : kpRaw.split('|').map(s => s.trim()).filter(Boolean);
+      document.getElementById('keyPointsList').innerHTML = keyPoints.length
+        ? keyPoints.map(p => `<li>${escapeHtml(p)}</li>`).join('')
+        : '<li style="color:var(--muted)">No conversation notes yet.</li>';
+
+      // Tab 2 — timeline
+      let timelineUpdates = [];
+      try {
+        timelineUpdates = Array.isArray(src.timeline)
+          ? src.timeline
+          : JSON.parse(src.timeline || '[]');
+      } catch(e) {}
+
+      document.getElementById('totalConversations').textContent = timelineUpdates.length || '0';
+      document.getElementById('lastUpdate').textContent = timelineUpdates[0]
+        ? relativeTime(timelineUpdates[0].date) : '—';
+
+      const timelineContainer = document.getElementById('timelineContainer');
+      if (timelineUpdates.length === 0) {
+        timelineContainer.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-text">No update history yet</div>
+        </div>`;
+      } else {
+        let lastMonth = null, html = '';
+        timelineUpdates.forEach((u, i) => {
+          const month = getMonthYear(u.date);
+          if (month !== lastMonth) {
+            html += `<div class="tl-month-header">
+              <div class="tl-month-dot"></div>
+              <span class="tl-month-label">${escapeHtml(month)}</span>
+              <div class="tl-month-rule"></div>
+            </div>`;
+            lastMonth = month;
+          }
+          const sc = statusClass(u.status);
+          const notes = Array.isArray(u.notes) ? u.notes : (u.notes ? [u.notes] : []);
+          html += `<div class="timeline-item ${sc}">
+            <div class="tl-dot"></div>
+            <div class="tl-body">
+              <div class="tl-top-row">
+                <span class="tl-contact">${escapeHtml(u.contact)}</span>
+                <span class="tl-badge ${sc}">${escapeHtml(u.status || 'Update')}</span>
+                ${i === 0 ? `<span class="tl-latest-tag"><span class="tl-latest-dot"></span>Latest</span>` : ''}
+              </div>
+              <ul class="tl-notes">
+                ${notes.map(n => `<li>${escapeHtml(n)}</li>`).join('')}
+              </ul>
+            </div>
+            <div class="tl-date-col">
+              <span class="tl-date-main">${escapeHtml(fmtDate(u.date))}</span>
+              <span class="tl-date-rel">${escapeHtml(relativeTime(u.date))}</span>
+            </div>
+          </div>`;
+        });
+        timelineContainer.innerHTML = html;
       }
 
-      emptyState.style.display = 'none';
-      totalEl.textContent = dealHighlights.length;
+      // Tab 3 — highlights
+      try {
+        dealHighlights = Array.isArray(src.highlights)
+          ? src.highlights
+          : JSON.parse(src.highlights || '[]');
+      } catch(e) { dealHighlights = []; }
+      renderHighlights();
+    }
 
-      container.innerHTML = dealHighlights.map(highlight => `
+    // ── Render Deal Notes tab ──
+    function renderHighlights() {
+      const container = document.getElementById('highlightsContainer');
+      const totalEl   = document.getElementById('totalHighlights');
+      totalEl.textContent = dealHighlights.length;
+      if (dealHighlights.length === 0) {
+        container.innerHTML = `<div class="empty-state">
+          <div class="empty-state-icon">📝</div>
+          <div class="empty-state-text">No deal notes yet</div>
+        </div>`;
+        return;
+      }
+      container.innerHTML = dealHighlights.map(h => `
         <div class="highlight-item">
           <div class="highlight-dot"></div>
           <div class="highlight-header">
-            <span class="highlight-author">${escapeHtml(highlight.author)}</span>
-            <span class="highlight-date">${escapeHtml(highlight.date)} · ${escapeHtml(highlight.daysAgo)}</span>
+            <span class="highlight-author">${escapeHtml(h.author || 'You')}</span>
+            <span class="highlight-date">${escapeHtml(fmtDate(h.date))} · ${escapeHtml(relativeTime(h.date))}</span>
           </div>
-          <div class="highlight-text">${escapeHtml(highlight.text)}</div>
-        </div>
-      `).join('');
+          <div class="highlight-text">${escapeHtml(h.text)}</div>
+        </div>`).join('');
     }
 
-    function showSuccessAlert() {
-      const alert = document.getElementById('successAlert');
-      alert.classList.add('show');
-      setTimeout(() => alert.classList.remove('show'), 3000);
+    // ── LOAD: fetch deal data from Make on page load ──
+    async function loadDealData() {
+      const params = new URLSearchParams(window.location.search);
+      const item_id  = params.get('item_id');
+      const board_id = params.get('board_id') || '';
+
+      if (!item_id) {
+        // No item_id → demo mode
+        src = DEMO;
+        document.getElementById('errorBanner').textContent = '⚠ Demo mode — add ?item_id=XXX to the URL to load live data.';
+        document.getElementById('errorBanner').classList.add('show');
+        renderAll();
+        return;
+      }
+
+      try {
+        const res = await fetch(LOAD_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item_id, board_id })
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        src = await res.json();
+        renderAll();
+      } catch(err) {
+        // Webhook failed — fall back to demo and show warning
+        src = DEMO;
+        document.getElementById('errorBanner').textContent = `⚠ Could not load live data (${err.message}). Showing demo content.`;
+        document.getElementById('errorBanner').classList.add('show');
+        renderAll();
+      }
+    }
+
+    // ── SAVE NOTE → Make.com webhook ──
+    async function saveNote(text, textarea) {
+      if (!text) return;
+      const activeBtn = document.activeElement;
+      activeBtn.disabled = true;
+      activeBtn.textContent = 'Saving…';
+
+      const payload = {
+        action: 'add_note',
+        item_id:   src.item_id,
+        board_id:  src.board_id,
+        note:      text,
+        timestamp: new Date().toISOString()
+      };
+
+      try {
+        await fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        showSuccess('Note saved to Monday.com ✓');
+      } catch(err) {
+        showSuccess('Saved locally (check webhook)');
+      } finally {
+        activeBtn.disabled = false;
+        activeBtn.textContent = 'Save';
+      }
+
+      // Always add optimistically
+      dealHighlights.unshift({ date: new Date().toISOString(), author: 'You', text });
+      renderHighlights();
+      textarea.value = '';
+    }
+
+    function showSuccess(msg) {
+      document.getElementById('successText').textContent = msg;
+      const el = document.getElementById('successAlert');
+      el.classList.add('show');
+      setTimeout(() => el.classList.remove('show'), 3000);
     }
 
     document.getElementById('saveQuickNote').addEventListener('click', () => {
-      const textarea = document.getElementById('quickNoteInput');
-      const noteText = textarea.value.trim();
-      if (!noteText) return;
-      dealHighlights.unshift({ id: Date.now(), date: 'Today', daysAgo: 'Just now', author: 'You', text: noteText });
-      textarea.value = '';
-      renderHighlights();
-      showSuccessAlert();
+      const ta = document.getElementById('quickNoteInput');
+      saveNote(ta.value.trim(), ta);
     });
-
     document.getElementById('saveHighlightNote').addEventListener('click', () => {
-      const textarea = document.getElementById('highlightNoteInput');
-      const noteText = textarea.value.trim();
-      if (!noteText) return;
-      dealHighlights.unshift({ id: Date.now(), date: 'Today', daysAgo: 'Just now', author: 'You', text: noteText });
-      textarea.value = '';
-      renderHighlights();
+      const ta = document.getElementById('highlightNoteInput');
+      saveNote(ta.value.trim(), ta);
     });
 
-    renderHighlights();
-
-    // Tab switching
+    // ── Tab switching ──
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        const tabName = tab.getAttribute('data-tab');
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById(`${tabName}-tab`).classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
       });
     });
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
+    // ── Boot: load data then hide spinner ──
+    loadDealData().finally(() => {
+      const overlay = document.getElementById('loadingOverlay');
+      overlay.classList.add('hidden');
+      setTimeout(() => overlay.remove(), 400);
+    });
   </script>
 </body>
 </html>
