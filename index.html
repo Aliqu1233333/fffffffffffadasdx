@@ -687,16 +687,41 @@
         </div>`).join('');
     }
 
-    // ── LOAD: fetch deal data from Make on page load ──
+    // -- LOAD: fetch deal data from Make on page load --
     async function loadDealData() {
+      // Handles all Monday URL formats:
+      // Format A (standard):  ?item_id=111&board_id=222
+      // Format B (Monday):    ?222/pulses/111
+      // Format C (mixed):     ?222/item_id=111
+      // Format D (bare):      ?222/111
+      const raw    = window.location.search.replace('?', '');
       const params = new URLSearchParams(window.location.search);
-      const item_id  = params.get('item_id');
-      const board_id = params.get('board_id') || '';
+
+      let item_id  = params.get('item_id')  || params.get('pulseId') || null;
+      let board_id = params.get('board_id') || params.get('boardId') || '';
+
+      // Format B: ?boardId/pulses/itemId
+      if (!item_id) {
+        const pulseMatch = raw.match(/(\d+)\/pulses\/(\d+)/);
+        if (pulseMatch) { board_id = pulseMatch[1]; item_id = pulseMatch[2]; }
+      }
+
+      // Format C: ?boardId/item_id=itemId
+      if (!item_id) {
+        const mixedMatch = raw.match(/(\d+)\/item_id=(\d+)/);
+        if (mixedMatch) { board_id = mixedMatch[1]; item_id = mixedMatch[2]; }
+      }
+
+      // Format D: ?boardId/itemId  (bare numbers)
+      if (!item_id) {
+        const bareMatch = raw.match(/(\d+)\/(\d+)/);
+        if (bareMatch) { board_id = bareMatch[1]; item_id = bareMatch[2]; }
+      }
 
       if (!item_id) {
-        // No item_id → demo mode
+        // No item_id found in any format -> demo mode
         src = DEMO;
-        document.getElementById('errorBanner').textContent = '⚠ Demo mode — add ?item_id=XXX to the URL to load live data.';
+        document.getElementById('errorBanner').textContent = 'Demo mode -- add ?item_id=XXX&board_id=YYY to the URL to load live data.';
         document.getElementById('errorBanner').classList.add('show');
         renderAll();
         return;
