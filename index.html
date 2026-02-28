@@ -404,14 +404,6 @@
       </div>
 
       <div class="conversation-body">
-        <!-- Deal-level info chips -->
-        <div class="section">
-          <div class="section-label">Deal Info</div>
-          <div class="deal-info-row" id="dealInfoRow">
-            <!-- Populated by JS -->
-          </div>
-        </div>
-
         <!-- Contact Details -->
         <div class="section">
           <div class="section-label">Contact Details</div>
@@ -552,7 +544,7 @@
       item_id: 'DEMO', board_id: '',
       deal_name: 'McCrory Property', deal_status: 'Interested', deal_value: '$90k',
       contact_name: 'Rebeca McCrory', conv_date: '2026-02-17',
-      relationship: 'Daughter', ownership: '20%', authority: 'Decision Maker · POA',
+      lead_status: 'Interested in Selling', relationship: 'Daughter', ownership: '20%',
       key_points: 'Confirmed she can sign on behalf of siblings (has POA)|Needs offer by end of month for tax deadline|Prefers email communication over phone|Mentioned property needs $15k in repairs',
       timeline: [
         { date: '2026-02-18', contact: 'Rebeca McCrory', status: 'Interested', notes: ['Agreed to $90k offer', 'Will sign next week'] },
@@ -571,21 +563,10 @@
       document.getElementById('conversationDate').textContent = fmtDate(src.conv_date);
       document.getElementById('contactName').textContent = src.contact_name || '—';
 
-      const dealChips = [
-        { label: 'Deal',   value: src.deal_name   },
-        { label: 'Status', value: src.deal_status },
-        { label: 'Value',  value: src.deal_value  }
-      ].filter(c => c.value);
-      document.getElementById('dealInfoRow').innerHTML = dealChips.map(c => `
-        <div class="detail-chip">
-          <span class="detail-chip-label">${escapeHtml(c.label)}</span>
-          <span class="detail-chip-value">${escapeHtml(c.value)}</span>
-        </div>`).join('');
-
       const contactChips = [
+        { label: 'Lead Status',  value: src.lead_status  },
         { label: 'Relationship', value: src.relationship },
-        { label: 'Ownership',    value: src.ownership    },
-        { label: 'Authority',    value: src.authority    }
+        { label: 'Ownership',    value: src.ownership    }
       ].filter(c => c.value);
       document.getElementById('contactDetailsRow').innerHTML = contactChips.map(c => `
         <div class="detail-chip">
