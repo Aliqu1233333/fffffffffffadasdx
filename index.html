@@ -470,26 +470,6 @@
     const LOAD_WEBHOOK_URL = "https://hook.us1.make.com/3spufybkajebciu4vjz51fcuwlncm0e8";
     const MAKE_WEBHOOK_URL = "https://hook.us1.make.com/wfh5ezjw929dnmyaeu8zlnt1uwl6ewkn";
 
-    // ── TEST DATA (remove before going live) ──────────────────────
-    const TEST_DATA = {
-      item_id: 'TEST001', board_id: '12345678',
-      deal_name: 'Acme Corp — Enterprise License',
-      contact_name: 'Sarah Mitchell',
-      conv_date: '2026-02-28',
-      lead_status: 'Warm',
-      relationship: 'Decision Maker',
-      ownership: 'James Reyes',
-      key_points: [
-        'Budget approved for Q2 — Sarah confirmed board sign-off last week',
-        'Decision timeline moved up — CEO wants deployment by April 15',
-        'Competitor Salesbridge still in evaluation but we are the preferred vendor',
-        'Follow-up call scheduled for March 12 to review final proposal',
-        'Needs custom onboarding package included in contract terms'
-      ],
-      timeline: [],
-      highlights: []
-    };
-    // ─────────────────────────────────────────────────────────────
 
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
@@ -649,7 +629,7 @@
       if (!item_id) { const m = raw.match(/(\d+)\/item_id=(\d+)/);  if (m) { board_id=m[1]; item_id=m[2]; } }
       if (!item_id) { const m = raw.match(/(\d+)\/(\d+)/);          if (m) { board_id=m[1]; item_id=m[2]; } }
 
-      if (!item_id) { src = TEST_DATA; renderAll(); return; }   // ← swap TEST_DATA → {} for production
+      if (!item_id) { src = {}; renderAll(); return; }
 
       try {
         const res = await fetch(LOAD_WEBHOOK_URL, {
@@ -660,7 +640,7 @@
         src = await res.json();
         renderAll();
       } catch(err) {
-        src = TEST_DATA; renderAll();
+        src = {}; renderAll();
       }
     }
 
