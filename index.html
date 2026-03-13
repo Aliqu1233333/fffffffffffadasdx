@@ -684,36 +684,28 @@
     }
 
     async function loadDealData() {
-      // ── TEST DATA ──────────────────────────────────────────────
-      src = {
-        item_id:      "98234701",
-        board_id:     "44120983",
-        contact_name: "Marcus Whitfield",
-        contact_url:  "#",
-        conv_date:    new Date(Date.now() - 3 * 86400000).toISOString(),
-        lead_status:  "Interested",
-        relationship: "Decision Maker",
-        ownership:    "Multi-Family",
-        key_points:   [
-          "Looking to refinance a 48-unit portfolio in Phoenix — wants sub-6% rate",
-          "Currently with Wells Fargo, unhappy with their response times",
-          "Prefers a 10-year fixed with 30-year amortization",
-          "Asked us to follow up after Q3 board meeting — target close by end of October",
-          "Mentioned a referral from David Chen at Apex Capital"
-        ].join('|'),
-        timeline: [
-          { date: new Date(Date.now() - 3 * 86400000).toISOString(),  contact: "Marcus Whitfield", status: "Interested",     notes: ["Discussed refi terms on 48-unit Phoenix portfolio", "Requested loan scenario sheet by EOW"] },
-          { date: new Date(Date.now() - 11 * 86400000).toISOString(), contact: "Marcus Whitfield", status: "Warm",           notes: ["Initial intro call — 22 mins", "Confirmed decision-making authority", "Sent deal overview deck"] },
-          { date: new Date(Date.now() - 19 * 86400000).toISOString(), contact: "Sandra Okafor",    status: "No Answer",      notes: ["Voicemail left — no callback"] },
-          { date: new Date(Date.now() - 34 * 86400000).toISOString(), contact: "Marcus Whitfield", status: "Warm",           notes: ["LinkedIn outreach — responded positively", "Scheduled intro call for following week"] },
-          { date: new Date(Date.now() - 61 * 86400000).toISOString(), contact: "Sandra Okafor",    status: "Not Interested", notes: ["Said timing wasn't right", "Asked not to be contacted for 60 days"] }
-        ],
-        highlights: [
-          { date: new Date(Date.now() - 3 * 86400000).toISOString(),  author: "Jordan P.", text: "Marcus is serious. He's been burned by slow lenders before — speed of execution will be the deciding factor here. Get the loan scenarios to him by Friday or we risk losing to Arbor." },
-          { date: new Date(Date.now() - 11 * 86400000).toISOString(), author: "Jordan P.", text: "Strong first call. He owns 3 other properties not yet in our pipeline. If we close this one cleanly, there's real upside for the broader relationship." }
-        ]
-      };
-      renderAll();
+      const raw    = window.location.search.replace('?', '');
+      const params = new URLSearchParams(window.location.search);
+      let item_id  = params.get('item_id') || params.get('pulseId') || null;
+      let board_id = params.get('board_id') || params.get('boardId') || '';
+
+      if (!item_id) { const m = raw.match(/(\d+)\/pulses\/(\d+)/);  if (m) { board_id=m[1]; item_id=m[2]; } }
+      if (!item_id) { const m = raw.match(/(\d+)\/item_id=(\d+)/);  if (m) { board_id=m[1]; item_id=m[2]; } }
+      if (!item_id) { const m = raw.match(/(\d+)\/(\d+)/);          if (m) { board_id=m[1]; item_id=m[2]; } }
+
+      if (!item_id) { src = {}; renderAll(); return; }
+
+      try {
+        const res = await fetch(LOAD_WEBHOOK_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item_id, board_id })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        src = await res.json();
+        renderAll();
+      } catch(err) {
+        src = {}; renderAll();
+      }
     }
 
     async function saveNote(text, textarea) {
