@@ -67,17 +67,83 @@
     }
     .error-banner.show { display: block; }
 
+    /* ========== RECORD HEADER ========== */
+    .record-header {
+      padding: 19px 22px 0;
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    /* Contact name — large, anchor-styled */
+    .record-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--sf-blue);
+      text-decoration: none;
+      letter-spacing: -0.015em;
+      line-height: 1.2;
+      display: block;
+      margin-bottom: 13px;
+      transition: color 0.15s;
+    }
+    .record-name:hover { color: var(--blue); }
+
+    /* Metadata row — label + value pairs, no borders, no pills */
+    .record-meta {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      flex-wrap: nowrap;
+    }
+
+    .meta-field {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .meta-field + .meta-field {
+      margin-left: 27px;
+      padding-left: 27px;
+      border-left: 1px solid var(--line);
+    }
+
+    .meta-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+
+    .meta-value {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Last contact gets accent color */
+    .meta-value.accent {
+      color: var(--blue);
+    }
+
     /* ========== TABS ========== */
     .tabs-bar{
       display: flex; align-items: flex-end;
-      gap: 32px; padding: 0 20px;
+      gap: 28px; padding: 0 22px;
+      margin-top: 15px;
       border-bottom: 1px solid var(--line);
       background: var(--surface); flex-shrink: 0;
     }
     .tab{
       appearance: none; border: 0; background: transparent;
-      font-family: var(--font); font-size: 14px;
-      padding: 13px 0; color: var(--muted); cursor: pointer;
+      font-family: var(--font); font-size: 13.5px;
+      padding: 12px 0; color: var(--muted); cursor: pointer;
       position: relative; font-weight: 500;
       transition: color 0.15s ease;
     }
@@ -87,6 +153,7 @@
       content: ""; position: absolute;
       left: 0; right: 0; bottom: -1px;
       height: 2px; background: var(--blue);
+      border-radius: 2px 2px 0 0;
     }
 
     /* ========== TAB CONTENT ========== */
@@ -94,39 +161,8 @@
     .tab-content.active{ display: flex; }
 
     /* ========== TAB 1: LAST CONVERSATION ========== */
-    .conversation-header{
-      padding: 12px 20px 13px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface); flex-shrink: 0;
-    }
-
-    /* Date row */
-    .header-date-block{
-      display: flex; align-items: center; gap: 8px;
-      margin-bottom: 6px;
-    }
-    .header-date-label{
-      font-size: 12px; font-weight: 500; color: var(--muted);
-    }
-    .header-date-sep{ color: var(--line); font-size: 14.5px; }
-    .header-date-value{
-      font-size: 13.5px; font-weight: 700; color: var(--sf-blue);
-    }
-    .header-date-rel{
-      font-size: 12px; color: var(--muted);
-    }
-
-    /* Contact name */
-    .header-contact-name{
-      font-size: 18.5px; font-weight: 700; color: var(--blue);
-      text-decoration: none; display: block;
-      letter-spacing: -0.01em; line-height: 1.25;
-    }
-    .header-contact-name:hover{ color: var(--sf-blue); }
-
-    /* Body */
     .conversation-body{
-      padding: 14px 20px 14px;
+      padding: 18px 22px 16px;
       flex: 1; overflow-y: auto;
     }
     .section{ margin-bottom: 20px; }
@@ -135,28 +171,18 @@
     /* Section label */
     .section-label{
       font-size: 12px; font-weight: 500; color: var(--muted);
-      margin-bottom: 10px;
-    }
-
-    /* Contact detail chips — original flat layout */
-    .contact-details{ display: flex; gap: 32px; flex-wrap: wrap; }
-    .detail-chip{ display: flex; flex-direction: column; gap: 3px; }
-    .detail-chip-label{
-      font-size: 11.5px; font-weight: 500; color: var(--muted);
-    }
-    .detail-chip-value{
-      font-size: 15.5px; font-weight: 600; color: var(--sf-blue);
+      margin-bottom: 20px;
     }
 
     /* Key points */
     .key-points-section{
       background: #f0f7ff; border: 1px solid #bfdbfe;
-      border-radius: 8px; padding: 14px 16px;
+      border-radius: 8px; padding: 16px 17px;
     }
     .key-points-header{
       display: flex; align-items: center; gap: 7px;
       font-size: 14px; font-weight: 600; color: var(--muted);
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     .key-points-icon{
       width: 19.5px; height: 19.5px; background: var(--blue);
@@ -166,12 +192,12 @@
       padding-bottom: 1px;
     }
     .key-points-list{ margin: 0; padding: 0 0 0 16px; list-style: disc; }
-    .key-points-list li{ font-size: 15.5px; color: var(--text); line-height: 1.65; margin: 6px 0; }
+    .key-points-list li{ font-size: 15.5px; color: var(--text); line-height: 1.7; margin: 7px 0; }
     .key-points-list li::marker{ color: var(--blue); }
 
     /* Note input */
     .update-input-section{
-      padding: 14px 20px; border-top: 1px solid var(--line);
+      padding: 15px 22px; border-top: 1px solid var(--line);
       background: white; flex-shrink: 0;
     }
     .input-row{ display: flex; gap: 10px; align-items: flex-start; }
@@ -221,17 +247,17 @@
 
     /* ========== TAB 2: UPDATE HISTORY ========== */
     .timeline-header{
-      padding: 12px 20px; border-bottom: 1px solid var(--line);
+      padding: 16px 24px; border-bottom: 1px solid var(--line);
       background: var(--surface); flex-shrink: 0;
       display: flex; align-items: center; gap: 16px;
     }
-    .tl-stat{ display: flex; flex-direction: column; gap: 2px; }
+    .tl-stat{ display: flex; flex-direction: column; gap: 4px; }
     .tl-stat-value{ font-size: 18px; font-weight: 600; color: var(--text); line-height: 1; }
     .tl-stat-label{ font-size: 11px; color: var(--muted); font-weight: 500; }
     .tl-divider{ width: 1px; height: 28px; background: var(--line); }
 
     .timeline-body{ flex: 1; overflow-y: auto; background: #fafbfc; }
-    .timeline-track{ position: relative; padding: 20px 20px 20px 52px; }
+    .timeline-track{ position: relative; padding: 24px 24px 24px 56px; }
     .timeline-track::before{
       content: ''; position: absolute;
       left: 27px; top: 0; bottom: 0;
@@ -255,7 +281,7 @@
       position: relative;
       display: grid; grid-template-columns: 1fr auto;
       gap: 12px; align-items: start;
-      padding: 0 0 20px 0;
+      padding: 0 0 26px 0;
     }
     .timeline-item:last-child{ padding-bottom: 0; }
     .tl-dot{
@@ -269,7 +295,7 @@
     .timeline-item.not-interested .tl-dot { background: #ef4444; color: #ef4444; }
     .timeline-item.default       .tl-dot { background: #6b7280; color: #6b7280; }
 
-    .tl-body{ display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+    .tl-body{ display: flex; flex-direction: column; gap: 7px; min-width: 0; }
     .tl-top-row{ display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
     .tl-contact{ font-size: 14.5px; font-weight: 600; color: var(--blue); }
     .tl-badge{
@@ -294,7 +320,7 @@
     }
     @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:0.4} }
 
-    .tl-notes{ margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .tl-notes{ margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
     .tl-notes li{
       font-size: 13.5px; color: #6b7280; line-height: 1.5;
       display: flex; align-items: baseline; gap: 5px;
@@ -303,7 +329,7 @@
 
     .tl-date-col{
       display: flex; flex-direction: column;
-      align-items: flex-end; gap: 1px;
+      align-items: flex-end; gap: 3px;
       white-space: nowrap; padding-top: 2px;
     }
     .tl-date-main{ font-size: 13px; color: var(--text); font-weight: 500; }
@@ -311,21 +337,21 @@
 
     /* ========== TAB 3: DEAL NOTES ========== */
     .highlights-header{
-      padding: 12px 20px; border-bottom: 1px solid var(--line);
+      padding: 16px 24px; border-bottom: 1px solid var(--line);
       background: var(--surface); flex-shrink: 0;
     }
     .highlights-meta{ font-size: 13px; color: var(--muted); }
     .highlights-body{ flex: 1; overflow-y: auto; background: #fafbfc; }
-    .highlights-track{ position: relative; padding: 24px 20px 24px 28px; }
+    .highlights-track{ position: relative; padding: 24px 24px 24px 32px; }
     .highlights-track::before{
       content: ''; position: absolute;
       left: 14px; top: 32px; bottom: 32px;
       width: 1px; background: #d1d5db;
     }
     .highlight-item{
-      position: relative; margin-bottom: 16px;
+      position: relative; margin-bottom: 20px;
       background: white; border: 1px solid var(--line);
-      border-radius: 8px; padding: 14px 16px;
+      border-radius: 8px; padding: 18px 18px;
       transition: box-shadow 0.2s ease;
     }
     .highlight-item:hover{ box-shadow: 0 4px 12px rgba(0,0,0,.07); }
@@ -337,7 +363,7 @@
     }
     .highlight-header{
       display: flex; align-items: center;
-      justify-content: space-between; margin-bottom: 8px;
+      justify-content: space-between; margin-bottom: 10px;
     }
     .highlight-author{ font-size: 14px; font-weight: 600; color: var(--text); }
     .highlight-date{ font-size: 12.5px; color: var(--muted); }
@@ -371,6 +397,29 @@
       <div class="success-text" id="successText">Note saved to Monday.com</div>
     </div>
 
+    <!-- ===== RECORD HEADER ===== -->
+    <div class="record-header">
+      <a href="#" class="record-name" id="contactName">Loading…</a>
+      <div class="record-meta">
+        <div class="meta-field">
+          <span class="meta-label">Last Contact</span>
+          <span class="meta-value accent" id="conversationDate">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">Lead Status</span>
+          <span class="meta-value" id="metaLeadStatus">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">Relationship</span>
+          <span class="meta-value" id="metaRelationship">—</span>
+        </div>
+        <div class="meta-field">
+          <span class="meta-label">Ownership</span>
+          <span class="meta-value" id="metaOwnership">—</span>
+        </div>
+      </div>
+    </div>
+
     <!-- TABS -->
     <div class="tabs-bar">
       <button class="tab active" data-tab="conversation">Last Conversation</button>
@@ -380,22 +429,7 @@
 
     <!-- ===== TAB 1 ===== -->
     <div class="tab-content active" id="conversation-tab">
-      <div class="conversation-header">
-        <div class="header-date-block">
-          <span class="header-date-label">Last Meaningful Contact</span>
-          <span class="header-date-sep">|</span>
-          <span class="header-date-value" id="conversationDate">—</span>
-          <span class="header-date-rel" id="conversationRel"></span>
-        </div>
-        <a href="#" class="header-contact-name" id="contactName">Loading…</a>
-      </div>
-
       <div class="conversation-body">
-        <div class="section" style="margin-bottom:20px; margin-top:2px;">
-          <div class="section-label">Contact Details</div>
-          <div class="contact-details" id="contactDetailsRow"></div>
-        </div>
-
         <div class="key-points-section" id="keyPointsSection">
           <div class="key-points-header">
             <div class="key-points-icon">★</div>
@@ -470,7 +504,6 @@
     const LOAD_WEBHOOK_URL = "https://hook.us1.make.com/3spufybkajebciu4vjz51fcuwlncm0e8";
     const MAKE_WEBHOOK_URL = "https://hook.us1.make.com/wfh5ezjw929dnmyaeu8zlnt1uwl6ewkn";
 
-
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
       const d = document.createElement('div');
@@ -523,23 +556,16 @@
     let dealHighlights = [];
 
     function renderAll() {
-      // Header
-      document.getElementById('conversationDate').textContent = fmtDate(src.conv_date);
-      const rel = relativeTime(src.conv_date);
-      document.getElementById('conversationRel').textContent = rel ? `· ${rel}` : '';
+      // Record header
       document.getElementById('contactName').textContent = src.contact_name || '—';
 
-      // Contact chips
-      const chips = [
-        { label: 'Lead status',  value: toTitleCase(src.lead_status  || '—') },
-        { label: 'Relationship', value: toTitleCase(src.relationship || '—') },
-        { label: 'Ownership',    value: toTitleCase(src.ownership    || '—') }
-      ];
-      document.getElementById('contactDetailsRow').innerHTML = chips.map(c => `
-        <div class="detail-chip">
-          <span class="detail-chip-label">${escapeHtml(c.label)}</span>
-          <span class="detail-chip-value">${escapeHtml(c.value)}</span>
-        </div>`).join('');
+      const dateStr = fmtDate(src.conv_date);
+      const rel     = relativeTime(src.conv_date);
+      document.getElementById('conversationDate').textContent = rel ? `${dateStr} · ${rel}` : dateStr;
+
+      document.getElementById('metaLeadStatus').textContent   = toTitleCase(src.lead_status  || '—');
+      document.getElementById('metaRelationship').textContent = toTitleCase(src.relationship || '—');
+      document.getElementById('metaOwnership').textContent    = toTitleCase(src.ownership    || '—');
 
       // Key points
       const kpRaw = src.key_points || '';
@@ -549,11 +575,11 @@
 
       if (kp.length) {
         document.getElementById('keyPointsSection').style.display = '';
-        document.getElementById('noDataState').style.display   = 'none';
+        document.getElementById('noDataState').style.display      = 'none';
         document.getElementById('keyPointsList').innerHTML = kp.map(p => `<li>${escapeHtml(p)}</li>`).join('');
       } else {
         document.getElementById('keyPointsSection').style.display = 'none';
-        document.getElementById('noDataState').style.display   = '';
+        document.getElementById('noDataState').style.display      = '';
       }
 
       // Timeline
