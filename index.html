@@ -83,11 +83,13 @@
       letter-spacing: -0.015em;
       line-height: 1.2;
       display: block;
-      margin-bottom: 13px;
+      margin-top: 4px;
+      margin-bottom: 16px;
       transition: color 0.15s;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      cursor: pointer;
     }
     .record-name:hover { color: var(--blue); }
 
@@ -114,7 +116,7 @@
     }
 
     .meta-label {
-      font-size: 10.5px;
+      font-size: 11px;
       font-weight: 600;
       color: var(--muted);
       text-transform: uppercase;
@@ -123,7 +125,7 @@
     }
 
     .meta-value {
-      font-size: 13.5px;
+      font-size: 14px;
       font-weight: 600;
       color: var(--text);
       white-space: nowrap;
@@ -146,7 +148,7 @@
     }
     .tab{
       appearance: none; border: 0; background: transparent;
-      font-family: var(--font); font-size: 13.5px;
+      font-family: var(--font); font-size: 14.5px;
       padding: 12px 0; color: var(--muted); cursor: pointer;
       position: relative; font-weight: 500;
       transition: color 0.15s ease;
@@ -185,7 +187,7 @@
     }
     .key-points-header{
       display: flex; align-items: center; gap: 7px;
-      font-size: 14px; font-weight: 600; color: var(--muted);
+      font-size: 15px; font-weight: 600; color: var(--muted);
       margin-bottom: 12px;
     }
     .key-points-icon{
@@ -196,7 +198,7 @@
       padding-bottom: 1px;
     }
     .key-points-list{ margin: 0; padding: 0 0 0 16px; list-style: disc; }
-    .key-points-list li{ font-size: 15.5px; color: var(--text); line-height: 1.7; margin: 7px 0; }
+    .key-points-list li{ font-size: 16px; color: var(--text); line-height: 1.7; margin: 7px 0; }
     .key-points-list li::marker{ color: var(--blue); }
 
     /* Note input */
@@ -561,7 +563,9 @@
 
     function renderAll() {
       // Record header
-      document.getElementById('contactName').textContent = src.contact_name || '—';
+      const nameEl = document.getElementById('contactName');
+      nameEl.textContent = src.contact_name || '—';
+      nameEl.href = src.contact_url || src.item_url || '#';
 
       const dateStr = fmtDate(src.conv_date);
       const rel     = relativeTime(src.conv_date);
