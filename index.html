@@ -445,12 +445,8 @@
             <span class="meta-value" id="metaLeadStatus">—</span>
           </div>
           <div class="meta-field">
-            <span class="meta-label">Relationship</span>
-            <span class="meta-value" id="metaRelationship">—</span>
-          </div>
-          <div class="meta-field">
-            <span class="meta-label">Ownership</span>
-            <span class="meta-value" id="metaOwnership">—</span>
+            <span class="meta-label">Owner Status</span>
+            <span class="meta-value" id="metaOwnerStatus">—</span>
           </div>
         </div>
       </div>
@@ -602,8 +598,7 @@
       document.getElementById('conversationDate').textContent = rel || dateStr;
 
       document.getElementById('metaLeadStatus').textContent   = toTitleCase(src.lead_status  || '—');
-      document.getElementById('metaRelationship').textContent = toTitleCase(src.relationship || '—');
-      document.getElementById('metaOwnership').textContent    = toTitleCase(src.ownership    || '—');
+      document.getElementById('metaOwnerStatus').textContent  = toTitleCase(src.owner_status || '—');
 
       // Key points
       const kpRaw = src.key_points || '';
