@@ -607,9 +607,18 @@
           body: JSON.stringify({ item_id, board_id })
         });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        src = await res.json();
+        const text = await res.text();
+        try {
+          src = JSON.parse(text);
+        } catch(parseErr) {
+          document.getElementById('errorBanner').textContent = '⚠ Webhook returned invalid JSON. Check Make response body.';
+          document.getElementById('errorBanner').classList.add('show');
+          src = {}; renderAll(); return;
+        }
         renderAll();
       } catch(err) {
+        document.getElementById('errorBanner').textContent = `⚠ Could not load deal data: ${err.message}`;
+        document.getElementById('errorBanner').classList.add('show');
         src = {}; renderAll();
       }
     }
