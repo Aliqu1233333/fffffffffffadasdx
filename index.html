@@ -277,129 +277,101 @@
     }
     .success-text{ font-size: 14px; color: #065f46; font-weight: 600; }
 
-    /* ========== TAB 2: UPDATE HISTORY ========== */
-    .timeline-header{
-      padding: 16px 24px; border-bottom: 1px solid var(--line);
-      background: var(--surface); flex-shrink: 0;
-      display: flex; align-items: center; gap: 16px;
+    /* ========== TAB 2: DEAL OVERVIEW ========== */
+    .overview-body{
+      flex: 1; overflow-y: auto; background: #fafbfc;
+      padding: 20px 22px;
     }
-    .tl-stat{ display: flex; flex-direction: column; gap: 4px; }
-    .tl-stat-value{ font-size: 18px; font-weight: 600; color: var(--text); line-height: 1; }
-    .tl-stat-label{ font-size: 11px; color: var(--muted); font-weight: 500; }
-    .tl-divider{ width: 1px; height: 28px; background: var(--line); }
-
-    .timeline-body{ flex: 1; overflow-y: auto; background: #fafbfc; }
-    .timeline-track{ position: relative; padding: 24px 24px 24px 56px; }
-    .timeline-track::before{
-      content: ''; position: absolute;
-      left: 27px; top: 0; bottom: 0;
-      width: 1.5px; background: #e5e7eb;
-    }
-    .tl-month-header{
-      position: relative; display: flex; align-items: center;
-      gap: 10px; margin-bottom: 14px; margin-top: 8px;
-    }
-    .tl-month-header:first-child{ margin-top: 0; }
-    .tl-month-dot{
-      position: absolute; left: -31px;
-      width: 10px; height: 10px; border-radius: 50%;
-      background: #fff; border: 1.5px solid #d1d5db;
-      top: 50%; transform: translateY(-50%);
-    }
-    .tl-month-label{ font-size: 11px; font-weight: 700; color: var(--muted); }
-    .tl-month-rule{ flex: 1; height: 1px; background: #f0f0f0; }
-
-    .timeline-item{
-      position: relative;
-      display: grid; grid-template-columns: 1fr auto;
-      gap: 12px; align-items: start;
-      padding: 0 0 26px 0;
-    }
-    .timeline-item:last-child{ padding-bottom: 0; }
-    .tl-dot{
-      position: absolute; left: -31px; top: 4px;
-      width: 10px; height: 10px; border-radius: 50%;
-      border: 2px solid #fff; box-shadow: 0 0 0 1.5px currentColor; z-index: 1;
-    }
-    .timeline-item.interested    .tl-dot { background: #10b981; color: #10b981; }
-    .timeline-item.warm          .tl-dot { background: #f59e0b; color: #f59e0b; }
-    .timeline-item.no-answer     .tl-dot { background: #94a3b8; color: #94a3b8; }
-    .timeline-item.not-interested .tl-dot { background: #ef4444; color: #ef4444; }
-    .timeline-item.default       .tl-dot { background: #6b7280; color: #6b7280; }
-
-    .tl-body{ display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-    .tl-top-row{ display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-    .tl-contact{ font-size: 14.5px; font-weight: 600; color: var(--blue); }
-    .tl-badge{
-      display: inline-flex; padding: 2px 8px;
-      border-radius: 999px; font-size: 11.5px; font-weight: 600;
-    }
-    .tl-badge.interested    { background: #d1fae5; color: #065f46; }
-    .tl-badge.warm          { background: #fef3c7; color: #92400e; }
-    .tl-badge.no-answer     { background: #f1f5f9; color: #475569; }
-    .tl-badge.not-interested{ background: #fee2e2; color: #991b1b; }
-    .tl-badge.default       { background: #f3f4f6; color: #374151; }
-
-    .tl-latest-tag{
-      display: inline-flex; align-items: center; gap: 4px;
-      font-size: 10.5px; font-weight: 700;
-      color: var(--blue); background: #e0f2fe;
-      border-radius: 999px; padding: 2px 7px;
-    }
-    .tl-latest-dot{
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--blue); animation: pulse 2s infinite;
-    }
-    @keyframes pulse{ 0%,100%{opacity:1} 50%{opacity:0.4} }
-
-    .tl-notes{ margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
-    .tl-notes li{
-      font-size: 13.5px; color: #6b7280; line-height: 1.5;
-      display: flex; align-items: baseline; gap: 5px;
-    }
-    .tl-notes li::before{ content: "·"; color: #d1d5db; flex-shrink: 0; }
-
-    .tl-date-col{
-      display: flex; flex-direction: column;
-      align-items: flex-end; gap: 3px;
-      white-space: nowrap; padding-top: 2px;
-    }
-    .tl-date-main{ font-size: 13px; color: var(--text); font-weight: 500; }
-    .tl-date-rel{ font-size: 11.5px; color: var(--muted); }
-
-    /* ========== TAB 3: DEAL NOTES ========== */
-    .highlights-header{
-      padding: 16px 24px; border-bottom: 1px solid var(--line);
-      background: var(--surface); flex-shrink: 0;
-    }
-    .highlights-meta{ font-size: 13px; color: var(--muted); }
-    .highlights-body{ flex: 1; overflow-y: auto; background: #fafbfc; }
-    .highlights-track{ position: relative; padding: 24px 24px 24px 32px; }
-    .highlights-track::before{
-      content: ''; position: absolute;
-      left: 14px; top: 32px; bottom: 32px;
-      width: 1px; background: #d1d5db;
-    }
-    .highlight-item{
-      position: relative; margin-bottom: 20px;
+    .overview-card{
       background: white; border: 1px solid var(--line);
-      border-radius: 8px; padding: 18px 18px;
-      transition: box-shadow 0.2s ease;
+      border-left: 3px solid var(--sf-blue);
+      border-radius: 8px; overflow: hidden;
     }
-    .highlight-item:hover{ box-shadow: 0 4px 12px rgba(0,0,0,.07); }
-    .highlight-item:last-child{ margin-bottom: 0; }
-    .highlight-dot{
-      position: absolute; left: -20px; top: 18px;
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--blue); z-index: 1; box-shadow: 0 0 0 3px white;
-    }
-    .highlight-header{
+    .overview-card-header{
       display: flex; align-items: center;
-      justify-content: space-between; margin-bottom: 10px;
+      justify-content: space-between;
+      padding: 14px 18px 13px;
+      border-bottom: 1px solid var(--line);
     }
-    .highlight-author{ font-size: 14px; font-weight: 600; color: var(--text); }
-    .highlight-date{ font-size: 12.5px; color: var(--muted); }
-    .highlight-text{ font-size: 14px; color: var(--text); line-height: 1.6; white-space: pre-wrap; }
+    .overview-card-title{
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .overview-card-icon{
+      width: 18px; height: 18px; background: var(--sf-blue);
+      border-radius: 3px; display: flex; align-items: center;
+      justify-content: center; color: white; font-size: 11px;
+      flex-shrink: 0;
+    }
+    .overview-edit-btn{
+      appearance: none; border: 1px solid var(--line);
+      background: white; border-radius: 4px;
+      font-family: var(--font); font-size: 12.5px;
+      font-weight: 600; color: var(--blue);
+      padding: 5px 14px; cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .overview-edit-btn:hover{ background: #f0f7ff; border-color: var(--blue); }
+    .overview-edit-btn.saving{ color: var(--muted); cursor: not-allowed; }
+
+    /* View mode */
+    .overview-view{
+      padding: 0;
+      min-height: 80px;
+    }
+    #overviewText{
+      display: block;
+      padding: 18px 18px;
+      font-size: 15px; color: var(--text);
+      line-height: 1.75; white-space: pre-wrap;
+    }
+    .overview-empty{
+      padding: 32px 18px;
+      font-size: 14px; color: var(--muted);
+      font-style: italic; text-align: center;
+    }
+
+    /* Edit mode */
+    .overview-edit{ display: none; padding: 14px 18px; }
+    .overview-edit.active{ display: block; }
+    .overview-edit textarea{
+      width: 100%; min-height: 180px;
+      padding: 12px 14px;
+      border: 1px solid var(--line); border-radius: 4px;
+      font-family: var(--font); font-size: 15px;
+      color: var(--text); line-height: 1.75;
+      resize: vertical; transition: border-color 0.15s;
+    }
+    .overview-edit textarea:focus{
+      outline: none; border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(1,118,211,0.1);
+    }
+    .overview-edit-actions{
+      display: flex; gap: 8px; justify-content: flex-end;
+      margin-top: 10px;
+    }
+    .overview-cancel-btn{
+      appearance: none; border: 1px solid var(--line);
+      background: white; border-radius: 4px;
+      font-family: var(--font); font-size: 13.5px;
+      font-weight: 500; color: var(--muted);
+      padding: 8px 18px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .overview-cancel-btn:hover{ background: #f3f4f6; }
+    .overview-save-btn{
+      appearance: none; border: none;
+      background: var(--blue); border-radius: 4px;
+      font-family: var(--font); font-size: 13.5px;
+      font-weight: 600; color: white;
+      padding: 8px 22px; cursor: pointer;
+      transition: background 0.15s;
+    }
+    .overview-save-btn:hover{ background: #0161b3; }
+    .overview-save-btn:disabled{ background: #94a3b8; cursor: not-allowed; }
+
+
 
     .empty-state{ text-align: center; padding: 60px 20px; color: var(--muted); }
     .empty-state-icon{ font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
@@ -407,14 +379,11 @@
 
     /* Scrollbar */
     .conversation-body::-webkit-scrollbar,
-    .timeline-body::-webkit-scrollbar,
-    .highlights-body::-webkit-scrollbar { width: 5px; }
+    .overview-body::-webkit-scrollbar { width: 5px; }
     .conversation-body::-webkit-scrollbar-track,
-    .timeline-body::-webkit-scrollbar-track,
-    .highlights-body::-webkit-scrollbar-track { background: transparent; }
+    .overview-body::-webkit-scrollbar-track { background: transparent; }
     .conversation-body::-webkit-scrollbar-thumb,
-    .timeline-body::-webkit-scrollbar-thumb,
-    .highlights-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+    .overview-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
   </style>
 </head>
 
@@ -455,8 +424,7 @@
     <!-- TABS -->
     <div class="tabs-bar">
       <button class="tab active" data-tab="conversation">Last Conversation</button>
-      <button class="tab" data-tab="history">Update History</button>
-      <button class="tab" data-tab="highlights">Deal Notes</button>
+      <button class="tab" data-tab="overview">Deal Overview</button>
     </div>
 
     <!-- ===== TAB 1 ===== -->
@@ -489,47 +457,32 @@
       </div>
     </div>
 
-    <!-- ===== TAB 2 ===== -->
-    <div class="tab-content" id="history-tab">
-      <div class="timeline-header">
-        <div class="tl-stat">
-          <span class="tl-stat-value" id="totalConversations">—</span>
-          <span class="tl-stat-label">Notes</span>
-        </div>
-        <div class="tl-divider"></div>
-        <div class="tl-stat">
-          <span class="tl-stat-value" id="lastUpdate">—</span>
-          <span class="tl-stat-label">Last update</span>
-        </div>
-      </div>
-      <div class="timeline-body">
-        <div class="timeline-track" id="timelineContainer"></div>
-      </div>
-    </div>
-
-    <!-- ===== TAB 3 ===== -->
-    <div class="tab-content" id="highlights-tab">
-      <div class="highlights-header">
-        <div class="highlights-meta">
-          <span><strong id="totalHighlights">0</strong> deal notes</span>
-        </div>
-      </div>
-      <div class="highlights-body">
-        <div class="highlights-track" id="highlightsContainer">
-          <div class="empty-state">
-            <div class="empty-state-icon">📝</div>
-            <div class="empty-state-text">No deal notes yet</div>
+    <!-- ===== TAB 2: DEAL OVERVIEW ===== -->
+    <div class="tab-content" id="overview-tab">
+      <div class="overview-body">
+        <div class="overview-card">
+          <div class="overview-card-header">
+            <div class="overview-card-title">
+              <div class="overview-card-icon">&#9776;</div>
+              <span>Deal Overview</span>
+            </div>
+            <button class="overview-edit-btn" id="overviewEditBtn">Edit</button>
+          </div>
+          <div class="overview-view" id="overviewView">
+            <span id="overviewText"></span>
+            <div class="overview-empty" id="overviewEmpty">No deal overview added yet. Click Edit to add notes about this property.</div>
+          </div>
+          <div class="overview-edit" id="overviewEditArea">
+            <textarea id="overviewTextarea" placeholder="Add deal overview notes here — property background, owner details, key context…"></textarea>
+            <div class="overview-edit-actions">
+              <button class="overview-cancel-btn" id="overviewCancelBtn">Cancel</button>
+              <button class="overview-save-btn" id="overviewSaveBtn">Save</button>
+            </div>
           </div>
         </div>
       </div>
-      <div class="update-input-section">
-        <div class="input-row">
-          <div class="input-label">Add Note</div>
-          <textarea class="note-textarea" id="highlightNoteInput" placeholder="Add a note about this deal…" rows="2"></textarea>
-          <button class="save-btn" id="saveHighlightNote">Save</button>
-        </div>
-      </div>
     </div>
+
   </div>
 
   <script>
@@ -585,7 +538,6 @@
     }
 
     let src = {};
-    let dealHighlights = [];
 
     function renderAll() {
       // Record header
@@ -615,70 +567,58 @@
         document.getElementById('noDataState').style.display      = '';
       }
 
-      // Timeline
-      let tl = [];
-      try { tl = Array.isArray(src.timeline) ? src.timeline : JSON.parse(src.timeline || '[]'); } catch(e){}
+      // Deal Overview
+      renderOverview(src.deal_notes || '');
 
-      document.getElementById('totalConversations').textContent = tl.length || '0';
-      document.getElementById('lastUpdate').textContent = tl[0] ? relativeTime(tl[0].date) : '—';
 
-      const tlEl = document.getElementById('timelineContainer');
-      if (!tl.length) {
-        tlEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><div class="empty-state-text">No update history yet</div></div>`;
-      } else {
-        let lastMonth = null, html = '';
-        tl.forEach((u, i) => {
-          const month = getMonthYear(u.date);
-          if (month !== lastMonth) {
-            html += `<div class="tl-month-header"><div class="tl-month-dot"></div><span class="tl-month-label">${escapeHtml(month)}</span><div class="tl-month-rule"></div></div>`;
-            lastMonth = month;
-          }
-          const sc = statusClass(u.status);
-          const notes = Array.isArray(u.notes) ? u.notes : (u.notes ? [u.notes] : []);
-          html += `<div class="timeline-item ${sc}">
-            <div class="tl-dot"></div>
-            <div class="tl-body">
-              <div class="tl-top-row">
-                <span class="tl-contact">${escapeHtml(u.contact)}</span>
-                <span class="tl-badge ${sc}">${escapeHtml(toTitleCase(u.status || 'Update'))}</span>
-                ${i === 0 ? `<span class="tl-latest-tag"><span class="tl-latest-dot"></span>Latest</span>` : ''}
-              </div>
-              <ul class="tl-notes">${notes.map(n => `<li>${escapeHtml(n)}</li>`).join('')}</ul>
-            </div>
-            <div class="tl-date-col">
-              <span class="tl-date-main">${escapeHtml(fmtDate(u.date))}</span>
-              <span class="tl-date-rel">${escapeHtml(relativeTime(u.date))}</span>
-            </div>
-          </div>`;
-        });
-        tlEl.innerHTML = html;
-      }
-
-      // Highlights
-      try { dealHighlights = Array.isArray(src.highlights) ? src.highlights : JSON.parse(src.highlights || '[]'); }
-      catch(e) { dealHighlights = []; }
-      renderHighlights();
     }
 
-    function renderHighlights() {
-      const el = document.getElementById('highlightsContainer');
-      document.getElementById('totalHighlights').textContent = dealHighlights.length;
-      if (!dealHighlights.length) {
-        el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📝</div><div class="empty-state-text">No deal notes yet</div></div>`;
-        return;
+    function renderOverview(text) {
+      const textEl  = document.getElementById('overviewText');
+      const emptyEl = document.getElementById('overviewEmpty');
+      const ta      = document.getElementById('overviewTextarea');
+      const trimmed = (text || '').trim();
+      if (trimmed) {
+        textEl.textContent = trimmed;
+        textEl.style.display = 'block';
+        emptyEl.style.display = 'none';
+      } else {
+        textEl.style.display = 'none';
+        emptyEl.style.display = '';
       }
-      el.innerHTML = dealHighlights.map(h => `
-        <div class="highlight-item">
-          <div class="highlight-dot"></div>
-          <div class="highlight-header">
-            <span class="highlight-author">${escapeHtml(h.author || 'You')}</span>
-            <span class="highlight-date">${escapeHtml(fmtDate(h.date))} · ${escapeHtml(relativeTime(h.date))}</span>
-          </div>
-          <div class="highlight-text">${escapeHtml(h.text)}</div>
-        </div>`).join('');
+      ta.value = trimmed;
     }
 
     async function loadDealData() {
+      // ── TEST DATA ──────────────────────────────────────────────
+      src = {
+        item_id:      "98234701",
+        board_id:     "44120983",
+        contact_name: "Marcus Whitfield",
+        contact_url:  "#",
+        conv_date:    new Date(Date.now() - 3 * 86400000).toISOString(),
+        lead_status:  "Interested",
+        owner_status: "Absentee Owner",
+        key_points:   [
+          "Looking to refinance a 48-unit portfolio in Phoenix — wants sub-6% rate",
+          "Currently with Wells Fargo, unhappy with their response times",
+          "Prefers a 10-year fixed with 30-year amortization",
+          "Asked us to follow up after Q3 board meeting — target close by end of October"
+        ].join('|'),
+        deal_notes: `Original owner (Harold Whitfield Sr.) passed away in 2019 — no surviving spouse. Property transferred to 3 siblings: Marcus (primary contact), Diane, and Roy Whitfield.
+
+Marcus holds power of attorney and is the decision-maker. Diane is cooperative but defers to Marcus. Roy is reportedly difficult and has previously blocked a sale — needs careful handling.
+
+Property has been vacant for 14 months. Taxes are current. Title has a small mechanics lien from a 2021 roof repair (~$4,200) that needs to be cleared before close.
+
+Neighbors have complained about the condition of the rear fence. City has issued one notice but no formal violation yet.
+
+Best approach: build rapport with Marcus first, get Diane on board early, then bring Roy in once terms are agreed.`
+      };
+      renderAll();
+      return;
+      // ── END TEST DATA ──────────────────────────────────────────
+
       const raw    = window.location.search.replace('?', '');
       const params = new URLSearchParams(window.location.search);
       let item_id  = params.get('item_id') || params.get('pulseId') || null;
@@ -715,8 +655,6 @@
         showSuccess('Note saved to Monday.com ✓');
       } catch { showSuccess('Saved locally (check webhook)'); }
       finally { btn.disabled = false; btn.textContent = 'Save'; }
-      dealHighlights.unshift({ date: new Date().toISOString(), author: 'You', text });
-      renderHighlights();
       textarea.value = '';
     }
 
@@ -730,8 +668,50 @@
     document.getElementById('saveQuickNote').addEventListener('click', () => {
       const ta = document.getElementById('quickNoteInput'); saveNote(ta.value.trim(), ta);
     });
-    document.getElementById('saveHighlightNote').addEventListener('click', () => {
-      const ta = document.getElementById('highlightNoteInput'); saveNote(ta.value.trim(), ta);
+
+    // Deal Overview edit/save/cancel
+    const overviewEditBtn   = document.getElementById('overviewEditBtn');
+    const overviewEditArea  = document.getElementById('overviewEditArea');
+    const overviewView      = document.getElementById('overviewView');
+    const overviewCancelBtn = document.getElementById('overviewCancelBtn');
+    const overviewSaveBtn   = document.getElementById('overviewSaveBtn');
+    const overviewTextarea  = document.getElementById('overviewTextarea');
+
+    overviewEditBtn.addEventListener('click', () => {
+      overviewView.style.display    = 'none';
+      overviewEditArea.classList.add('active');
+      overviewEditBtn.style.display = 'none';
+      overviewTextarea.focus();
+    });
+
+    overviewCancelBtn.addEventListener('click', () => {
+      overviewEditArea.classList.remove('active');
+      overviewView.style.display    = '';
+      overviewEditBtn.style.display = '';
+      overviewTextarea.value = src.deal_notes || '';
+    });
+
+    overviewSaveBtn.addEventListener('click', async () => {
+      const text = overviewTextarea.value.trim();
+      overviewSaveBtn.disabled    = true;
+      overviewSaveBtn.textContent = 'Saving…';
+      try {
+        await fetch(MAKE_WEBHOOK_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'update_deal_notes', item_id: src.item_id, board_id: src.board_id, deal_notes: text, timestamp: new Date().toISOString() })
+        });
+        src.deal_notes = text;
+        renderOverview(text);
+        showSuccess('Deal overview saved ✓');
+      } catch {
+        showSuccess('Saved locally (check webhook)');
+      } finally {
+        overviewSaveBtn.disabled    = false;
+        overviewSaveBtn.textContent = 'Save';
+      }
+      overviewEditArea.classList.remove('active');
+      overviewView.style.display    = '';
+      overviewEditBtn.style.display = '';
     });
 
     document.querySelectorAll('.tab').forEach(tab => {
