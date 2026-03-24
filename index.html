@@ -488,6 +488,7 @@
   <script>
     const LOAD_WEBHOOK_URL = "https://hook.us1.make.com/3spufybkajebciu4vjz51fcuwlncm0e8";
     const MAKE_WEBHOOK_URL = "https://hook.us1.make.com/wfh5ezjw929dnmyaeu8zlnt1uwl6ewkn";
+    const NOTES_WEBHOOK_URL = "https://hook.us1.make.com/av1u6ziybzlgjmptgr8kvunv1goto9dy";
 
     function escapeHtml(str) {
       if (str === null || str === undefined) return '';
@@ -677,7 +678,7 @@
       overviewSaveBtn.disabled    = true;
       overviewSaveBtn.textContent = 'Saving…';
       try {
-        await fetch(MAKE_WEBHOOK_URL, {
+        await fetch(NOTES_WEBHOOK_URL, {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ action: 'update_deal_notes', item_id: src.item_id, board_id: src.board_id, deal_notes: text, timestamp: new Date().toISOString() })
         });
