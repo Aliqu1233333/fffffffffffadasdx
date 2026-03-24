@@ -590,35 +590,6 @@
     }
 
     async function loadDealData() {
-      // ── TEST DATA ──────────────────────────────────────────────
-      src = {
-        item_id:      "98234701",
-        board_id:     "44120983",
-        contact_name: "Marcus Whitfield",
-        contact_url:  "#",
-        conv_date:    new Date(Date.now() - 3 * 86400000).toISOString(),
-        lead_status:  "Interested",
-        owner_status: "Absentee Owner",
-        key_points:   [
-          "Looking to refinance a 48-unit portfolio in Phoenix — wants sub-6% rate",
-          "Currently with Wells Fargo, unhappy with their response times",
-          "Prefers a 10-year fixed with 30-year amortization",
-          "Asked us to follow up after Q3 board meeting — target close by end of October"
-        ].join('|'),
-        deal_notes: `Original owner (Harold Whitfield Sr.) passed away in 2019 — no surviving spouse. Property transferred to 3 siblings: Marcus (primary contact), Diane, and Roy Whitfield.
-
-Marcus holds power of attorney and is the decision-maker. Diane is cooperative but defers to Marcus. Roy is reportedly difficult and has previously blocked a sale — needs careful handling.
-
-Property has been vacant for 14 months. Taxes are current. Title has a small mechanics lien from a 2021 roof repair (~$4,200) that needs to be cleared before close.
-
-Neighbors have complained about the condition of the rear fence. City has issued one notice but no formal violation yet.
-
-Best approach: build rapport with Marcus first, get Diane on board early, then bring Roy in once terms are agreed.`
-      };
-      renderAll();
-      return;
-      // ── END TEST DATA ──────────────────────────────────────────
-
       const raw    = window.location.search.replace('?', '');
       const params = new URLSearchParams(window.location.search);
       let item_id  = params.get('item_id') || params.get('pulseId') || null;
