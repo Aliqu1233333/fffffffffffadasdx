@@ -568,7 +568,8 @@
       }
 
       // Deal Overview
-      renderOverview(src.deal_notes || '');
+      const rawNotes = (src.deal_notes || '').split('\\n').join('\n').split('\\r').join('').trim();
+      renderOverview(rawNotes);
 
 
     }
