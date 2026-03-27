@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Deal Summary Embed</title>
 
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
       --bg: #f3f4f6;
@@ -17,7 +18,7 @@
       --sf-blue: #032d60;
       --green: #059669;
       --radius: 10px;
-      --font: "Salesforce Sans", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
     *{ box-sizing: border-box; }
@@ -101,7 +102,7 @@
 
     /* Contact name — large, anchor-styled */
     .record-name {
-      font-size: 21.5px;
+      font-size: 22px;
       font-weight: 700;
       color: var(--sf-blue);
       text-decoration: none;
@@ -115,7 +116,6 @@
       overflow: hidden;
       text-overflow: ellipsis;
       cursor: pointer;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.25);
     }
     .record-name:hover { color: var(--blue); }
 
@@ -174,7 +174,7 @@
     }
     .tab{
       appearance: none; border: 0; background: transparent;
-      font-family: var(--font); font-size: 14.5px;
+      font-family: var(--font); font-size: 15px;
       padding: 12px 0; color: var(--muted); cursor: pointer;
       position: relative; font-weight: 500;
       transition: color 0.15s ease;
@@ -213,7 +213,7 @@
     }
     .key-points-header{
       display: flex; align-items: center; gap: 7px;
-      font-size: 15px; font-weight: 600; color: var(--muted);
+      font-size: 15.5px; font-weight: 600; color: var(--muted);
       margin-bottom: 12px;
     }
     .key-points-icon{
@@ -224,39 +224,10 @@
       padding-bottom: 1px;
     }
     .key-points-list{ margin: 0; padding: 0 0 0 16px; list-style: disc; }
-    .key-points-list li{ font-size: 16px; color: var(--text); line-height: 1.7; margin: 7px 0; }
+    .key-points-list li{ font-size: 16.5px; color: var(--text); line-height: 1.7; margin: 7px 0; }
     .key-points-list li::marker{ color: var(--blue); }
 
-    /* Note input */
-    .update-input-section{
-      padding: 15px 22px; border-top: 1px solid var(--line);
-      background: white; flex-shrink: 0;
-    }
-    .input-row{ display: flex; gap: 10px; align-items: flex-start; }
-    .input-label{
-      font-size: 13px; font-weight: 500; color: var(--muted);
-      padding-top: 10px; white-space: nowrap;
-    }
-    .note-textarea{
-      flex: 1; min-height: 58px; padding: 10px 12px;
-      border: 1px solid var(--line); border-radius: 4px;
-      font-family: var(--font); font-size: 14.5px;
-      color: var(--text); resize: vertical;
-      transition: border-color 0.15s ease;
-    }
-    .note-textarea:focus{
-      outline: none; border-color: var(--blue);
-      box-shadow: 0 0 0 3px rgba(1,118,211,0.1);
-    }
-    .note-textarea::placeholder{ color: #9ca3af; }
-    .save-btn{
-      padding: 10px 28px; background: var(--blue); color: white;
-      border: none; border-radius: 4px; font-family: var(--font);
-      font-size: 14px; font-weight: 600; cursor: pointer;
-      transition: background 0.15s ease; white-space: nowrap; align-self: flex-start;
-    }
-    .save-btn:hover{ background: #0161b3; }
-    .save-btn:disabled{ background: #94a3b8; cursor: not-allowed; }
+
 
     /* Success alert */
     .success-alert{
@@ -323,7 +294,7 @@
     #overviewText{
       display: block;
       padding: 18px 18px;
-      font-size: 15px; color: var(--text);
+      font-size: 15.5px; color: var(--text);
       line-height: 1.75; white-space: pre-wrap;
     }
     .overview-empty{
@@ -339,7 +310,7 @@
       width: 100%; min-height: 320px;
       padding: 12px 14px;
       border: 1px solid var(--line); border-radius: 4px;
-      font-family: var(--font); font-size: 15px;
+      font-family: var(--font); font-size: 15.5px;
       color: var(--text); line-height: 1.75;
       resize: vertical; transition: border-color 0.15s;
     }
@@ -448,13 +419,6 @@
         </div>
       </div>
 
-      <div class="update-input-section">
-        <div class="input-row">
-          <div class="input-label">Quick Note</div>
-          <textarea class="note-textarea" id="quickNoteInput" placeholder="Add a note about this deal…" rows="2"></textarea>
-          <button class="save-btn" id="saveQuickNote">Save</button>
-        </div>
-      </div>
     </div>
 
     <!-- ===== TAB 2: DEAL OVERVIEW ===== -->
@@ -625,31 +589,12 @@
       }
     }
 
-    async function saveNote(text, textarea) {
-      if (!text) return;
-      const btn = textarea.nextElementSibling;
-      btn.disabled = true; btn.textContent = 'Saving…';
-      try {
-        await fetch(MAKE_WEBHOOK_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action:'add_note', item_id:src.item_id, board_id:src.board_id, note:text, timestamp:new Date().toISOString() })
-        });
-        showSuccess('Note saved to Monday.com ✓');
-      } catch { showSuccess('Saved locally (check webhook)'); }
-      finally { btn.disabled = false; btn.textContent = 'Save'; }
-      textarea.value = '';
-    }
-
     function showSuccess(msg) {
       document.getElementById('successText').textContent = msg;
       const el = document.getElementById('successAlert');
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 3000);
     }
-
-    document.getElementById('saveQuickNote').addEventListener('click', () => {
-      const ta = document.getElementById('quickNoteInput'); saveNote(ta.value.trim(), ta);
-    });
 
     // Deal Overview edit/save/cancel
     const overviewEditBtn   = document.getElementById('overviewEditBtn');
