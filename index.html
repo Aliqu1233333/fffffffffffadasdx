@@ -544,6 +544,8 @@
       max-width: 85%; padding: 10px 14px;
       border-radius: 12px; font-size: 14px;
       line-height: 1.6;
+      word-break: break-word;
+      overflow-wrap: break-word;
     }
     .ai-msg.user .ai-msg-bubble {
       background: var(--sf-blue); color: white;
@@ -1131,6 +1133,27 @@
       sendAiMessage();
     }
 
+    function formatReply(text) {
+      // Escape HTML first
+      let s = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Convert **bold** markdown
+      s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+
+      // Convert bare URLs to clickable "Link" anchors
+      s = s.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
+        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;text-decoration:underline;">Link</a>`;
+      });
+
+      // Convert newlines to line breaks
+      s = s.replace(/\n/g, '<br>');
+
+      return `<p style="word-break:break-word;overflow-wrap:break-word;">${s}</p>`;
+    }
+
     function appendMessage(role, html) {
       const existing = aiMessages.querySelector('.ai-welcome');
       if (existing) existing.remove();
@@ -1198,7 +1221,8 @@
           reply = text;
         }
         showTyping(false);
-        appendMessage('assistant', `<p>${escapeHtml(reply)}</p>`);
+        const formatted = formatReply(reply);
+        appendMessage('assistant', formatted);
         aiSendBtn.disabled = false;
       })
       .catch(err => {
