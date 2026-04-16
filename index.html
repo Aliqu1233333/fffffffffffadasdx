@@ -478,7 +478,7 @@
     .ai-welcome {
       flex: 1; display: flex; flex-direction: column;
       align-items: center;
-      text-align: center; padding: 60px 20px 8px;
+      text-align: center; padding: 52px 20px 8px;
       gap: 0; overflow-y: auto;
     }
     .ai-welcome-backdrop {
@@ -1129,6 +1129,7 @@
     function sendSuggestion(btn) {
       const text = btn.innerText.trim();
       aiTextarea.value = text;
+      switchToChat();
       sendAiMessage();
     }
 
@@ -1161,7 +1162,7 @@
       }
     }
 
-    const AI_WEBHOOK_URL = "https://hook.us1.make.com/mf5bkoym3of992yqu1x66xrebgcp8b2k";
+    const AI_WEBHOOK_URL = "https://hook.us1.make.com/k1gp61jkn9a4an2y2x0fl6q1qmbjup9k";
 
     function sendAiMessage() {
       const text = aiTextarea.value.trim();
