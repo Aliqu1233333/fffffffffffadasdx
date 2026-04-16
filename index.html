@@ -1161,6 +1161,8 @@
       }
     }
 
+    const AI_WEBHOOK_URL = "https://hook.us1.make.com/mf5bkoym3of992yqu1x66xrebgcp8b2k";
+
     function sendAiMessage() {
       const text = aiTextarea.value.trim();
       if (!text) return;
@@ -1170,7 +1172,6 @@
 
       appendMessage('user', escapeHtml(text));
 
-      // Payload — ready to send to your AI backend
       const payload = {
         message:      text,
         item_id:      src.item_id      || null,
@@ -1183,12 +1184,30 @@
 
       showTyping(true);
 
-      // Placeholder — replace setTimeout with: fetch(YOUR_AI_URL, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload) })
-      setTimeout(() => {
+      fetch(AI_WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      .then(res => res.text())
+      .then(text => {
+        let reply;
+        try {
+          const data = JSON.parse(text);
+          reply = data.response || data.message || data.content || data.text || JSON.stringify(data);
+        } catch {
+          reply = text;
+        }
         showTyping(false);
-        appendMessage('assistant', `<p>This is a placeholder response for: <em>${escapeHtml(text)}</em></p><p>Connect this to your AI backend to get live responses.</p>`);
+        appendMessage('assistant', `<p>${escapeHtml(reply)}</p>`);
         aiSendBtn.disabled = false;
-      }, 1800);
+      })
+      .catch(err => {
+        showTyping(false);
+        appendMessage('assistant', `<p>Something went wrong. Please try again.</p>`);
+        aiSendBtn.disabled = false;
+        console.error('Futuristic webhook error:', err);
+      });
     }
 
     aiSendBtn.addEventListener('click', sendAiMessage);
