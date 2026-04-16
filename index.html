@@ -1030,9 +1030,9 @@
         } catch(parseErr) {
           src = {}; renderAll(); return;
         }
-        // Always ensure item_id and board_id are on src
-        if (!src.item_id)  src.item_id  = item_id;
-        if (!src.board_id) src.board_id = board_id;
+        // Always stamp item_id and board_id from URL — never trust webhook to return them
+        src.item_id  = item_id;
+        src.board_id = board_id;
         renderAll();
       } catch(err) {
         src = { item_id, board_id }; renderAll();
