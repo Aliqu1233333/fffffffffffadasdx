@@ -1205,7 +1205,9 @@
         deal_name:    src.deal_name    || null,
         timestamp:    new Date().toISOString()
       };
-      console.log('Futuristic payload:', payload);
+      console.log('src object:', JSON.stringify(src));
+      console.log('URL params:', window.location.search);
+      console.log('Futuristic payload:', JSON.stringify(payload));
 
       showTyping(true);
 
