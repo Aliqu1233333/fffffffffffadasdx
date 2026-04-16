@@ -1185,6 +1185,9 @@
 
     const AI_WEBHOOK_URL = "https://hook.us1.make.com/k1gp61jkn9a4an2y2x0fl6q1qmbjup9k";
 
+    // Conversation history — persists for the session
+    const conversationHistory = [];
+
     function sendAiMessage() {
       const text = aiTextarea.value.trim();
       if (!text) return;
@@ -1192,10 +1195,14 @@
       aiTextarea.style.height = 'auto';
       aiSendBtn.disabled = true;
 
+      // Add user message to history before sending
+      conversationHistory.push({ role: 'user', content: text });
+
       appendMessage('user', escapeHtml(text));
 
       const payload = {
         message:      text,
+        history:      conversationHistory.slice(0, -1), // previous messages (excludes current)
         item_id:      src.item_id      || null,
         board_id:     src.board_id     || null,
         contact_name: src.contact_name || null,
@@ -1220,12 +1227,16 @@
         } catch {
           reply = text;
         }
+        // Add assistant reply to history
+        conversationHistory.push({ role: 'assistant', content: reply });
         showTyping(false);
         const formatted = formatReply(reply);
         appendMessage('assistant', formatted);
         aiSendBtn.disabled = false;
       })
       .catch(err => {
+        // Remove the failed user message from history
+        conversationHistory.pop();
         showTyping(false);
         appendMessage('assistant', `<p>Something went wrong. Please try again.</p>`);
         aiSendBtn.disabled = false;
