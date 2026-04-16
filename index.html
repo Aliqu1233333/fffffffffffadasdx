@@ -1197,10 +1197,15 @@
 
       appendMessage('user', escapeHtml(text));
 
+      // Always read from URL directly as the most reliable source
+      const _params   = new URLSearchParams(window.location.search);
+      const _item_id  = src.item_id  || _params.get('item_id')  || _params.get('pulseId')  || null;
+      const _board_id = src.board_id || _params.get('board_id') || _params.get('boardId') || null;
+
       const payload = {
         message:      text,
-        item_id:      src.item_id      || null,
-        board_id:     src.board_id     || null,
+        item_id:      _item_id,
+        board_id:     _board_id,
         contact_name: src.contact_name || null,
         deal_name:    src.deal_name    || null,
         timestamp:    new Date().toISOString()
