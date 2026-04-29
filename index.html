@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Deal Summary Embed</title>
-
+  <script src="https://cdn.jsdelivr.net/npm/monday-sdk-js/dist/main.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
@@ -416,7 +416,7 @@
       position: absolute;
       top: 0; right: -90%;
       width: 90%; height: 100%;
-      background: var(--surface);
+      background: #f5f7fb;
       border-left: 1px solid var(--line);
       box-shadow: -4px 0 24px rgba(0,0,0,0.10);
       display: flex; flex-direction: column;
@@ -432,6 +432,8 @@
       border-bottom: 1px solid var(--line);
       background: var(--surface);
       flex-shrink: 0;
+      position: relative;
+      z-index: 2;
     }
     .ai-panel-title {
       display: flex; align-items: center; gap: 8px;
@@ -460,7 +462,8 @@
       display: flex; flex-direction: column;
       gap: 16px;
       position: relative;
-      background: #f5f7fb;
+      z-index: 1;
+      background: transparent;
     }
     .ai-messages-bg {
       position: absolute; inset: 0;
@@ -542,18 +545,44 @@
 
     .ai-msg-bubble {
       max-width: 85%; padding: 10px 14px;
-      border-radius: 12px; font-size: 14px;
+      border-radius: 16px; font-size: 14px;
       line-height: 1.6;
       word-break: break-word;
       overflow-wrap: break-word;
+      position: relative;
     }
     .ai-msg.user .ai-msg-bubble {
       background: var(--sf-blue); color: white;
       border-bottom-right-radius: 4px;
+      margin-right: 6px;
+    }
+    .ai-msg.user .ai-msg-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: 0; right: -6px;
+      width: 0; height: 0;
+      border-left: 8px solid var(--sf-blue);
+      border-top: 10px solid transparent;
+      border-bottom: 0px solid transparent;
     }
     .ai-msg.assistant .ai-msg-bubble {
-      background: #f3f4f6; color: var(--text);
+      background: #ffffff; color: var(--text);
+      border: 1px solid rgba(0,0,0,0.08);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
       border-bottom-left-radius: 4px;
+      margin-left: 6px;
+    }
+    .ai-msg.assistant .ai-msg-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: 6px; left: -5px;
+      width: 10px; height: 10px;
+      background: #ffffff;
+      border-bottom: 1px solid rgba(0,0,0,0.08);
+      border-left: 1px solid rgba(0,0,0,0.08);
+      transform: rotate(45deg);
+      border-bottom-left-radius: 2px;
+      z-index: 1;
     }
 
     /* Sections inside assistant response */
@@ -578,23 +607,54 @@
     }
 
     /* Typing indicator */
-    .ai-typing {
-      display: none; align-items: center; gap: 5px;
-      padding: 10px 14px; background: #f3f4f6;
-      border-radius: 12px; border-bottom-left-radius: 4px;
-      width: fit-content;
+    /* Typing indicator */
+    .ai-typing-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      position: relative;
+      width: 85%;
     }
-    .ai-typing.show { display: flex; }
-    .ai-typing span {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--muted);
-      animation: aiTypingDot 1.2s infinite;
+    .ai-typing-avatar-wrapper {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
     }
-    .ai-typing span:nth-child(2) { animation-delay: 0.2s; }
-    .ai-typing span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes aiTypingDot {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-4px); opacity: 1; }
+    .ai-typing-avatar {
+      position: relative;
+      width: 32px;
+      height: 32px;
+      background: #e0f2fe;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1;
+    }
+    .ai-typing-skeleton {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding-top: 4px;
+    }
+    .ai-skeleton-bar {
+      height: 10px;
+      background: linear-gradient(90deg, #8b94f7 25%, #aeb6ff 50%, #8b94f7 75%);
+      background-size: 400% 100%;
+      border-radius: 5px;
+      animation: shimmerBar 1.5s infinite linear;
+    }
+    .ai-skeleton-bar:nth-child(1) { width: 100%; }
+    .ai-skeleton-bar:nth-child(2) { width: 100%; }
+    .ai-skeleton-bar:nth-child(3) { width: 65%; }
+    @keyframes shimmerBar {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
     }
 
     /* Input area */
@@ -605,6 +665,8 @@
       flex-shrink: 0;
       display: none;
       flex-direction: column;
+      position: relative;
+      z-index: 2;
     }
     .ai-input-area.visible { display: flex; }
     .ai-input-row {
@@ -830,7 +892,8 @@
         </button>
       </div>
 
-      <div class="ai-messages" id="aiMessages"><div class="ai-messages-bg"></div>
+      <div class="ai-messages-bg"></div>
+      <div class="ai-messages" id="aiMessages">
         <!-- Welcome state -->
         <div class="ai-welcome" id="aiWelcome">
           <div class="ai-welcome-backdrop">
@@ -878,10 +941,20 @@
       </div>
 
       <div id="aiTypingRow" style="display:none; padding: 0 18px 14px;">
-        <div class="ai-stars-loader">
-          <svg class="ai-star ai-star-1" viewBox="0 0 32 32" width="7" height="7" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sg1" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient></defs><path d="M16 0 C14 8 8 14 0 16 C8 18 14 24 16 32 C18 24 24 18 32 16 C24 14 18 8 16 0Z" fill="url(#sg1)"/></svg>
-          <svg class="ai-star ai-star-2" viewBox="0 0 32 32" width="10" height="10" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sg2" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient></defs><path d="M16 0 C14 8 8 14 0 16 C8 18 14 24 16 32 C18 24 24 18 32 16 C24 14 18 8 16 0Z" fill="url(#sg2)"/></svg>
-          <svg class="ai-star ai-star-3" viewBox="0 0 32 32" width="14" height="14" xmlns="http://www.w3.org/2000/svg"><defs><linearGradient id="sg3" x1="0" y1="1" x2="1" y2="0"><stop offset="0%" stop-color="#38bdf8"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient></defs><path d="M16 0 C14 8 8 14 0 16 C8 18 14 24 16 32 C18 24 24 18 32 16 C24 14 18 8 16 0Z" fill="url(#sg3)"/></svg>
+        <div class="ai-typing-container">
+          <div class="ai-typing-avatar-wrapper">
+            <div class="ai-typing-avatar">
+              <svg width="18" height="18" viewBox="0 0 242 244" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M34.6245 0.331647C35.9558 0.203393 37.2871 0.0751399 39.1122 0.103408C47.2888 3.65522 52.2308 8.74099 50.7695 17.9555C50.639 18.778 51.2272 19.8966 51.8042 20.6206C56.7653 26.8446 61.8007 33.0095 66.6497 38.9896C67.433 38.9303 67.7876 38.9876 68.0693 38.8702C102.307 24.6085 136.628 24.5515 171.045 38.2139C171.928 38.5646 173.503 39.127 173.767 38.7973C179.33 31.8737 187.611 25.4977 189.43 17.6416C191.419 9.04858 193.483 3.21049 201.967 0.57586C202.589 0.297833 203.212 0.019805 204.278 0C205.422 0.6664 206.082 1.32453 206.829 1.44425C214.664 2.7007 218.439 11.0236 217.546 16.5516C216.426 23.4799 211.363 27.9599 203.76 28.5388C202.384 28.6436 200.566 28.9298 199.783 29.8439C195.369 34.9984 191.208 40.3701 186.764 45.913C188.419 47.0509 189.762 47.982 191.113 48.9013C216.547 66.2094 233.663 89.1493 239.287 119.909C239.83 122.879 240.715 125.787 241.442 128.724C241.493 133.288 241.544 137.852 241.169 143.041C240.207 146.769 239.74 149.885 239.123 152.97C230.731 194.949 204.269 221.135 165.593 236.224C147.657 243.222 128.75 244.769 109.237 243.674C78.7212 240.534 52.3623 229.317 30.6983 207.742C14.4009 191.512 5.10104 171.712 0.46307 149.464C0.177125 141.51 -0.10882 133.555 0.0413631 125.006C0.78311 123.305 1.19849 122.216 1.37805 121.089C4.58765 100.95 12.8499 83.0936 26.9132 68.3957C34.9078 60.0404 44.1783 52.9061 53.261 44.8801C50.4226 41.3192 47.0215 37.0408 43.6051 32.7746C42.7725 31.7348 42.0403 30.5215 40.9865 29.7787C39.9952 29.08 38.6625 28.6327 37.4418 28.53C28.9982 27.8197 24.1184 23.5141 23.2852 15.8741C22.5539 9.16741 27.4909 2.40031 34.6245 0.331647ZM93.0005 206.623C122.564 214.957 150.172 211.356 174.773 192.262C203.436 170.016 205.434 131.504 179.498 106.734C176.798 104.155 173.454 102.25 170.408 100.033C171.768 106.043 174.143 111.081 175.823 116.34C177.526 121.67 175.525 125.482 171.113 126.792C166.817 128.066 163.366 125.86 161.581 120.435C158.37 110.672 152.954 102.461 144.757 96.1976C136.555 89.9294 127.301 86.418 116.511 86.0587C121.002 93.5672 125.84 100.676 131.049 107.504C133.249 110.388 135.139 113.517 133.064 116.509C131.488 118.779 128.299 120.813 125.56 121.24C114.158 123.021 102.822 121.849 92.3659 116.908C85.2199 113.53 78.6858 108.858 71.5011 104.538C66.767 108.672 67.6283 114.019 69.2405 119.714C70.6256 124.607 68.8265 127.983 64.7086 129.375C60.8982 130.664 56.9238 128.689 55.0623 124.416C54.1675 122.362 53.5561 120.184 52.7354 117.83C40.319 132.831 40.1698 159.177 51.9982 176.736C61.8923 191.424 75.6077 200.868 93.0005 206.623Z" fill="#0284c7"/>
+                <path d="M121.871 151.047C118.113 149.459 117.174 151.637 116.377 154.303C114.519 160.521 112.608 166.725 110.605 172.898C108.754 178.602 104.863 181.895 98.73 181.629C89.9253 181.246 81.0921 180.904 72.3533 179.858C67.2291 179.245 63.5435 175.771 62.5025 170.498C61.3123 164.469 60.6753 158.332 59.6197 152.274C58.7735 147.417 61.2686 144.925 65.2929 143.081C75.4207 138.439 85.9645 138.599 96.6395 140.159C98.6074 140.446 100.575 140.928 102.459 141.568C114.205 145.564 125.835 145.471 137.789 141.956C149.005 138.659 160.465 138.521 171.659 142.732C180.507 146.061 181.232 147.114 180.031 156.269C179.382 161.215 178.541 166.154 177.445 171.02C176.233 176.397 172.678 180.1 167.249 180.673C158.661 181.579 149.997 181.888 141.356 182.116C134.583 182.295 130.624 178.378 128.683 172.163C126.509 165.202 124.362 158.233 121.871 151.047Z" fill="#0284c7"/>
+              </svg>
+            </div>
+          </div>
+          <div class="ai-typing-skeleton">
+            <div class="ai-skeleton-bar"></div>
+            <div class="ai-skeleton-bar"></div>
+            <div class="ai-skeleton-bar"></div>
+          </div>
         </div>
       </div>
 
@@ -901,6 +974,7 @@
   </div>
 
   <script>
+    const monday = window.mondaySdk();
     const LOAD_WEBHOOK_URL = "https://hook.us1.make.com/3spufybkajebciu4vjz51fcuwlncm0e8";
     const MAKE_WEBHOOK_URL = "https://hook.us1.make.com/wfh5ezjw929dnmyaeu8zlnt1uwl6ewkn";
     const NOTES_WEBHOOK_URL = "https://hook.us1.make.com/av1u6ziybzlgjmptgr8kvunv1goto9dy";
@@ -1188,7 +1262,7 @@
 
     const AI_WEBHOOK_URL = "https://hook.us1.make.com/k1gp61jkn9a4an2y2x0fl6q1qmbjup9k";
 
-    function sendAiMessage() {
+    async function sendAiMessage() {
       const text = aiTextarea.value.trim();
       if (!text) return;
       aiTextarea.value = '';
@@ -1196,6 +1270,15 @@
       aiSendBtn.disabled = true;
 
       appendMessage('user', escapeHtml(text));
+      showTyping(true);
+
+      let sessionToken = null;
+      try {
+        const tokenRes = await monday.get('sessionToken');
+        sessionToken = tokenRes.data;
+      } catch (err) {
+        console.error('Failed to get Monday session token', err);
+      }
 
       // Always read from URL directly as the most reliable source
       const _params   = new URLSearchParams(window.location.search);
@@ -1204,6 +1287,7 @@
 
       const payload = {
         message:      text,
+        session_token: sessionToken,
         item_id:      _item_id,
         board_id:     _board_id,
         contact_name: src.contact_name || null,
@@ -1214,7 +1298,7 @@
       console.log('URL params:', window.location.search);
       console.log('Futuristic payload:', JSON.stringify(payload));
 
-      showTyping(true);
+      const startTime = Date.now();
 
       fetch(AI_WEBHOOK_URL, {
         method: 'POST',
@@ -1230,10 +1314,17 @@
         } catch {
           reply = text;
         }
-        showTyping(false);
-        const formatted = formatReply(reply);
-        appendMessage('assistant', formatted);
-        aiSendBtn.disabled = false;
+        
+        const minDelay = 1500;
+        const elapsedTime = Date.now() - startTime;
+        const remainingDelay = Math.max(0, minDelay - elapsedTime);
+
+        setTimeout(() => {
+          showTyping(false);
+          const formatted = formatReply(reply);
+          appendMessage('assistant', formatted);
+          aiSendBtn.disabled = false;
+        }, remainingDelay);
       })
       .catch(err => {
         showTyping(false);
