@@ -1267,7 +1267,7 @@
     // Find it: monday.com → Admin → Account → Account ID
     // Leave as null to allow anyone (fine for testing, not for production).
     const ALLOWED_MONDAY_ACCOUNT_ID = 32229334; // e.g. 12345678
-    const ALLOWED_MONDAY_ACCOUNT_ID = 32338287; // e.g. 12345678
+
     // Cache monday context once via listener — never call monday.get('context')
     // inside a message-send function or you risk an infinite re-render loop.
     let _mondayAccountId = null;
