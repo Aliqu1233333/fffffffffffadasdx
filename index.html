@@ -1268,10 +1268,6 @@
     // Leave as null to allow anyone (fine for testing, not for production).
     // Security is handled server-side in Make.com via JWT verification.
     // Nothing sensitive lives here — the HTML can be fully public.
-    let _mondaySessionToken = null;
-    monday.listen('sessionToken', (res) => {
-      _mondaySessionToken = res?.data ?? null;
-    });
 
     async function sendAiMessage() {
       const text = aiTextarea.value.trim();
@@ -1289,7 +1285,14 @@
       // Find it: monday.com → top-left avatar → Admin → Account → the number in the URL.
 
 
-      const sessionToken = _mondaySessionToken;
+      // Fetch a fresh session token at send time — this is a one-off call, not a loop
+      let sessionToken = null;
+      try {
+        const tokenRes = await monday.get('sessionToken');
+        sessionToken = tokenRes?.data ?? null;
+      } catch(e) {
+        console.warn('Could not get monday session token:', e);
+      }
 
       // Always read from URL directly as the most reliable source
       const _params   = new URLSearchParams(window.location.search);
