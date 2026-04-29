@@ -1263,36 +1263,35 @@
     const AI_WEBHOOK_URL = "https://hook.us1.make.com/k1gp61jkn9a4an2y2x0fl6q1qmbjup9k";
 
     // ── SECURITY ─────────────────────────────────────────────────────────
-    // Set your monday.com account ID to restrict AI to your team only.
-    // Find it: monday.com → Admin → Account → Account ID
-    // Leave as null to allow anyone (fine for testing, not for production).
-    // Security is handled server-side in Make.com via JWT verification.
-    // Nothing sensitive lives here — the HTML can be fully public.
+    // The AI section is locked unless both item_id and board_id are present
+    // in the URL query string (e.g. ?item_id=11830064739&board_id=9193383085).
+    // This prevents unauthenticated scrapers or random visitors who find the
+    // public GitHub link from sending messages to the AI / triggering the Make
+    // webhook. Further server-side checks can be added in Make.com as needed.
+
+    function isValidSession() {
+      const _params   = new URLSearchParams(window.location.search);
+      const _item_id  = _params.get('item_id')  || _params.get('pulseId')  || src.item_id  || null;
+      const _board_id = _params.get('board_id') || _params.get('boardId') || src.board_id || null;
+      return Boolean(_item_id && _board_id);
+    }
 
     async function sendAiMessage() {
       const text = aiTextarea.value.trim();
       if (!text) return;
+
+      // ── Security gate: block AI if item_id + board_id are not in URL ──
+      if (!isValidSession()) {
+        appendMessage('assistant', '<p>Access restricted. This assistant is only available when opened from a Monday.com item.</p>');
+        return;
+      }
+
       aiTextarea.value = '';
       aiTextarea.style.height = 'auto';
       aiSendBtn.disabled = true;
 
       appendMessage('user', `<p>${escapeHtml(text)}</p>`);
       showTyping(true);
-
-      // ── Security gate: blocks AI send for non-team members ───────────
-      // ALLOWED_MONDAY_ACCOUNT_ID = your company account ID (not your personal user ID).
-      // Every salesperson on your monday.com account shares the same account ID.
-      // Find it: monday.com → top-left avatar → Admin → Account → the number in the URL.
-
-
-      // Fetch a fresh session token at send time — this is a one-off call, not a loop
-      let sessionToken = null;
-      try {
-        const tokenRes = await monday.get('sessionToken');
-        sessionToken = tokenRes?.data ?? null;
-      } catch(e) {
-        console.warn('Could not get monday session token:', e);
-      }
 
       // Always read from URL directly as the most reliable source
       const _params   = new URLSearchParams(window.location.search);
@@ -1301,7 +1300,6 @@
 
       const payload = {
         message:      text,
-        session_token: sessionToken,
         item_id:      _item_id,
         board_id:     _board_id,
         contact_name: src.contact_name || null,
@@ -1368,6 +1366,11 @@
       document.getElementById('aiTextarea').value = text;
       ta.value = '';
       switchToChat();
+      // Security check before sending
+      if (!isValidSession()) {
+        appendMessage('assistant', '<p>Access restricted. This assistant is only available when opened from a Monday.com item.</p>');
+        return;
+      }
       sendAiMessage();
     });
     document.getElementById('aiTextareaWelcome').addEventListener('keydown', (e) => {
