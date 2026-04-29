@@ -1266,17 +1266,18 @@
     // Set your monday.com account ID to restrict AI to your team only.
     // Find it: monday.com → Admin → Account → Account ID
     // Leave as null to allow anyone (fine for testing, not for production).
-    const ALLOWED_MONDAY_ACCOUNT_ID = null; // e.g. 12345678
+    const ALLOWED_USER_IDS = [
+      32229334, // your ID
+      null,     // salesperson 2 - replace null with their user ID
+      null,     // salesperson 3 - replace null with their user ID
+    ];
 
     // Cache monday context once via listener — never call monday.get('context')
     // inside a message-send function or you risk an infinite re-render loop.
-    let _mondayAccountId = null;
+    let _mondayUserId = null;
     let _mondaySessionToken = null;
     monday.listen('context', (res) => {
-      // Force to string so the comparison below always works regardless of type
-      const raw = res?.data?.account?.id;
-      _mondayAccountId = raw != null ? String(raw) : null;
-      console.log('[Security] monday account id from context:', _mondayAccountId);
+      _mondayUserId = res?.data?.user?.id ?? null;
     });
     monday.listen('sessionToken', (res) => {
       _mondaySessionToken = res?.data ?? null;
@@ -1296,15 +1297,12 @@
       // ALLOWED_MONDAY_ACCOUNT_ID = your company account ID (not your personal user ID).
       // Every salesperson on your monday.com account shares the same account ID.
       // Find it: monday.com → top-left avatar → Admin → Account → the number in the URL.
-      if (ALLOWED_MONDAY_ACCOUNT_ID !== null) {
-        const allowed = String(ALLOWED_MONDAY_ACCOUNT_ID);
-        console.log('[Security] checking:', _mondayAccountId, 'vs allowed:', allowed);
-        if (_mondayAccountId !== allowed) {
-          showTyping(false);
-          appendMessage('assistant', '<p>Access denied: this assistant is only available to your team.</p>');
-          aiSendBtn.disabled = false;
-          return;
-        }
+      const allowedIds = ALLOWED_USER_IDS.filter(id => id !== null).map(String);
+      if (allowedIds.length > 0 && !allowedIds.includes(String(_mondayUserId))) {
+        showTyping(false);
+        appendMessage('assistant', '<p>Access denied: this assistant is only available to your team.</p>');
+        aiSendBtn.disabled = false;
+        return;
       }
 
       const sessionToken = _mondaySessionToken;
