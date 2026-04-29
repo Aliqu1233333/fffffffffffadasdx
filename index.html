@@ -1262,18 +1262,22 @@
 
     const AI_WEBHOOK_URL = "https://hook.us1.make.com/k1gp61jkn9a4an2y2x0fl6q1qmbjup9k";
 
-    // ── SECURITY: Replace with your monday.com account ID ──────────────
-    // Find it: monday.com → Profile → Admin → Account → Account ID
-    const ALLOWED_MONDAY_ACCOUNT_ID = 32229334; // e.g. 12345678  (set null to disable check during testing)
-    const ALLOWED_MONDAY_ACCOUNT_ID = 32338287
-    
-    function escapeHtml(str) {
-      return str
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
+    // ── SECURITY ─────────────────────────────────────────────────────────
+    // Set your monday.com account ID to restrict AI to your team only.
+    // Find it: monday.com → Admin → Account → Account ID
+    // Leave as null to allow anyone (fine for testing, not for production).
+    const ALLOWED_MONDAY_ACCOUNT_ID = null; // e.g. 12345678
+
+    // Cache monday context once via listener — never call monday.get('context')
+    // inside a message-send function or you risk an infinite re-render loop.
+    let _mondayAccountId = null;
+    let _mondaySessionToken = null;
+    monday.listen('context', (res) => {
+      _mondayAccountId = res?.data?.account?.id ?? null;
+    });
+    monday.listen('sessionToken', (res) => {
+      _mondaySessionToken = res?.data ?? null;
+    });
 
     async function sendAiMessage() {
       const text = aiTextarea.value.trim();
@@ -1285,35 +1289,17 @@
       appendMessage('user', `<p>${escapeHtml(text)}</p>`);
       showTyping(true);
 
-      let sessionToken = null;
-
-      // ── Security gate: verify monday.com account before sending ────
+      // ── Security gate: blocks AI send for non-team members ───────────
       if (ALLOWED_MONDAY_ACCOUNT_ID !== null) {
-        try {
-          const context = await monday.get('context');
-          const accountId = context?.data?.account?.id;
-          if (accountId !== ALLOWED_MONDAY_ACCOUNT_ID) {
-            showTyping(false);
-            appendMessage('assistant', '<p>Access denied: this assistant is only available to authorised users.</p>');
-            aiSendBtn.disabled = false;
-            return;
-          }
-        } catch (err) {
-          console.error('Monday context check failed', err);
-          // If we can't verify, block it when account check is enabled
+        if (_mondayAccountId !== ALLOWED_MONDAY_ACCOUNT_ID) {
           showTyping(false);
-          appendMessage('assistant', '<p>Could not verify access. Please reload the page inside monday.com.</p>');
+          appendMessage('assistant', '<p>Access denied: this assistant is only available to your team.</p>');
           aiSendBtn.disabled = false;
           return;
         }
       }
 
-      try {
-        const tokenRes = await monday.get('sessionToken');
-        sessionToken = tokenRes.data;
-      } catch (err) {
-        console.error('Failed to get Monday session token', err);
-      }
+      const sessionToken = _mondaySessionToken;
 
       // Always read from URL directly as the most reliable source
       const _params   = new URLSearchParams(window.location.search);
