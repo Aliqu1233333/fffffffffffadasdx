@@ -1262,6 +1262,18 @@
 
     const AI_WEBHOOK_URL = "https://hook.us1.make.com/k1gp61jkn9a4an2y2x0fl6q1qmbjup9k";
 
+    // ── SECURITY: Replace with your monday.com account ID ──────────────
+    // Find it: monday.com → Profile → Admin → Account → Account ID
+    const ALLOWED_MONDAY_ACCOUNT_ID = null; // e.g. 12345678  (set null to disable check during testing)
+
+    function escapeHtml(str) {
+      return str
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
     async function sendAiMessage() {
       const text = aiTextarea.value.trim();
       if (!text) return;
@@ -1269,10 +1281,32 @@
       aiTextarea.style.height = 'auto';
       aiSendBtn.disabled = true;
 
-      appendMessage('user', escapeHtml(text));
+      appendMessage('user', `<p>${escapeHtml(text)}</p>`);
       showTyping(true);
 
       let sessionToken = null;
+
+      // ── Security gate: verify monday.com account before sending ────
+      if (ALLOWED_MONDAY_ACCOUNT_ID !== null) {
+        try {
+          const context = await monday.get('context');
+          const accountId = context?.data?.account?.id;
+          if (accountId !== ALLOWED_MONDAY_ACCOUNT_ID) {
+            showTyping(false);
+            appendMessage('assistant', '<p>Access denied: this assistant is only available to authorised users.</p>');
+            aiSendBtn.disabled = false;
+            return;
+          }
+        } catch (err) {
+          console.error('Monday context check failed', err);
+          // If we can't verify, block it when account check is enabled
+          showTyping(false);
+          appendMessage('assistant', '<p>Could not verify access. Please reload the page inside monday.com.</p>');
+          aiSendBtn.disabled = false;
+          return;
+        }
+      }
+
       try {
         const tokenRes = await monday.get('sessionToken');
         sessionToken = tokenRes.data;
