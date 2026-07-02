@@ -1021,27 +1021,6 @@
         document.getElementById('noDataState').style.display      = '';
       }
 
-      // Deal Overview
-      const rawNotes = (src.deal_notes || '').split('\\n').join('\n').split('\\r').join('').trim();
-      renderOverview(rawNotes);
-
-
-    }
-
-    function renderOverview(text) {
-      const textEl  = document.getElementById('overviewText');
-      const emptyEl = document.getElementById('overviewEmpty');
-      const ta      = document.getElementById('overviewTextarea');
-      const trimmed = (text || '').trim();
-      if (trimmed) {
-        textEl.textContent = trimmed;
-        textEl.style.display = 'block';
-        emptyEl.style.display = 'none';
-      } else {
-        textEl.style.display = 'none';
-        emptyEl.style.display = '';
-      }
-      ta.value = trimmed;
     }
 
     async function loadDealData() {
@@ -1083,51 +1062,6 @@
       el.classList.add('show');
       setTimeout(() => el.classList.remove('show'), 3000);
     }
-
-    // Deal Overview edit/save/cancel
-    const overviewEditBtn   = document.getElementById('overviewEditBtn');
-    const overviewEditArea  = document.getElementById('overviewEditArea');
-    const overviewView      = document.getElementById('overviewView');
-    const overviewCancelBtn = document.getElementById('overviewCancelBtn');
-    const overviewSaveBtn   = document.getElementById('overviewSaveBtn');
-    const overviewTextarea  = document.getElementById('overviewTextarea');
-
-    overviewEditBtn.addEventListener('click', () => {
-      overviewView.style.display    = 'none';
-      overviewEditArea.classList.add('active');
-      overviewEditBtn.style.display = 'none';
-      overviewTextarea.focus();
-    });
-
-    overviewCancelBtn.addEventListener('click', () => {
-      overviewEditArea.classList.remove('active');
-      overviewView.style.display    = '';
-      overviewEditBtn.style.display = '';
-      overviewTextarea.value = src.deal_notes || '';
-    });
-
-    overviewSaveBtn.addEventListener('click', async () => {
-      const text = overviewTextarea.value.trim();
-      overviewSaveBtn.disabled    = true;
-      overviewSaveBtn.textContent = 'Saving…';
-      try {
-        await fetch(NOTES_WEBHOOK_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'update_deal_notes', item_id: src.item_id, board_id: src.board_id, deal_notes: text, timestamp: new Date().toISOString() })
-        });
-        src.deal_notes = text;
-        renderOverview(text);
-        showSuccess('Deal overview saved ✓');
-      } catch {
-        showSuccess('Saved locally (check webhook)');
-      } finally {
-        overviewSaveBtn.disabled    = false;
-        overviewSaveBtn.textContent = 'Save';
-      }
-      overviewEditArea.classList.remove('active');
-      overviewView.style.display    = '';
-      overviewEditBtn.style.display = '';
-    });
 
     document.querySelectorAll('.tab').forEach(tab => {
       tab.addEventListener('click', () => {
