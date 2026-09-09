@@ -18,6 +18,7 @@
       --green: #059669;
       --radius: 10px;
       --font: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      --ease: cubic-bezier(.22,1,.36,1);
     }
 
     *{ box-sizing: border-box; }
@@ -28,6 +29,7 @@
       -webkit-font-smoothing: antialiased;
       overflow: hidden;
     }
+    :focus-visible{ outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 4px; }
 
     .widget{
       background: var(--surface);
@@ -68,6 +70,25 @@
     }
     .error-banner.show { display: block; }
 
+    /* ── SUCCESS ALERT ── */
+    .success-alert{
+      position: fixed; top: 20px; right: 20px;
+      background: #d1fae5; border: 1px solid #6ee7b7;
+      border-radius: 6px; padding: 12px 16px;
+      display: flex; align-items: center; gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,.15); z-index: 1000;
+      opacity: 0; transform: translateY(-10px);
+      transition: all 0.3s ease; pointer-events: none;
+    }
+    .success-alert.show{ opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .success-icon{
+      width: 20px; height: 20px; background: #059669;
+      border-radius: 50%; color: white; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 13px; font-weight: 700; flex-shrink: 0;
+    }
+    .success-text{ font-size: 14px; color: #065f46; font-weight: 600; }
+
     /* ========== RECORD HEADER ========== */
     .record-header {
       position: relative;
@@ -90,27 +111,28 @@
       background: linear-gradient(
         to bottom,
         rgba(255, 255, 255, 0.18) 0%,
-        rgba(255, 255, 255, 0.28) 100%
+        rgba(255, 255, 255, 0.34) 62%,
+        rgba(255, 255, 255, 0.82) 92%,
+        rgba(255, 255, 255, 1) 100%
       );
     }
 
     .record-header-content {
       position: relative;
       z-index: 1;
-      padding: 18px 22px 16px;
+      padding: 20px 22px 20px;
     }
 
-    /* Contact name — large, anchor-styled */
+    /* Contact name */
     .record-name {
-      font-size: 22px;
+      font-size: 22.5px;
       font-weight: 700;
       color: var(--sf-blue);
       text-decoration: none;
       letter-spacing: -0.015em;
       line-height: 1.2;
       display: block;
-      margin-top: 4px;
-      margin-bottom: 0;
+      margin-bottom: 20px;
       transition: color 0.15s;
       white-space: nowrap;
       overflow: hidden;
@@ -119,7 +141,7 @@
     }
     .record-name:hover { color: var(--blue); }
 
-    /* Metadata row — label + value pairs */
+    /* Metadata row */
     .record-meta {
       display: flex;
       align-items: flex-start;
@@ -131,27 +153,26 @@
     .meta-field {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 5px;
       min-width: 0;
     }
 
     .meta-field + .meta-field {
-      margin-left: 22px;
-      padding-left: 22px;
+      margin-left: 26px;
+      padding-left: 26px;
       border-left: 1px solid var(--line);
     }
 
     .meta-label {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
       color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
+      letter-spacing: 0;
       white-space: nowrap;
     }
 
     .meta-value {
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 600;
       color: var(--text);
       white-space: nowrap;
@@ -159,10 +180,7 @@
       text-overflow: ellipsis;
     }
 
-    /* Last contact gets accent color */
-    .meta-value.accent {
-      color: var(--blue);
-    }
+    .meta-value.accent { color: var(--blue); }
 
     /* ========== TABS ========== */
     .tabs-bar{
@@ -192,576 +210,129 @@
     .tab-content{ display: none; flex-direction: column; flex: 1; overflow: hidden; }
     .tab-content.active{ display: flex; }
 
-    /* ========== TAB 1: LAST CONVERSATION ========== */
     .conversation-body{
-      padding: 18px 22px 16px;
+      padding: 18px 22px 20px;
       flex: 1; overflow-y: auto;
     }
-    .section{ margin-bottom: 20px; }
-    .section:last-child{ margin-bottom: 0; }
 
-    /* Section label */
-    .section-label{
-      font-size: 12px; font-weight: 500; color: var(--muted);
-      margin-bottom: 20px;
+    /* ========== KEY POINTS ========== */
+    .key-points-section{
+      position: relative;
+      overflow: hidden;
+      background: #f0f7ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 16px 18px 17px;
+      box-shadow: 0 1px 2px rgba(1,118,211,.06), 0 6px 16px -12px rgba(3,45,96,.18);
     }
 
-    /* Key points */
-    .key-points-section{
-      background: #f0f7ff; border: 1px solid #bfdbfe;
-      border-radius: 8px; padding: 16px 17px;
+    /* A single light sweep as the summary arrives — the only flourish on the page */
+    .key-points-section.arrived::after{
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg,
+        rgba(255,255,255,0) 38%,
+        rgba(255,255,255,.62) 50%,
+        rgba(255,255,255,0) 62%);
+      transform: translateX(-115%);
+      pointer-events: none;
+      animation: kpSweep 1.35s var(--ease) .08s 1 forwards;
+    }
+    @keyframes kpSweep{ to{ transform: translateX(115%); } }
+
+    .key-points-section.arrived .key-points-icon{
+      animation: iconSettle .55s var(--ease) both;
+    }
+    @keyframes iconSettle{
+      0%  { transform: scale(.88); opacity: 0; }
+      60% { transform: scale(1.05); opacity: 1; }
+      100%{ transform: scale(1); opacity: 1; }
     }
     .key-points-header{
-      display: flex; align-items: center; gap: 7px;
-      font-size: 15.5px; font-weight: 600; color: var(--muted);
-      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13.5px; font-weight: 700;
+      color: var(--sf-blue);
+      letter-spacing: 0.01em;
+      padding-bottom: 12px;
+      margin-bottom: 13px;
+      border-bottom: 1px solid #cfe3f8;
     }
     .key-points-icon{
-      width: 19.5px; height: 19.5px; background: var(--blue);
-      border-radius: 4px; display: flex; align-items: center;
-      justify-content: center; color: white; font-size: 12.5px;
-      font-weight: 700; flex-shrink: 0; line-height: 1;
-      padding-bottom: 1px;
-    }
-    .key-points-list{ margin: 0; padding: 0 0 0 16px; list-style: disc; }
-    .key-points-list li{ font-size: 16.5px; color: var(--text); line-height: 1.7; margin: 7px 0; }
-    .key-points-list li::marker{ color: var(--blue); }
-
-
-
-    /* Success alert */
-    .success-alert{
-      position: fixed; top: 20px; right: 20px;
-      background: #d1fae5; border: 1px solid #6ee7b7;
-      border-radius: 6px; padding: 12px 16px;
-      display: flex; align-items: center; gap: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,.15); z-index: 1000;
-      opacity: 0; transform: translateY(-10px);
-      transition: all 0.3s ease; pointer-events: none;
-    }
-    .success-alert.show{ opacity: 1; transform: translateY(0); pointer-events: auto; }
-    .success-icon{
-      width: 20px; height: 20px; background: #059669;
-      border-radius: 50%; color: white; display: flex;
-      align-items: center; justify-content: center;
-      font-size: 13px; font-weight: 700;
-    }
-    .success-text{ font-size: 14px; color: #065f46; font-weight: 600; }
-
-    /* ========== TAB 2: DEAL OVERVIEW ========== */
-    .overview-body{
-      flex: 1; overflow-y: auto; background: #fafbfc;
-      padding: 20px 22px;
-    }
-    .overview-card{
-      background: white; border: 1px solid var(--line);
-      border-left: 3px solid var(--sf-blue);
-      border-radius: 8px; overflow: hidden;
-    }
-    .overview-card-header{
-      display: flex; align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px 13px;
-      border-bottom: 1px solid var(--line);
-    }
-    .overview-card-title{
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; font-weight: 600; color: var(--muted);
-      text-transform: uppercase; letter-spacing: 0.04em;
-    }
-    .overview-card-icon{
-      width: 18px; height: 18px; background: var(--sf-blue);
-      border-radius: 3px; display: flex; align-items: center;
-      justify-content: center; color: white; font-size: 11px;
+      color: var(--blue);
+      font-size: 16px; line-height: 1;
       flex-shrink: 0;
     }
-    .overview-edit-btn{
-      appearance: none; border: 1px solid var(--line);
-      background: white; border-radius: 4px;
-      font-family: var(--font); font-size: 12.5px;
-      font-weight: 600; color: var(--blue);
-      padding: 5px 14px; cursor: pointer;
-      transition: background 0.15s, border-color 0.15s;
+    .key-points-list{ margin: 0; padding: 0; list-style: none; }
+    .key-points-list li{
+      position: relative;
+      font-size: 15.5px;
+      color: var(--text);
+      line-height: 1.65;
+      padding: 0 0 11px 19px;
+      animation: pointIn .42s var(--ease) both;
+      animation-delay: calc(var(--i, 0) * 70ms);
     }
-    .overview-edit-btn:hover{ background: #f0f7ff; border-color: var(--blue); }
-    .overview-edit-btn.saving{ color: var(--muted); cursor: not-allowed; }
-
-    /* View mode */
-    .overview-view{
-      padding: 0;
-      min-height: 80px;
+    .key-points-list li:last-child{ padding-bottom: 0; }
+    .key-points-list li::before{
+      content: "";
+      position: absolute; left: 2px; top: .66em;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--blue);
     }
-    #overviewText{
-      display: block;
-      padding: 18px 18px;
-      font-size: 15.5px; color: var(--text);
-      line-height: 1.75; white-space: pre-wrap;
-    }
-    .overview-empty{
-      padding: 32px 18px;
-      font-size: 14px; color: var(--muted);
-      font-style: italic; text-align: center;
+    @keyframes pointIn{
+      from{ opacity: 0; transform: translateY(4px); }
+      to  { opacity: 1; transform: none; }
     }
 
-    /* Edit mode */
-    .overview-edit{ display: none; padding: 14px 18px; }
-    .overview-edit.active{ display: block; }
-    .overview-edit textarea{
-      width: 100%; min-height: 320px;
-      padding: 12px 14px;
-      border: 1px solid var(--line); border-radius: 4px;
-      font-family: var(--font); font-size: 15.5px;
-      color: var(--text); line-height: 1.75;
-      resize: vertical; transition: border-color 0.15s;
+    /* Skeleton while loading */
+    .kp-skel{ padding: 0 0 11px 19px !important; animation: none !important; }
+    .kp-skel::before{ display: none !important; }
+    .kp-skel span{
+      display: block; height: 11px; border-radius: 5px;
+      background: linear-gradient(90deg, #dbeafe 25%, #eff6ff 50%, #dbeafe 75%);
+      background-size: 400% 100%;
+      animation: shimmerBar 1.4s linear infinite;
     }
-    .overview-edit textarea:focus{
-      outline: none; border-color: var(--line);
-      box-shadow: none;
+    @keyframes shimmerBar{
+      0%  { background-position: 100% 0; }
+      100%{ background-position: -100% 0; }
     }
-    .overview-edit-actions{
-      display: flex; gap: 8px; justify-content: flex-end;
-      margin-top: 10px;
-    }
-    .overview-cancel-btn{
-      appearance: none; border: 1px solid var(--line);
-      background: white; border-radius: 4px;
-      font-family: var(--font); font-size: 13.5px;
-      font-weight: 500; color: var(--muted);
-      padding: 8px 18px; cursor: pointer;
-      transition: background 0.15s;
-    }
-    .overview-cancel-btn:hover{ background: #f3f4f6; }
-    .overview-save-btn{
-      appearance: none; border: none;
-      background: var(--blue); border-radius: 4px;
-      font-family: var(--font); font-size: 13.5px;
-      font-weight: 600; color: white;
-      padding: 8px 22px; cursor: pointer;
-      transition: background 0.15s;
-    }
-    .overview-save-btn:hover{ background: #0161b3; }
-    .overview-save-btn:disabled{ background: #94a3b8; cursor: not-allowed; }
 
-
-
-    .empty-state{ text-align: center; padding: 60px 20px; color: var(--muted); }
-    .empty-state-icon{ font-size: 40px; margin-bottom: 12px; opacity: 0.3; }
-    .empty-state-text{ font-size: 15px; font-weight: 500; }
+    /* ── EMPTY STATE ── */
+    .empty-wrap{ display: none; text-align: center; padding: 20px 16px 12px; }
+    .empty-wrap img{
+      width: 100%; max-width: 499px;
+      opacity: 0.92; margin-bottom: 14px;
+    }
+    .empty-title{
+      font-size: 18px; font-weight: 700;
+      color: var(--text); margin-bottom: 12px;
+    }
+    .empty-body{
+      font-size: 14px; color: var(--muted); line-height: 1.5;
+      max-width: 320px; margin: 0 auto;
+    }
 
     /* Scrollbar */
-    .conversation-body::-webkit-scrollbar,
-    .overview-body::-webkit-scrollbar { width: 5px; }
-    .conversation-body::-webkit-scrollbar-track,
-    .overview-body::-webkit-scrollbar-track { background: transparent; }
-    .conversation-body::-webkit-scrollbar-thumb,
-    .overview-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+    .conversation-body::-webkit-scrollbar { width: 5px; }
+    .conversation-body::-webkit-scrollbar-track { background: transparent; }
+    .conversation-body::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
 
-    /* ========== AI ASSISTANT PANEL ========== */
-    .ai-trigger-btn {
-      position: absolute;
-      top: 14px; right: 14px;
-      z-index: 2;
-      appearance: none;
-      border: 1px solid rgba(255,255,255,0.28);
-      background: rgba(2,14,32,0.78);
-      border-radius: 8px;
-      height: auto;
-      padding: 0;
-      display: flex; align-items: stretch; gap: 0;
-      cursor: pointer;
-      backdrop-filter: blur(10px);
-      overflow: hidden;
-      transition: box-shadow 0.2s ease, transform 0.15s ease, border-color 0.2s ease;
-    }
-    .ai-trigger-btn:hover {
-      box-shadow: 0 4px 18px rgba(0,0,0,0.32), 0 0 0 1px rgba(255,255,255,0.15);
-      transform: translateY(-1px);
-      border-color: rgba(255,255,255,0.42);
-    }
-    .ai-trigger-btn:active {
-      transform: translateY(0) scale(0.97);
-      box-shadow: 0 1px 6px rgba(0,0,0,0.2);
-      transition: transform 0.07s ease;
-    }
-    .ai-trigger-icon-wrap {
-      display: flex; align-items: center; justify-content: center;
-      padding: 6px 9px;
-      background: linear-gradient(135deg, rgba(1,118,211,0.35) 0%, rgba(3,45,96,0.2) 100%);
-      border-right: 1px solid rgba(255,255,255,0.12);
-      transition: background 0.2s ease;
-    }
-    .ai-trigger-btn:hover .ai-trigger-icon-wrap {
-      background: linear-gradient(135deg, rgba(1,118,211,0.55) 0%, rgba(3,45,96,0.35) 100%);
-    }
-    .ai-trigger-icon-wrap svg {
-      transition: transform 0.22s ease;
-    }
-    .ai-trigger-btn:hover .ai-trigger-icon-wrap svg {
-      transform: scale(1.1);
-    }
-    .ai-trigger-label {
-      font-family: var(--font);
-      font-size: 12.5px; font-weight: 600;
-      color: rgba(255,255,255,0.92); letter-spacing: 0.03em;
-      line-height: 1; padding: 6px 12px 6px 10px;
-      display: flex; align-items: center; justify-content: center;
-      transition: color 0.2s ease;
-    }
-    .ai-trigger-btn:hover .ai-trigger-label {
-      color: white;
+    @media (max-width: 420px){
+      .record-header-content{ padding: 16px 16px 14px; }
+      .record-name{ font-size: 20px; }
+      .tabs-bar{ padding: 0 16px; }
+      .conversation-body{ padding: 16px 16px 18px; }
+      .meta-field + .meta-field{ margin-left: 16px; padding-left: 16px; }
     }
 
-    .ai-panel {
-      position: absolute;
-      top: 0; right: -90%;
-      width: 90%; height: 100%;
-      background: #f5f7fb;
-      border-left: 1px solid var(--line);
-      box-shadow: -4px 0 24px rgba(0,0,0,0.10);
-      display: flex; flex-direction: column;
-      z-index: 100;
-      transition: right 0.25s ease-in-out;
+    @media (prefers-reduced-motion: reduce){
+      *, *::before, *::after{
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
     }
-    .ai-panel.open { right: 0; }
-
-    .ai-panel-header {
-      display: flex; align-items: center;
-      justify-content: space-between;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
-      flex-shrink: 0;
-      position: relative;
-      z-index: 2;
-    }
-    .ai-panel-title {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 14px; font-weight: 700;
-      color: var(--sf-blue); letter-spacing: -0.01em;
-    }
-    .ai-panel-title-icon {
-      width: 26px; height: 26px;
-      background: linear-gradient(135deg, var(--sf-blue) 0%, var(--blue) 100%);
-      border-radius: 6px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .ai-close-btn {
-      appearance: none; border: none; background: transparent;
-      cursor: pointer; padding: 4px;
-      color: var(--muted); border-radius: 4px;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.15s, color 0.15s;
-    }
-    .ai-close-btn:hover { background: #f3f4f6; color: var(--text); }
-
-    .ai-messages {
-      flex: 1; overflow-y: auto;
-      padding: 20px 18px;
-      display: flex; flex-direction: column;
-      gap: 16px;
-      position: relative;
-      z-index: 1;
-      background: transparent;
-    }
-    .ai-messages-bg {
-      position: absolute; inset: 0;
-      background-image: url('https://raw.githubusercontent.com/Aliqu1233333/fffffffffffadasdx/main/AI%20Chat%20Background.png');
-      background-size: cover;
-      background-position: center;
-      opacity: 0.09;
-      pointer-events: none;
-      z-index: 0;
-    }
-    .ai-messages > *:not(.ai-messages-bg) { position: relative; z-index: 1; }
-    .ai-messages::-webkit-scrollbar { width: 4px; }
-    .ai-messages::-webkit-scrollbar-track { background: transparent; }
-    .ai-messages::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 2px; }
-
-    /* Welcome state */
-    .ai-welcome {
-      flex: 1; display: flex; flex-direction: column;
-      align-items: center;
-      text-align: center; padding: 45px 20px 8px;
-      gap: 0; overflow-y: auto;
-    }
-    .ai-welcome-backdrop {
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 10px; flex-shrink: 0;
-    }
-    .ai-welcome-sparkle {
-      position: absolute;
-      fill: white; opacity: 0.9;
-    }
-    .ai-welcome-icon {
-      width: 84px; height: 84px;
-      background: transparent;
-      border-radius: 0;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: none;
-      position: relative; z-index: 1;
-    }
-    .ai-welcome-title {
-      font-size: 19px; font-weight: 700;
-      color: var(--sf-blue); letter-spacing: -0.02em;
-      margin-bottom: 6px;
-    }
-    .ai-welcome-sub {
-      font-size: 13px; color: var(--muted);
-      line-height: 1.55; max-width: 230px;
-      margin-bottom: 18px;
-    }
-
-    /* Suggestion chips */
-    .ai-suggestions {
-      display: flex; flex-direction: column; gap: 8px;
-      margin-top: 8px; width: 100%;
-    }
-    .ai-suggestion-chip {
-      appearance: none; border: 1px solid var(--line);
-      background: white; border-radius: 8px;
-      padding: 10px 14px; cursor: pointer;
-      font-family: var(--font); font-size: 13px;
-      color: var(--text); text-align: left;
-      line-height: 1.4;
-      transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
-      display: flex; align-items: center; gap: 10px;
-    }
-    .ai-suggestion-chip:hover {
-      border-color: var(--blue);
-      background: #f0f7ff;
-      box-shadow: 0 1px 4px rgba(1,118,211,0.08);
-    }
-    .ai-suggestion-chip-icon {
-      width: 28px; height: 28px; border-radius: 6px;
-      background: #f0f7ff;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-
-    /* Message bubbles */
-    .ai-msg { display: flex; flex-direction: column; gap: 4px; }
-    .ai-msg.user { align-items: flex-end; }
-    .ai-msg.assistant { align-items: flex-start; }
-
-    .ai-msg-bubble {
-      max-width: 85%; padding: 10px 14px;
-      border-radius: 16px; font-size: 14px;
-      line-height: 1.6;
-      word-break: break-word;
-      overflow-wrap: break-word;
-      position: relative;
-    }
-    .ai-msg.user .ai-msg-bubble {
-      background: var(--sf-blue); color: white;
-      border-bottom-right-radius: 4px;
-      margin-right: 6px;
-    }
-    .ai-msg.user .ai-msg-bubble::before {
-      content: '';
-      position: absolute;
-      bottom: 0; right: -6px;
-      width: 0; height: 0;
-      border-left: 8px solid var(--sf-blue);
-      border-top: 10px solid transparent;
-      border-bottom: 0px solid transparent;
-    }
-    .ai-msg.assistant .ai-msg-bubble {
-      background: #ffffff; color: var(--text);
-      border: 1px solid rgba(0,0,0,0.08);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-      border-bottom-left-radius: 4px;
-      margin-left: 6px;
-    }
-    .ai-msg.assistant .ai-msg-bubble::before {
-      content: '';
-      position: absolute;
-      bottom: 6px; left: -5px;
-      width: 10px; height: 10px;
-      background: #ffffff;
-      border-bottom: 1px solid rgba(0,0,0,0.08);
-      border-left: 1px solid rgba(0,0,0,0.08);
-      transform: rotate(45deg);
-      border-bottom-left-radius: 2px;
-      z-index: 1;
-    }
-
-    /* Sections inside assistant response */
-    .ai-msg-bubble h4 {
-      font-size: 13.5px; font-weight: 700;
-      color: var(--sf-blue); margin: 12px 0 6px;
-    }
-    .ai-msg-bubble h4:first-child { margin-top: 0; }
-    .ai-msg-bubble ul {
-      margin: 0; padding-left: 16px;
-    }
-    .ai-msg-bubble ul li { margin: 4px 0; }
-    .ai-msg-bubble hr {
-      border: none; border-top: 1px solid #e5e7eb;
-      margin: 10px 0;
-    }
-
-    .ai-msg-label {
-      font-size: 11px; font-weight: 600;
-      color: var(--muted); text-transform: uppercase;
-      letter-spacing: 0.04em; padding: 0 4px;
-    }
-
-    /* Typing indicator */
-    /* Typing indicator */
-    .ai-typing-container {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      position: relative;
-      width: 85%;
-    }
-    .ai-typing-avatar-wrapper {
-      position: relative;
-      width: 32px;
-      height: 32px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    .ai-typing-avatar {
-      position: relative;
-      width: 32px;
-      height: 32px;
-      background: #e0f2fe;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1;
-    }
-    .ai-typing-skeleton {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-      padding-top: 4px;
-    }
-    .ai-skeleton-bar {
-      height: 10px;
-      background: linear-gradient(90deg, #8b94f7 25%, #aeb6ff 50%, #8b94f7 75%);
-      background-size: 400% 100%;
-      border-radius: 5px;
-      animation: shimmerBar 1.5s infinite linear;
-    }
-    .ai-skeleton-bar:nth-child(1) { width: 100%; }
-    .ai-skeleton-bar:nth-child(2) { width: 100%; }
-    .ai-skeleton-bar:nth-child(3) { width: 65%; }
-    @keyframes shimmerBar {
-      0% { background-position: 100% 0; }
-      100% { background-position: -100% 0; }
-    }
-
-    /* Input area */
-    .ai-input-area {
-      padding: 12px 16px;
-      border-top: 1px solid var(--line);
-      background: var(--surface);
-      flex-shrink: 0;
-      display: none;
-      flex-direction: column;
-      position: relative;
-      z-index: 2;
-    }
-    .ai-input-area.visible { display: flex; }
-    .ai-input-row {
-      display: flex; align-items: flex-end; gap: 10px;
-      background: #f9fafb;
-      border: 1px solid var(--line);
-      border-radius: 12px; padding: 12px 12px;
-      transition: border-color 0.15s;
-    }
-    .ai-input-row:focus-within {
-      border-color: var(--blue);
-    }
-    .ai-textarea {
-      flex: 1; border: none; background: transparent;
-      font-family: var(--font); font-size: 14px;
-      color: var(--text); resize: none;
-      min-height: 34px; max-height: 120px;
-      line-height: 1.5; outline: none;
-    }
-    .ai-textarea::placeholder { color: #9ca3af; }
-    .ai-send-btn {
-      appearance: none; border: none;
-      background: var(--blue); border-radius: 50%;
-      width: 34px; height: 34px; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: background 0.15s, transform 0.15s;
-    }
-    .ai-send-btn:hover { background: #0161b3; transform: scale(1.05); }
-    .ai-send-btn:disabled { background: #d1d5db; cursor: not-allowed; transform: none; }
-
-    /* Overlay backdrop */
-    .ai-backdrop {
-      position: absolute; inset: 0;
-      background: rgba(3,45,96,0.12);
-      z-index: 99;
-      opacity: 0; pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .ai-backdrop.show { opacity: 1; pointer-events: auto; }
-
-
-
-
-    /* Agentforce-style suggestions */
-    .ai-suggestions-list {
-      margin-top: 0;
-      width: 100%;
-      text-align: left;
-    }
-    .ai-sugg-label {
-      font-size: 12px; font-weight: 600;
-      color: var(--muted); text-transform: none;
-      letter-spacing: 0; margin-bottom: 10px;
-      text-align: center;
-    }
-    .ai-sugg-item {
-      display: flex; align-items: center; gap: 10px;
-      width: 100%; appearance: none; border: none;
-      background: transparent; padding: 9px 4px;
-      font-family: var(--font); font-size: 14px;
-      font-weight: 500; color: var(--blue);
-      cursor: pointer; text-align: left;
-      border-bottom: 1px solid var(--line);
-      transition: color 0.12s, padding-left 0.12s;
-    }
-    .ai-sugg-item:last-child { border-bottom: none; }
-    .ai-sugg-item:hover { color: var(--sf-blue); padding-left: 8px; }
-    .ai-sugg-arrow { flex-shrink: 0; color: currentColor; }
-
-    /* Agentforce star loader */
-    .ai-stars-loader {
-      display: flex; align-items: center; gap: 6px;
-      padding: 8px 4px;
-    }
-    .ai-star {
-      animation: starPulse 1.4s ease-in-out infinite;
-    }
-    .ai-star-1 { animation-delay: 0s; }
-    .ai-star-2 { animation-delay: 0.18s; }
-    .ai-star-3 { animation-delay: 0.36s; }
-    @keyframes starPulse {
-      0%   { filter: brightness(1.3) saturate(1);   opacity: 0.75; transform: scale(0.88); }
-      33%  { filter: brightness(2.0) saturate(1.4); opacity: 1;    transform: scale(1.12); }
-      66%  { filter: brightness(0.85) saturate(1.8); opacity: 0.85; transform: scale(1.0); }
-      100% { filter: brightness(1.3) saturate(1);   opacity: 0.75; transform: scale(0.88); }
-    }
-
-
-    .ai-input-area.pinned { display: flex; flex-direction: column; }
-    .ai-welcome-input {
-      padding: 16px 0 0;
-      width: 100%;
-    }
-
   </style>
 </head>
 
@@ -781,10 +352,9 @@
       <div class="record-header-banner"></div>
       <div class="record-header-overlay"></div>
       <div class="record-header-content">
-        
-        <div style="display:flex; align-items:center; margin-bottom:13px; gap:0;">
-          <a href="#" class="record-name" id="contactName" style="margin-bottom:0;">Loading…</a>
-        </div>
+
+        <a href="#" class="record-name" id="contactName">Loading…</a>
+
         <div class="record-meta">
           <div class="meta-field">
             <span class="meta-label">Last Contact</span>
@@ -810,137 +380,33 @@
     <!-- ===== TAB 1 ===== -->
     <div class="tab-content active" id="conversation-tab">
       <div class="conversation-body">
+
         <div class="key-points-section" id="keyPointsSection">
           <div class="key-points-header">
-            <div class="key-points-icon">★</div>
+            <span class="key-points-icon">★</span>
             <span>Key Conversation Points</span>
           </div>
           <ul class="key-points-list" id="keyPointsList">
-            <li style="color:var(--muted)">Loading…</li>
+            <li class="kp-skel"><span style="width:100%"></span></li>
+            <li class="kp-skel"><span style="width:93%"></span></li>
+            <li class="kp-skel"><span style="width:66%"></span></li>
           </ul>
         </div>
 
-        <div id="noDataState" style="display:none; text-align:center; padding:20px 16px 12px;">
-<img src="https://raw.githubusercontent.com/Aliqu1233333/fffffffffffadasdx/main/empty%20state%20background.jpg"
-  style="width:100%;max-width:499px;opacity:0.92;margin-bottom:14px;" alt="No data" />
-          <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:12px;">No Conversation Data Added</div>
-          <div style="font-size:14px;color:var(--muted);line-height:1.5;">Once notes are added to related contacts, the AI summary will appear here.</div>
+        <div class="empty-wrap" id="noDataState">
+          <img src="https://raw.githubusercontent.com/Aliqu1233333/fffffffffffadasdx/main/empty%20state%20background.jpg" alt="" />
+          <div class="empty-title">No Conversation Data Added</div>
+          <div class="empty-body">Once notes are added to related contacts, the AI summary will appear here.</div>
         </div>
-      </div>
 
-    </div>
-
-
-    <!-- AI BACKDROP -->
-    <div class="ai-backdrop" id="aiBackdrop"></div>
-
-    <!-- AI ASSISTANT PANEL -->
-    <div class="ai-panel" id="aiPanel">
-      <div class="ai-panel-header">
-        <div class="ai-panel-title">
-          <div class="ai-panel-title-icon">
-            <svg width="18" height="18" viewBox="0 0 242 244" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M34.6245 0.331647C35.9558 0.203393 37.2871 0.0751399 39.1122 0.103408C47.2888 3.65522 52.2308 8.74099 50.7695 17.9555C50.639 18.778 51.2272 19.8966 51.8042 20.6206C56.7653 26.8446 61.8007 33.0095 66.6497 38.9896C67.433 38.9303 67.7876 38.9876 68.0693 38.8702C102.307 24.6085 136.628 24.5515 171.045 38.2139C171.928 38.5646 173.503 39.127 173.767 38.7973C179.33 31.8737 187.611 25.4977 189.43 17.6416C191.419 9.04858 193.483 3.21049 201.967 0.57586C202.589 0.297833 203.212 0.019805 204.278 0C205.422 0.6664 206.082 1.32453 206.829 1.44425C214.664 2.7007 218.439 11.0236 217.546 16.5516C216.426 23.4799 211.363 27.9599 203.76 28.5388C202.384 28.6436 200.566 28.9298 199.783 29.8439C195.369 34.9984 191.208 40.3701 186.764 45.913C188.419 47.0509 189.762 47.982 191.113 48.9013C216.547 66.2094 233.663 89.1493 239.287 119.909C239.83 122.879 240.715 125.787 241.442 128.724C241.493 133.288 241.544 137.852 241.169 143.041C240.207 146.769 239.74 149.885 239.123 152.97C230.731 194.949 204.269 221.135 165.593 236.224C147.657 243.222 128.75 244.769 109.237 243.674C78.7212 240.534 52.3623 229.317 30.6983 207.742C14.4009 191.512 5.10104 171.712 0.46307 149.464C0.177125 141.51 -0.10882 133.555 0.0413631 125.006C0.78311 123.305 1.19849 122.216 1.37805 121.089C4.58765 100.95 12.8499 83.0936 26.9132 68.3957C34.9078 60.0404 44.1783 52.9061 53.261 44.8801C50.4226 41.3192 47.0215 37.0408 43.6051 32.7746C42.7725 31.7348 42.0403 30.5215 40.9865 29.7787C39.9952 29.08 38.6625 28.6327 37.4418 28.53C28.9982 27.8197 24.1184 23.5141 23.2852 15.8741C22.5539 9.16741 27.4909 2.40031 34.6245 0.331647ZM93.0005 206.623C122.564 214.957 150.172 211.356 174.773 192.262C203.436 170.016 205.434 131.504 179.498 106.734C176.798 104.155 173.454 102.25 170.408 100.033C171.768 106.043 174.143 111.081 175.823 116.34C177.526 121.67 175.525 125.482 171.113 126.792C166.817 128.066 163.366 125.86 161.581 120.435C158.37 110.672 152.954 102.461 144.757 96.1976C136.555 89.9294 127.301 86.418 116.511 86.0587C121.002 93.5672 125.84 100.676 131.049 107.504C133.249 110.388 135.139 113.517 133.064 116.509C131.488 118.779 128.299 120.813 125.56 121.24C114.158 123.021 102.822 121.849 92.3659 116.908C85.2199 113.53 78.6858 108.858 71.5011 104.538C66.767 108.672 67.6283 114.019 69.2405 119.714C70.6256 124.607 68.8265 127.983 64.7086 129.375C60.8982 130.664 56.9238 128.689 55.0623 124.416C54.1675 122.362 53.5561 120.184 52.7354 117.83C40.319 132.831 40.1698 159.177 51.9982 176.736C61.8923 191.424 75.6077 200.868 93.0005 206.623Z" fill="white"/>
-              <path d="M92.6234 206.495C75.6077 200.868 61.8923 191.424 51.9982 176.736C40.1698 159.177 40.319 132.831 52.7354 117.83C53.5561 120.184 54.1675 122.362 55.0623 124.416C56.9238 128.689 60.8982 130.664 64.7086 129.375C68.8265 127.983 70.6256 124.607 69.2405 119.714C67.6283 114.019 66.767 108.672 71.5011 104.538C78.6858 108.858 85.2199 113.53 92.3659 116.908C102.822 121.849 114.158 123.021 125.56 121.24C128.299 120.813 131.488 118.78 133.063 116.509C135.139 113.517 133.249 110.388 131.049 107.504C125.84 100.676 121.002 93.5672 116.511 86.0588C127.301 86.4181 136.555 89.9294 144.757 96.1977C152.954 102.461 158.369 110.672 161.581 120.435C163.366 125.86 166.817 128.067 171.113 126.792C175.525 125.482 177.526 121.67 175.823 116.34C174.143 111.081 171.768 106.043 170.408 100.033C173.454 102.25 176.798 104.155 179.498 106.734C205.434 131.504 203.436 170.016 174.773 192.262C150.172 211.356 122.564 214.957 92.6234 206.495ZM122.203 151.268C124.362 158.233 126.509 165.202 128.683 172.163C130.623 178.378 134.583 182.295 141.356 182.116C149.996 181.888 158.661 181.579 167.249 180.673C172.677 180.1 176.233 176.397 177.445 171.02C178.541 166.154 179.382 161.215 180.031 156.269C181.232 147.114 180.506 146.061 171.659 142.732C160.465 138.521 149.005 138.659 137.789 141.956C125.834 145.471 114.204 145.564 102.458 141.568C100.575 140.928 98.6072 140.446 96.6393 140.159C85.9643 138.599 75.4204 138.439 65.2927 143.081C61.2684 144.925 58.7733 147.417 59.6195 152.274C60.6751 158.332 61.312 164.469 62.5023 170.498C63.5433 175.771 67.2289 179.245 72.3531 179.858C81.0919 180.904 89.9251 181.246 98.7297 181.629C104.863 181.895 108.753 178.602 110.605 172.898C112.608 166.725 114.519 160.521 116.377 154.303C117.173 151.637 118.113 149.459 122.203 151.268Z" fill="rgba(255,255,255,0.7)"/>
-              <path d="M121.871 151.047C118.113 149.459 117.174 151.637 116.377 154.303C114.519 160.521 112.608 166.725 110.605 172.898C108.754 178.602 104.863 181.895 98.73 181.629C89.9253 181.246 81.0921 180.904 72.3533 179.858C67.2291 179.245 63.5435 175.771 62.5025 170.498C61.3123 164.469 60.6753 158.332 59.6197 152.274C58.7735 147.417 61.2686 144.925 65.2929 143.081C75.4207 138.439 85.9645 138.599 96.6395 140.159C98.6074 140.446 100.575 140.928 102.459 141.568C114.205 145.564 125.835 145.471 137.789 141.956C149.005 138.659 160.465 138.521 171.659 142.732C180.507 146.061 181.232 147.114 180.031 156.269C179.382 161.215 178.541 166.154 177.445 171.02C176.233 176.397 172.678 180.1 167.249 180.673C158.661 181.579 149.997 181.888 141.356 182.116C134.583 182.295 130.624 178.378 128.683 172.163C126.509 165.202 124.362 158.233 121.871 151.047Z" fill="white"/>
-            </svg>
-          </div>
-          <div>
-            <div style="font-size:14.5px;font-weight:700;color:var(--sf-blue);line-height:1.2;">Futuristic</div>
-            <div style="font-size:12px;font-weight:500;color:var(--muted);letter-spacing:0.02em;">Research &bull; Analyze &bull; Draft</div>
-          </div>
-        </div>
-        <button class="ai-close-btn" id="aiCloseBtn">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <path d="M12 4L4 12M4 4L12 12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-          </svg>
-        </button>
-      </div>
-
-      <div class="ai-messages-bg"></div>
-      <div class="ai-messages" id="aiMessages">
-        <!-- Welcome state -->
-        <div class="ai-welcome" id="aiWelcome">
-          <div class="ai-welcome-backdrop">
-            <div class="ai-welcome-icon">
-              <svg width="76" height="76" viewBox="0 0 242 244" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M34.6245 0.331647C35.9558 0.203393 37.2871 0.0751399 39.1122 0.103408C47.2888 3.65522 52.2308 8.74099 50.7695 17.9555C50.639 18.778 51.2272 19.8966 51.8042 20.6206C56.7653 26.8446 61.8007 33.0095 66.6497 38.9896C67.433 38.9303 67.7876 38.9876 68.0693 38.8702C102.307 24.6085 136.628 24.5515 171.045 38.2139C171.928 38.5646 173.503 39.127 173.767 38.7973C179.33 31.8737 187.611 25.4977 189.43 17.6416C191.419 9.04858 193.483 3.21049 201.967 0.57586C202.589 0.297833 203.212 0.019805 204.278 0C205.422 0.6664 206.082 1.32453 206.829 1.44425C214.664 2.7007 218.439 11.0236 217.546 16.5516C216.426 23.4799 211.363 27.9599 203.76 28.5388C202.384 28.6436 200.566 28.9298 199.783 29.8439C195.369 34.9984 191.208 40.3701 186.764 45.913C188.419 47.0509 189.762 47.982 191.113 48.9013C216.547 66.2094 233.663 89.1493 239.287 119.909C239.83 122.879 240.715 125.787 241.442 128.724C241.493 133.288 241.544 137.852 241.169 143.041C240.207 146.769 239.74 149.885 239.123 152.97C230.731 194.949 204.269 221.135 165.593 236.224C147.657 243.222 128.75 244.769 109.237 243.674C78.7212 240.534 52.3623 229.317 30.6983 207.742C14.4009 191.512 5.10104 171.712 0.46307 149.464C0.177125 141.51 -0.10882 133.555 0.0413631 125.006C0.78311 123.305 1.19849 122.216 1.37805 121.089C4.58765 100.95 12.8499 83.0936 26.9132 68.3957C34.9078 60.0404 44.1783 52.9061 53.261 44.8801C50.4226 41.3192 47.0215 37.0408 43.6051 32.7746C42.7725 31.7348 42.0403 30.5215 40.9865 29.7787C39.9952 29.08 38.6625 28.6327 37.4418 28.53C28.9982 27.8197 24.1184 23.5141 23.2852 15.8741C22.5539 9.16741 27.4909 2.40031 34.6245 0.331647ZM93.0005 206.623C122.564 214.957 150.172 211.356 174.773 192.262C203.436 170.016 205.434 131.504 179.498 106.734C176.798 104.155 173.454 102.25 170.408 100.033C171.768 106.043 174.143 111.081 175.823 116.34C177.526 121.67 175.525 125.482 171.113 126.792C166.817 128.066 163.366 125.86 161.581 120.435C158.37 110.672 152.954 102.461 144.757 96.1976C136.555 89.9294 127.301 86.418 116.511 86.0587C121.002 93.5672 125.84 100.676 131.049 107.504C133.249 110.388 135.139 113.517 133.064 116.509C131.488 118.779 128.299 120.813 125.56 121.24C114.158 123.021 102.822 121.849 92.3659 116.908C85.2199 113.53 78.6858 108.858 71.5011 104.538C66.767 108.672 67.6283 114.019 69.2405 119.714C70.6256 124.607 68.8265 127.983 64.7086 129.375C60.8982 130.664 56.9238 128.689 55.0623 124.416C54.1675 122.362 53.5561 120.184 52.7354 117.83C40.319 132.831 40.1698 159.177 51.9982 176.736C61.8923 191.424 75.6077 200.868 93.0005 206.623Z" fill="#0096FF"/>
-              <path d="M92.6234 206.495C75.6077 200.868 61.8923 191.424 51.9982 176.736C40.1698 159.177 40.319 132.831 52.7354 117.83C53.5561 120.184 54.1675 122.362 55.0623 124.416C56.9238 128.689 60.8982 130.664 64.7086 129.375C68.8265 127.983 70.6256 124.607 69.2405 119.714C67.6283 114.019 66.767 108.672 71.5011 104.538C78.6858 108.858 85.2199 113.53 92.3659 116.908C102.822 121.849 114.158 123.021 125.56 121.24C128.299 120.813 131.488 118.78 133.063 116.509C135.139 113.517 133.249 110.388 131.049 107.504C125.84 100.676 121.002 93.5672 116.511 86.0588C127.301 86.4181 136.555 89.9294 144.757 96.1977C152.954 102.461 158.369 110.672 161.581 120.435C163.366 125.86 166.817 128.067 171.113 126.792C175.525 125.482 177.526 121.67 175.823 116.34C174.143 111.081 171.768 106.043 170.408 100.033C173.454 102.25 176.798 104.155 179.498 106.734C205.434 131.504 203.436 170.016 174.773 192.262C150.172 211.356 122.564 214.957 92.6234 206.495ZM122.203 151.268C124.362 158.233 126.509 165.202 128.683 172.163C130.623 178.378 134.583 182.295 141.356 182.116C149.996 181.888 158.661 181.579 167.249 180.673C172.677 180.1 176.233 176.397 177.445 171.02C178.541 166.154 179.382 161.215 180.031 156.269C181.232 147.114 180.506 146.061 171.659 142.732C160.465 138.521 149.005 138.659 137.789 141.956C125.834 145.471 114.204 145.564 102.458 141.568C100.575 140.928 98.6072 140.446 96.6393 140.159C85.9643 138.599 75.4204 138.439 65.2927 143.081C61.2684 144.925 58.7733 147.417 59.6195 152.274C60.6751 158.332 61.312 164.469 62.5023 170.498C63.5433 175.771 67.2289 179.245 72.3531 179.858C81.0919 180.904 89.9251 181.246 98.7297 181.629C104.863 181.895 108.753 178.602 110.605 172.898C112.608 166.725 114.519 160.521 116.377 154.303C117.173 151.637 118.113 149.459 122.203 151.268Z" fill="#5cc8ff"/>
-              <path d="M121.871 151.047C118.113 149.459 117.174 151.637 116.377 154.303C114.519 160.521 112.608 166.725 110.605 172.898C108.754 178.602 104.863 181.895 98.73 181.629C89.9253 181.246 81.0921 180.904 72.3533 179.858C67.2291 179.245 63.5435 175.771 62.5025 170.498C61.3123 164.469 60.6753 158.332 59.6197 152.274C58.7735 147.417 61.2686 144.925 65.2929 143.081C75.4207 138.439 85.9645 138.599 96.6395 140.159C98.6074 140.446 100.575 140.928 102.459 141.568C114.205 145.564 125.835 145.471 137.789 141.956C149.005 138.659 160.465 138.521 171.659 142.732C180.507 146.061 181.232 147.114 180.031 156.269C179.382 161.215 178.541 166.154 177.445 171.02C176.233 176.397 172.678 180.1 167.249 180.673C158.661 181.579 149.997 181.888 141.356 182.116C134.583 182.295 130.624 178.378 128.683 172.163C126.509 165.202 124.362 158.233 121.871 151.047Z" fill="white"/>
-              </svg>
-            </div>
-          </div>
-          <div class="ai-welcome-title">Let's Get to Work!</div>
-          <div class="ai-welcome-sub">Ask me anything about this file. I can research records, find heirs, update contacts, and make changes directly in Monday.</div>
-          <div class="ai-suggestions-list">
-            <div class="ai-sugg-label">Recommendations</div>
-            <button class="ai-sugg-item" onclick="sendSuggestion(this)">
-              <svg class="ai-sugg-arrow" width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1.5 1.5L14.5 8L1.5 14.5V9.5L10.5 8L1.5 6.5V1.5Z" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/></svg>
-              Summarize this deal
-            </button>
-            <button class="ai-sugg-item" onclick="sendSuggestion(this)">
-              <svg class="ai-sugg-arrow" width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1.5 1.5L14.5 8L1.5 14.5V9.5L10.5 8L1.5 6.5V1.5Z" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/></svg>
-              What are the next steps for this deal?
-            </button>
-            <button class="ai-sugg-item" onclick="sendSuggestion(this)">
-              <svg class="ai-sugg-arrow" width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1.5 1.5L14.5 8L1.5 14.5V9.5L10.5 8L1.5 6.5V1.5Z" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/></svg>
-              Draft a follow-up message
-            </button>
-            <button class="ai-sugg-item" onclick="sendSuggestion(this)">
-              <svg class="ai-sugg-arrow" width="13" height="13" viewBox="0 0 16 16" fill="none"><path d="M1.5 1.5L14.5 8L1.5 14.5V9.5L10.5 8L1.5 6.5V1.5Z" fill="currentColor" stroke="currentColor" stroke-width="0.5" stroke-linejoin="round"/></svg>
-              Identify acquisition risks
-            </button>
-          </div>
-          <div class="ai-welcome-input" id="aiWelcomeInput">
-            <div class="ai-input-row">
-              <textarea class="ai-textarea" id="aiTextareaWelcome" placeholder="Describe your task or ask a question…" rows="1"></textarea>
-              <button class="ai-send-btn" id="aiSendBtnWelcome">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-                  <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="aiTypingRow" style="display:none; padding: 0 18px 14px;">
-        <div class="ai-typing-container">
-          <div class="ai-typing-avatar-wrapper">
-            <div class="ai-typing-avatar">
-              <svg width="18" height="18" viewBox="0 0 242 244" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M34.6245 0.331647C35.9558 0.203393 37.2871 0.0751399 39.1122 0.103408C47.2888 3.65522 52.2308 8.74099 50.7695 17.9555C50.639 18.778 51.2272 19.8966 51.8042 20.6206C56.7653 26.8446 61.8007 33.0095 66.6497 38.9896C67.433 38.9303 67.7876 38.9876 68.0693 38.8702C102.307 24.6085 136.628 24.5515 171.045 38.2139C171.928 38.5646 173.503 39.127 173.767 38.7973C179.33 31.8737 187.611 25.4977 189.43 17.6416C191.419 9.04858 193.483 3.21049 201.967 0.57586C202.589 0.297833 203.212 0.019805 204.278 0C205.422 0.6664 206.082 1.32453 206.829 1.44425C214.664 2.7007 218.439 11.0236 217.546 16.5516C216.426 23.4799 211.363 27.9599 203.76 28.5388C202.384 28.6436 200.566 28.9298 199.783 29.8439C195.369 34.9984 191.208 40.3701 186.764 45.913C188.419 47.0509 189.762 47.982 191.113 48.9013C216.547 66.2094 233.663 89.1493 239.287 119.909C239.83 122.879 240.715 125.787 241.442 128.724C241.493 133.288 241.544 137.852 241.169 143.041C240.207 146.769 239.74 149.885 239.123 152.97C230.731 194.949 204.269 221.135 165.593 236.224C147.657 243.222 128.75 244.769 109.237 243.674C78.7212 240.534 52.3623 229.317 30.6983 207.742C14.4009 191.512 5.10104 171.712 0.46307 149.464C0.177125 141.51 -0.10882 133.555 0.0413631 125.006C0.78311 123.305 1.19849 122.216 1.37805 121.089C4.58765 100.95 12.8499 83.0936 26.9132 68.3957C34.9078 60.0404 44.1783 52.9061 53.261 44.8801C50.4226 41.3192 47.0215 37.0408 43.6051 32.7746C42.7725 31.7348 42.0403 30.5215 40.9865 29.7787C39.9952 29.08 38.6625 28.6327 37.4418 28.53C28.9982 27.8197 24.1184 23.5141 23.2852 15.8741C22.5539 9.16741 27.4909 2.40031 34.6245 0.331647ZM93.0005 206.623C122.564 214.957 150.172 211.356 174.773 192.262C203.436 170.016 205.434 131.504 179.498 106.734C176.798 104.155 173.454 102.25 170.408 100.033C171.768 106.043 174.143 111.081 175.823 116.34C177.526 121.67 175.525 125.482 171.113 126.792C166.817 128.066 163.366 125.86 161.581 120.435C158.37 110.672 152.954 102.461 144.757 96.1976C136.555 89.9294 127.301 86.418 116.511 86.0587C121.002 93.5672 125.84 100.676 131.049 107.504C133.249 110.388 135.139 113.517 133.064 116.509C131.488 118.779 128.299 120.813 125.56 121.24C114.158 123.021 102.822 121.849 92.3659 116.908C85.2199 113.53 78.6858 108.858 71.5011 104.538C66.767 108.672 67.6283 114.019 69.2405 119.714C70.6256 124.607 68.8265 127.983 64.7086 129.375C60.8982 130.664 56.9238 128.689 55.0623 124.416C54.1675 122.362 53.5561 120.184 52.7354 117.83C40.319 132.831 40.1698 159.177 51.9982 176.736C61.8923 191.424 75.6077 200.868 93.0005 206.623Z" fill="#0284c7"/>
-                <path d="M121.871 151.047C118.113 149.459 117.174 151.637 116.377 154.303C114.519 160.521 112.608 166.725 110.605 172.898C108.754 178.602 104.863 181.895 98.73 181.629C89.9253 181.246 81.0921 180.904 72.3533 179.858C67.2291 179.245 63.5435 175.771 62.5025 170.498C61.3123 164.469 60.6753 158.332 59.6197 152.274C58.7735 147.417 61.2686 144.925 65.2929 143.081C75.4207 138.439 85.9645 138.599 96.6395 140.159C98.6074 140.446 100.575 140.928 102.459 141.568C114.205 145.564 125.835 145.471 137.789 141.956C149.005 138.659 160.465 138.521 171.659 142.732C180.507 146.061 181.232 147.114 180.031 156.269C179.382 161.215 178.541 166.154 177.445 171.02C176.233 176.397 172.678 180.1 167.249 180.673C158.661 181.579 149.997 181.888 141.356 182.116C134.583 182.295 130.624 178.378 128.683 172.163C126.509 165.202 124.362 158.233 121.871 151.047Z" fill="#0284c7"/>
-              </svg>
-            </div>
-          </div>
-          <div class="ai-typing-skeleton">
-            <div class="ai-skeleton-bar"></div>
-            <div class="ai-skeleton-bar"></div>
-            <div class="ai-skeleton-bar"></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="ai-input-area" id="aiInputArea">
-        <div class="ai-input-row">
-          <textarea class="ai-textarea" id="aiTextarea" placeholder="Describe your task or ask a question…" rows="1"></textarea>
-          <button class="ai-send-btn" id="aiSendBtn">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
-              <path d="M22 2L11 13" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M22 2L15 22L11 13L2 9L22 2Z" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </button>
-        </div>
       </div>
     </div>
 
   </div>
 
   <script>
-    const LOAD_WEBHOOK_URL = "https://hook.us1.make.com/3spufybkajebciu4vjz51fcuwlncm0e8";
-    const MAKE_WEBHOOK_URL = "https://hook.us1.make.com/wfh5ezjw929dnmyaeu8zlnt1uwl6ewkn";
+    const LOAD_WEBHOOK_URL  = "https://hook.us1.make.com/3spufybkajebciu4vjz51fcuwlncm0e8";
+    const MAKE_WEBHOOK_URL  = "https://hook.us1.make.com/wfh5ezjw929dnmyaeu8zlnt1uwl6ewkn";
     const NOTES_WEBHOOK_URL = "https://hook.us1.make.com/av1u6ziybzlgjmptgr8kvunv1goto9dy";
 
     function escapeHtml(str) {
@@ -991,12 +457,21 @@
       return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     }
 
+
+    const DEMO_SRC = { contact_name:"KIRKLAND JUDY KAY", conv_date:"2026-09-05",
+      lead_status:"INTERESTED", owner_status:"DECEASED",
+      key_points:["Spoke with Sharon Kirkland (daughter). She confirmed Judy passed in March 2024 and that no probate has been filed.",
+        "Sharon named four surviving children as heirs: herself, Michael, Dana, and Raymond. Two live out of state.",
+        "She is open to selling but wants her siblings on the call before anything is signed.",
+        "Deed pulled from Dallas County shows Judy as sole grantee \u2014 1998 warranty deed, no co-owner listed.",
+        "Taxes current through 2025. Roof damage from the June storm is still unrepaired."]};
+
     let src = {};
 
     function renderAll() {
       // Record header
       const nameEl = document.getElementById('contactName');
-      nameEl.textContent = src.contact_name || '—';
+      nameEl.textContent = toTitleCase(src.contact_name || '') || '—';
       nameEl.href = src.contact_url || src.item_url || '#';
 
       const dateStr = fmtDate(src.conv_date);
@@ -1013,48 +488,19 @@
         : kpRaw.split('|').map(s => s.trim()).filter(Boolean);
 
       if (kp.length) {
-        document.getElementById('keyPointsSection').style.display = '';
-        document.getElementById('noDataState').style.display      = 'none';
-        document.getElementById('keyPointsList').innerHTML = kp.map(p => `<li>${escapeHtml(p)}</li>`).join('');
+        const section = document.getElementById('keyPointsSection');
+        section.style.display = '';
+        document.getElementById('noDataState').style.display = 'none';
+        document.getElementById('keyPointsList').innerHTML =
+          kp.map((p, i) => `<li style="--i:${i}">${escapeHtml(p)}</li>`).join('');
+        section.classList.add('arrived');
       } else {
         document.getElementById('keyPointsSection').style.display = 'none';
-        document.getElementById('noDataState').style.display      = '';
-      }
-
-    }
-
-    async function loadDealData() {
-      const raw    = window.location.search.replace('?', '');
-      const params = new URLSearchParams(window.location.search);
-      let item_id  = params.get('item_id') || params.get('pulseId') || null;
-      let board_id = params.get('board_id') || params.get('boardId') || '';
-
-      if (!item_id) { const m = raw.match(/(\d+)\/pulses\/(\d+)/);  if (m) { board_id=m[1]; item_id=m[2]; } }
-      if (!item_id) { const m = raw.match(/(\d+)\/item_id=(\d+)/);  if (m) { board_id=m[1]; item_id=m[2]; } }
-      if (!item_id) { const m = raw.match(/(\d+)\/(\d+)/);          if (m) { board_id=m[1]; item_id=m[2]; } }
-
-      if (!item_id) { src = {}; renderAll(); return; }
-
-      try {
-        const res = await fetch(LOAD_WEBHOOK_URL, {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ item_id, board_id })
-        });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const text = await res.text();
-        try {
-          src = JSON.parse(text);
-        } catch(parseErr) {
-          src = {}; renderAll(); return;
-        }
-        // Always stamp item_id and board_id from URL — never trust webhook to return them
-        src.item_id  = item_id;
-        src.board_id = board_id;
-        renderAll();
-      } catch(err) {
-        src = { item_id, board_id }; renderAll();
+        document.getElementById('noDataState').style.display      = 'block';
       }
     }
+
+    async function loadDealData(){ await new Promise(r=>setTimeout(r,500)); src=DEMO_SRC; renderAll(); }
 
     function showSuccess(msg) {
       document.getElementById('successText').textContent = msg;
@@ -1077,222 +523,6 @@
       ov.classList.add('hidden');
       setTimeout(() => ov.remove(), 400);
     });
-
-    // ── AI ASSISTANT ──────────────────────────────────────────────
-    const aiPanel    = document.getElementById('aiPanel');
-    const aiBackdrop = document.getElementById('aiBackdrop');
-    const aiMessages = document.getElementById('aiMessages');
-    const aiWelcome  = document.getElementById('aiWelcome');
-    const aiTextarea = document.getElementById('aiTextarea');
-    const aiSendBtn  = document.getElementById('aiSendBtn');
-    const aiTypingRow = document.getElementById('aiTypingRow');
-
-    const aiTriggerBtn = document.getElementById('aiTriggerBtn');
-    if (aiTriggerBtn) {
-      aiTriggerBtn.addEventListener('click', () => {
-        aiPanel.classList.add('open');
-        aiBackdrop.classList.add('show');
-        aiTextarea.focus();
-      });
-    }
-
-    function closeAiPanel() {
-      aiPanel.classList.remove('open');
-      aiBackdrop.classList.remove('show');
-    }
-
-    document.getElementById('aiCloseBtn').addEventListener('click', closeAiPanel);
-    aiBackdrop.addEventListener('click', closeAiPanel);
-
-    function sendSuggestion(btn) {
-      const text = btn.innerText.trim();
-      aiTextarea.value = text;
-      switchToChat();
-      sendAiMessage();
-    }
-
-    function formatReply(text) {
-      // Escape HTML first
-      let s = text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-      // Convert **bold** markdown
-      s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-      // Convert bare URLs to clickable "Link" anchors
-      s = s.replace(/(https?:\/\/[^\s<>"]+)/g, (url) => {
-        return `<a href="${url}" target="_blank" rel="noopener noreferrer" style="color:var(--blue);font-weight:600;text-decoration:underline;">Link</a>`;
-      });
-
-      // Convert newlines to line breaks
-      s = s.replace(/\n/g, '<br>');
-
-      return `<p style="word-break:break-word;overflow-wrap:break-word;">${s}</p>`;
-    }
-
-    function appendMessage(role, html) {
-      const existing = aiMessages.querySelector('.ai-welcome');
-      if (existing) existing.remove();
-
-      const wrap = document.createElement('div');
-      wrap.className = `ai-msg ${role}`;
-
-      const label = document.createElement('div');
-      label.className = 'ai-msg-label';
-      label.textContent = role === 'user' ? 'You' : 'FUTURISTIC';
-
-      const bubble = document.createElement('div');
-      bubble.className = 'ai-msg-bubble';
-      bubble.innerHTML = html;
-
-      wrap.appendChild(label);
-      wrap.appendChild(bubble);
-      aiMessages.appendChild(wrap);
-      aiMessages.scrollTop = aiMessages.scrollHeight;
-    }
-
-    function showTyping(show) {
-      aiTypingRow.style.display = show ? 'block' : 'none';
-      if (show) {
-        aiMessages.appendChild(aiTypingRow);
-        aiMessages.scrollTop = aiMessages.scrollHeight;
-      }
-    }
-
-    const AI_WEBHOOK_URL = "https://hook.us1.make.com/k1gp61jkn9a4an2y2x0fl6q1qmbjup9k";
-
-    // ── SECURITY ─────────────────────────────────────────────────────────
-    // The AI section is locked unless both item_id and board_id are present
-    // in the URL query string (e.g. ?item_id=11830064739&board_id=9193383085).
-    // This prevents unauthenticated scrapers or random visitors who find the
-    // public GitHub link from sending messages to the AI / triggering the Make
-    // webhook. Further server-side checks can be added in Make.com as needed.
-
-    function isValidSession() {
-      const _params   = new URLSearchParams(window.location.search);
-      const _item_id  = _params.get('item_id')  || _params.get('pulseId')  || src.item_id  || null;
-      const _board_id = _params.get('board_id') || _params.get('boardId') || src.board_id || null;
-      return Boolean(_item_id && _board_id);
-    }
-
-    async function sendAiMessage() {
-      const text = aiTextarea.value.trim();
-      if (!text) return;
-
-      // ── Security gate: block AI if item_id + board_id are not in URL ──
-      if (!isValidSession()) {
-        appendMessage('assistant', '<p>Access restricted. This assistant is only available when opened from a Monday.com item.</p>');
-        return;
-      }
-
-      aiTextarea.value = '';
-      aiTextarea.style.height = 'auto';
-      aiSendBtn.disabled = true;
-
-      appendMessage('user', `<p>${escapeHtml(text)}</p>`);
-      showTyping(true);
-
-      // Always read from URL directly as the most reliable source
-      const _params   = new URLSearchParams(window.location.search);
-      const _item_id  = src.item_id  || _params.get('item_id')  || _params.get('pulseId')  || null;
-      const _board_id = src.board_id || _params.get('board_id') || _params.get('boardId') || null;
-
-      const payload = {
-        message:      text,
-        item_id:      _item_id,
-        board_id:     _board_id,
-        contact_name: src.contact_name || null,
-        deal_name:    src.deal_name    || null,
-        timestamp:    new Date().toISOString()
-      };
-      console.log('src object:', JSON.stringify(src));
-      console.log('URL params:', window.location.search);
-      console.log('Futuristic payload:', JSON.stringify(payload));
-
-      const startTime = Date.now();
-
-      fetch(AI_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      })
-      .then(res => res.text())
-      .then(text => {
-        let reply;
-        try {
-          const data = JSON.parse(text);
-          reply = data.response || data.message || data.content || data.text || JSON.stringify(data);
-        } catch {
-          reply = text;
-        }
-        
-        const minDelay = 1500;
-        const elapsedTime = Date.now() - startTime;
-        const remainingDelay = Math.max(0, minDelay - elapsedTime);
-
-        setTimeout(() => {
-          showTyping(false);
-          const formatted = formatReply(reply);
-          appendMessage('assistant', formatted);
-          aiSendBtn.disabled = false;
-        }, remainingDelay);
-      })
-      .catch(err => {
-        showTyping(false);
-        appendMessage('assistant', `<p>Something went wrong. Please try again.</p>`);
-        aiSendBtn.disabled = false;
-        console.error('Futuristic webhook error:', err);
-      });
-    }
-
-    aiSendBtn.addEventListener('click', sendAiMessage);
-    aiTextarea.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAiMessage(); }
-    });
-    aiTextarea.addEventListener('input', () => {
-      aiTextarea.style.height = 'auto';
-      aiTextarea.style.height = aiTextarea.scrollHeight + 'px';
-    });
-
-
-
-
-    // Wire welcome input
-    document.getElementById('aiSendBtnWelcome').addEventListener('click', () => {
-      const ta = document.getElementById('aiTextareaWelcome');
-      const text = ta.value.trim();
-      if (!text) return;
-      document.getElementById('aiTextarea').value = text;
-      ta.value = '';
-      switchToChat();
-      // Security check before sending
-      if (!isValidSession()) {
-        appendMessage('assistant', '<p>Access restricted. This assistant is only available when opened from a Monday.com item.</p>');
-        return;
-      }
-      sendAiMessage();
-    });
-    document.getElementById('aiTextareaWelcome').addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        document.getElementById('aiSendBtnWelcome').click();
-      }
-    });
-    document.getElementById('aiTextareaWelcome').addEventListener('input', function() {
-      this.style.height = 'auto';
-      this.style.height = this.scrollHeight + 'px';
-    });
-
-    function switchToChat() {
-      document.getElementById('aiWelcomeInput').style.display = 'none';
-      const inputArea = document.getElementById('aiInputArea');
-      inputArea.style.display = 'block';
-      inputArea.classList.add('visible');
-      document.getElementById('aiTextarea').focus();
-    }
-
   </script>
 </body>
 </html>
