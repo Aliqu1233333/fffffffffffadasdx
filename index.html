@@ -220,10 +220,14 @@
       position: relative;
       overflow: hidden;
       background: #f0f7ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 10px;
-      padding: 16px 18px 17px;
-      box-shadow: 0 1px 2px rgba(1,118,211,.06), 0 6px 16px -12px rgba(3,45,96,.18);
+      border: 1px solid #c6ddf7;
+      border-radius: 12px;
+      padding: 0;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.9),
+        0 1px 2px rgba(3,45,96,.07),
+        0 5px 12px -6px rgba(3,45,96,.16),
+        0 22px 40px -24px rgba(3,45,96,.40);
     }
 
     /* A single light sweep as the summary arrives — the only flourish on the page */
@@ -237,6 +241,7 @@
       transform: translateX(-115%);
       pointer-events: none;
       animation: kpSweep 1.35s var(--ease) .08s 1 forwards;
+      border-radius: 12px;
     }
     @keyframes kpSweep{ to{ transform: translateX(115%); } }
 
@@ -249,20 +254,24 @@
       100%{ transform: scale(1); opacity: 1; }
     }
     .key-points-header{
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13.5px; font-weight: 700;
+      display: flex; align-items: center; gap: 9px;
+      font-size: 14.5px; font-weight: 700;
       color: var(--sf-blue);
       letter-spacing: 0.01em;
-      padding-bottom: 12px;
-      margin-bottom: 13px;
-      border-bottom: 1px solid #cfe3f8;
+      background: #ffffff;
+      border-bottom: 1px solid #dbeafe;
+      padding: 14px 18px 13px;
     }
     .key-points-icon{
-      color: var(--blue);
-      font-size: 16px; line-height: 1;
-      flex-shrink: 0;
+      display: flex; align-items: center;
+      flex-shrink: 0; line-height: 1;
+      filter: drop-shadow(0 1px 2px rgba(1,118,211,.28));
     }
-    .key-points-list{ margin: 0; padding: 0; list-style: none; }
+    .key-points-list{
+      margin: 0; padding: 16px 18px 17px; list-style: none;
+      background: linear-gradient(180deg, #eaf4ff 0%, #f2f8ff 100%);
+      box-shadow: inset 0 3px 6px -4px rgba(3,45,96,.20);
+    }
     .key-points-list li{
       position: relative;
       font-size: 15.5px;
@@ -276,8 +285,9 @@
     .key-points-list li::before{
       content: "";
       position: absolute; left: 2px; top: .66em;
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--blue);
+      width: 6.5px; height: 6.5px; border-radius: 50%;
+      background: radial-gradient(circle at 32% 28%, #7cc4ff 0%, #1b96ff 48%, #0166ba 100%);
+      box-shadow: 0 1px 1.5px rgba(3,45,96,.30);
     }
     @keyframes pointIn{
       from{ opacity: 0; transform: translateY(4px); }
@@ -383,7 +393,23 @@
 
         <div class="key-points-section" id="keyPointsSection">
           <div class="key-points-header">
-            <span class="key-points-icon">★</span>
+            <span class="key-points-icon">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <defs>
+                  <linearGradient id="sparkMain" x1="4" y1="3" x2="20" y2="21" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#5CC8FF"/>
+                    <stop offset="0.55" stop-color="#1B96FF"/>
+                    <stop offset="1" stop-color="#0176D3"/>
+                  </linearGradient>
+                  <linearGradient id="sparkSmall" x1="17" y1="2" x2="23" y2="8" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#9BDCFF"/>
+                    <stop offset="1" stop-color="#1B96FF"/>
+                  </linearGradient>
+                </defs>
+                <path d="M10.4 2.9l1.5 4.1a2.6 2.6 0 0 0 1.6 1.6l4.1 1.5-4.1 1.5a2.6 2.6 0 0 0-1.6 1.6l-1.5 4.1-1.5-4.1a2.6 2.6 0 0 0-1.6-1.6L3.3 10.1l4.1-1.5a2.6 2.6 0 0 0 1.6-1.6l1.4-4.1z" fill="url(#sparkMain)"/>
+                <path d="M18.4 14.2l.7 1.9 1.9.7-1.9.7-.7 1.9-.7-1.9-1.9-.7 1.9-.7.7-1.9z" fill="url(#sparkSmall)"/>
+              </svg>
+            </span>
             <span>Key Conversation Points</span>
           </div>
           <ul class="key-points-list" id="keyPointsList">
@@ -457,15 +483,6 @@
       return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     }
 
-
-    const DEMO_SRC = { contact_name:"KIRKLAND JUDY KAY", conv_date:"2026-09-05",
-      lead_status:"INTERESTED", owner_status:"DECEASED",
-      key_points:["Spoke with Sharon Kirkland (daughter). She confirmed Judy passed in March 2024 and that no probate has been filed.",
-        "Sharon named four surviving children as heirs: herself, Michael, Dana, and Raymond. Two live out of state.",
-        "She is open to selling but wants her siblings on the call before anything is signed.",
-        "Deed pulled from Dallas County shows Judy as sole grantee \u2014 1998 warranty deed, no co-owner listed.",
-        "Taxes current through 2025. Roof damage from the June storm is still unrepaired."]};
-
     let src = {};
 
     function renderAll() {
@@ -500,7 +517,38 @@
       }
     }
 
-    async function loadDealData(){ await new Promise(r=>setTimeout(r,500)); src=DEMO_SRC; renderAll(); }
+    async function loadDealData() {
+      const raw    = window.location.search.replace('?', '');
+      const params = new URLSearchParams(window.location.search);
+      let item_id  = params.get('item_id') || params.get('pulseId') || null;
+      let board_id = params.get('board_id') || params.get('boardId') || '';
+
+      if (!item_id) { const m = raw.match(/(\d+)\/pulses\/(\d+)/);  if (m) { board_id=m[1]; item_id=m[2]; } }
+      if (!item_id) { const m = raw.match(/(\d+)\/item_id=(\d+)/);  if (m) { board_id=m[1]; item_id=m[2]; } }
+      if (!item_id) { const m = raw.match(/(\d+)\/(\d+)/);          if (m) { board_id=m[1]; item_id=m[2]; } }
+
+      if (!item_id) { src = {}; renderAll(); return; }
+
+      try {
+        const res = await fetch(LOAD_WEBHOOK_URL, {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ item_id, board_id })
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const text = await res.text();
+        try {
+          src = JSON.parse(text);
+        } catch(parseErr) {
+          src = {}; renderAll(); return;
+        }
+        // Always stamp item_id and board_id from URL — never trust webhook to return them
+        src.item_id  = item_id;
+        src.board_id = board_id;
+        renderAll();
+      } catch(err) {
+        src = { item_id, board_id }; renderAll();
+      }
+    }
 
     function showSuccess(msg) {
       document.getElementById('successText').textContent = msg;
